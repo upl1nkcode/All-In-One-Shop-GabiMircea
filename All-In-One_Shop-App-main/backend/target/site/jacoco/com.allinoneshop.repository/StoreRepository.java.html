@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>StoreRepository.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">AllInOne Shop API</a> &gt; <a href="index.source.html" class="el_package">com.allinoneshop.repository</a> &gt; <span class="el_source">StoreRepository.java</span></div><h1>StoreRepository.java</h1><pre class="source lang-java linenums">package com.allinoneshop.repository;
+
+import com.allinoneshop.entity.Store;
+import org.springframework.stereotype.Repository;
+
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+
+@Repository
+<span class="fc" id="L10">public class StoreRepository {</span>
+
+<span class="fc" id="L12">    private final ConcurrentHashMap&lt;UUID, Store&gt; store = new ConcurrentHashMap&lt;&gt;();</span>
+
+    public Store save(Store entity) {
+<span class="fc bfc" id="L15" title="All 2 branches covered.">        if (entity.getId() == null) {</span>
+<span class="fc" id="L16">            entity.setId(UUID.randomUUID());</span>
+<span class="fc" id="L17">            entity.setCreatedAt(java.time.OffsetDateTime.now());</span>
+        }
+<span class="fc" id="L19">        entity.setUpdatedAt(java.time.OffsetDateTime.now());</span>
+<span class="fc" id="L20">        store.put(entity.getId(), entity);</span>
+<span class="fc" id="L21">        return entity;</span>
+    }
+
+    public Optional&lt;Store&gt; findById(UUID id) {
+<span class="fc" id="L25">        return Optional.ofNullable(store.get(id));</span>
+    }
+
+    public Optional&lt;Store&gt; findByName(String name) {
+<span class="fc" id="L29">        return store.values().stream()</span>
+<span class="pc" id="L30">                .filter(s -&gt; name.equalsIgnoreCase(s.getName()))</span>
+<span class="fc" id="L31">                .findFirst();</span>
+    }
+
+    public List&lt;Store&gt; findAll() {
+<span class="fc" id="L35">        return new ArrayList&lt;&gt;(store.values());</span>
+    }
+
+    public void deleteById(UUID id) {
+<span class="fc" id="L39">        store.remove(id);</span>
+<span class="fc" id="L40">    }</span>
+
+    public long count() {
+<span class="fc" id="L43">        return store.size();</span>
+    }
+
+    public void clear() {
+<span class="nc" id="L47">        store.clear();</span>
+<span class="nc" id="L48">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

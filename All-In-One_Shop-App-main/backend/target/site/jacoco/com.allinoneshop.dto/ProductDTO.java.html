@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ProductDTO.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">AllInOne Shop API</a> &gt; <a href="index.source.html" class="el_package">com.allinoneshop.dto</a> &gt; <span class="el_source">ProductDTO.java</span></div><h1>ProductDTO.java</h1><pre class="source lang-java linenums">package com.allinoneshop.dto;
+
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+import lombok.*;
+
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.UUID;
+
+<span class="pc bnc" id="L11" title="All 118 branches missed.">@Data</span>
+<span class="fc" id="L12">@NoArgsConstructor</span>
+<span class="fc" id="L13">@AllArgsConstructor</span>
+<span class="pc" id="L14">@Builder</span>
+public class ProductDTO {
+<span class="fc" id="L16">    private UUID id;</span>
+
+    @NotBlank(message = &quot;Product name is required&quot;)
+    @Size(min = 1, max = 500, message = &quot;Product name must be between 1 and 500 characters&quot;)
+<span class="fc" id="L20">    private String name;</span>
+
+    @Size(max = 5000, message = &quot;Description cannot exceed 5000 characters&quot;)
+<span class="fc" id="L23">    private String description;</span>
+
+    @Size(max = 500, message = &quot;Image URL cannot exceed 500 characters&quot;)
+<span class="fc" id="L26">    private String imageUrl;</span>
+
+<span class="nc" id="L28">    private String[] additionalImages;</span>
+<span class="fc" id="L29">    private String[] sizes;</span>
+<span class="fc" id="L30">    private String[] colors;</span>
+<span class="fc" id="L31">    private String gender;</span>
+<span class="fc" id="L32">    private Boolean isActive;</span>
+<span class="fc" id="L33">    private UUID brandId;</span>
+<span class="fc" id="L34">    private UUID categoryId;</span>
+<span class="fc" id="L35">    private BrandDTO brand;</span>
+<span class="fc" id="L36">    private CategoryDTO category;</span>
+<span class="nc" id="L37">    private List&lt;ProductPriceDTO&gt; prices;</span>
+<span class="nc" id="L38">    private BigDecimal lowestPrice;</span>
+<span class="nc" id="L39">    private BigDecimal highestPrice;</span>
+<span class="fc" id="L40">    private int storeCount;</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

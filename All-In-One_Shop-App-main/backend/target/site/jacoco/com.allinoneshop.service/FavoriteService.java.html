@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FavoriteService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">AllInOne Shop API</a> &gt; <a href="index.source.html" class="el_package">com.allinoneshop.service</a> &gt; <span class="el_source">FavoriteService.java</span></div><h1>FavoriteService.java</h1><pre class="source lang-java linenums">package com.allinoneshop.service;
+
+import com.allinoneshop.dto.*;
+import com.allinoneshop.entity.*;
+import com.allinoneshop.repository.*;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.util.*;
+import java.util.stream.Collectors;
+
+@Service
+<span class="fc" id="L14">@RequiredArgsConstructor</span>
+public class FavoriteService {
+
+    private final FavoriteRepository favoriteRepository;
+    private final ProductRepository productRepository;
+    private final UserRepository userRepository;
+
+    public List&lt;ProductDTO&gt; getUserFavorites(UUID userId) {
+<span class="fc" id="L22">        return favoriteRepository.findByUserIdWithProducts(userId).stream()</span>
+<span class="fc" id="L23">                .map(favorite -&gt; convertToDTO(favorite.getProduct()))</span>
+<span class="fc" id="L24">                .collect(Collectors.toList());</span>
+    }
+
+    public void addFavorite(UUID userId, UUID productId) {
+<span class="fc bfc" id="L28" title="All 2 branches covered.">        if (favoriteRepository.existsByUserIdAndProductId(userId, productId)) {</span>
+<span class="fc" id="L29">            throw new RuntimeException(&quot;Product already in favorites&quot;);</span>
+        }
+
+<span class="fc" id="L32">        User user = userRepository.findById(userId)</span>
+<span class="fc" id="L33">                .orElseThrow(() -&gt; new RuntimeException(&quot;User not found&quot;));</span>
+
+<span class="fc" id="L35">        Product product = productRepository.findById(productId)</span>
+<span class="fc" id="L36">                .orElseThrow(() -&gt; new RuntimeException(&quot;Product not found&quot;));</span>
+
+<span class="fc" id="L38">        Favorite favorite = Favorite.builder()</span>
+<span class="fc" id="L39">                .user(user)</span>
+<span class="fc" id="L40">                .product(product)</span>
+<span class="fc" id="L41">                .build();</span>
+
+<span class="fc" id="L43">        favoriteRepository.save(favorite);</span>
+<span class="fc" id="L44">    }</span>
+
+    public void removeFavorite(UUID userId, UUID productId) {
+<span class="fc" id="L47">        favoriteRepository.deleteByUserIdAndProductId(userId, productId);</span>
+<span class="fc" id="L48">    }</span>
+
+    public boolean isFavorite(UUID userId, UUID productId) {
+<span class="fc" id="L51">        return favoriteRepository.existsByUserIdAndProductId(userId, productId);</span>
+    }
+
+    public Set&lt;UUID&gt; getFavoriteProductIds(UUID userId) {
+<span class="fc" id="L55">        return favoriteRepository.findByUserId(userId).stream()</span>
+<span class="fc" id="L56">                .map(f -&gt; f.getProduct().getId())</span>
+<span class="fc" id="L57">                .collect(Collectors.toSet());</span>
+    }
+
+    private ProductDTO convertToDTO(Product product) {
+<span class="fc" id="L61">        List&lt;ProductPriceDTO&gt; priceDTOs = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L62">        BigDecimal lowestPrice = null;</span>
+<span class="fc" id="L63">        BigDecimal highestPrice = null;</span>
+
+<span class="pc bpc" id="L65" title="2 of 4 branches missed.">        if (product.getPrices() != null &amp;&amp; !product.getPrices().isEmpty()) {</span>
+<span class="nc" id="L66">            priceDTOs = product.getPrices().stream()</span>
+<span class="nc" id="L67">                    .map(this::convertPriceToDTO)</span>
+<span class="nc" id="L68">                    .sorted(Comparator.comparing(ProductPriceDTO::getPrice))</span>
+<span class="nc" id="L69">                    .collect(Collectors.toList());</span>
+
+<span class="nc" id="L71">            lowestPrice = priceDTOs.get(0).getPrice();</span>
+<span class="nc" id="L72">            highestPrice = priceDTOs.get(priceDTOs.size() - 1).getPrice();</span>
+        }
+
+<span class="fc" id="L75">        return ProductDTO.builder()</span>
+<span class="fc" id="L76">                .id(product.getId())</span>
+<span class="fc" id="L77">                .name(product.getName())</span>
+<span class="fc" id="L78">                .description(product.getDescription())</span>
+<span class="fc" id="L79">                .imageUrl(product.getImageUrl())</span>
+<span class="fc" id="L80">                .additionalImages(product.getAdditionalImages())</span>
+<span class="fc" id="L81">                .sizes(product.getSizes())</span>
+<span class="fc" id="L82">                .colors(product.getColors())</span>
+<span class="pc bpc" id="L83" title="1 of 2 branches missed.">                .brand(product.getBrand() != null ? BrandDTO.builder()</span>
+<span class="nc" id="L84">                        .id(product.getBrand().getId())</span>
+<span class="nc" id="L85">                        .name(product.getBrand().getName())</span>
+<span class="nc" id="L86">                        .logoUrl(product.getBrand().getLogoUrl())</span>
+<span class="pc" id="L87">                        .build() : null)</span>
+<span class="pc bpc" id="L88" title="1 of 2 branches missed.">                .category(product.getCategory() != null ? CategoryDTO.builder()</span>
+<span class="nc" id="L89">                        .id(product.getCategory().getId())</span>
+<span class="nc" id="L90">                        .name(product.getCategory().getName())</span>
+<span class="nc" id="L91">                        .slug(product.getCategory().getSlug())</span>
+<span class="pc" id="L92">                        .build() : null)</span>
+<span class="fc" id="L93">                .prices(priceDTOs)</span>
+<span class="fc" id="L94">                .lowestPrice(lowestPrice)</span>
+<span class="fc" id="L95">                .highestPrice(highestPrice)</span>
+<span class="fc" id="L96">                .storeCount(priceDTOs.size())</span>
+<span class="fc" id="L97">                .build();</span>
+    }
+
+    private ProductPriceDTO convertPriceToDTO(ProductPrice price) {
+<span class="nc" id="L101">        BigDecimal savings = null;</span>
+<span class="nc bnc" id="L102" title="All 2 branches missed.">        if (price.getOriginalPrice() != null) {</span>
+<span class="nc" id="L103">            savings = price.getOriginalPrice().subtract(price.getPrice());</span>
+        }
+
+<span class="nc" id="L106">        return ProductPriceDTO.builder()</span>
+<span class="nc" id="L107">                .id(price.getId())</span>
+<span class="nc" id="L108">                .store(StoreDTO.builder()</span>
+<span class="nc" id="L109">                        .id(price.getStore().getId())</span>
+<span class="nc" id="L110">                        .name(price.getStore().getName())</span>
+<span class="nc" id="L111">                        .website(price.getStore().getWebsite())</span>
+<span class="nc" id="L112">                        .logoUrl(price.getStore().getLogoUrl())</span>
+<span class="nc" id="L113">                        .build())</span>
+<span class="nc" id="L114">                .price(price.getPrice())</span>
+<span class="nc" id="L115">                .originalPrice(price.getOriginalPrice())</span>
+<span class="nc" id="L116">                .currency(price.getCurrency())</span>
+<span class="nc" id="L117">                .productUrl(price.getProductUrl())</span>
+<span class="nc" id="L118">                .inStock(price.getInStock())</span>
+<span class="nc" id="L119">                .savings(savings)</span>
+<span class="nc" id="L120">                .build();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FavoriteRepository.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">AllInOne Shop API</a> &gt; <a href="index.source.html" class="el_package">com.allinoneshop.repository</a> &gt; <span class="el_source">FavoriteRepository.java</span></div><h1>FavoriteRepository.java</h1><pre class="source lang-java linenums">package com.allinoneshop.repository;
+
+import com.allinoneshop.entity.Favorite;
+import org.springframework.stereotype.Repository;
+
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
+
+@Repository
+<span class="fc" id="L11">public class FavoriteRepository {</span>
+
+<span class="fc" id="L13">    private final ConcurrentHashMap&lt;UUID, Favorite&gt; store = new ConcurrentHashMap&lt;&gt;();</span>
+
+    public Favorite save(Favorite favorite) {
+<span class="pc bpc" id="L16" title="1 of 2 branches missed.">        if (favorite.getId() == null) {</span>
+<span class="fc" id="L17">            favorite.setId(UUID.randomUUID());</span>
+<span class="fc" id="L18">            favorite.setCreatedAt(java.time.OffsetDateTime.now());</span>
+        }
+<span class="fc" id="L20">        store.put(favorite.getId(), favorite);</span>
+<span class="fc" id="L21">        return favorite;</span>
+    }
+
+    public Optional&lt;Favorite&gt; findById(UUID id) {
+<span class="nc" id="L25">        return Optional.ofNullable(store.get(id));</span>
+    }
+
+    public List&lt;Favorite&gt; findAll() {
+<span class="nc" id="L29">        return new ArrayList&lt;&gt;(store.values());</span>
+    }
+
+    public List&lt;Favorite&gt; findByUserId(UUID userId) {
+<span class="fc" id="L33">        return store.values().stream()</span>
+<span class="pc bpc" id="L34" title="2 of 4 branches missed.">                .filter(f -&gt; f.getUser() != null &amp;&amp; userId.equals(f.getUser().getId()))</span>
+<span class="fc" id="L35">                .collect(Collectors.toList());</span>
+    }
+
+    public List&lt;Favorite&gt; findByUserIdWithProducts(UUID userId) {
+<span class="fc" id="L39">        return findByUserId(userId);</span>
+    }
+
+    public boolean existsByUserIdAndProductId(UUID userId, UUID productId) {
+<span class="fc" id="L43">        return store.values().stream()</span>
+<span class="pc bpc" id="L44" title="2 of 4 branches missed.">                .anyMatch(f -&gt; f.getUser() != null &amp;&amp; userId.equals(f.getUser().getId())</span>
+<span class="pc bpc" id="L45" title="1 of 4 branches missed.">                        &amp;&amp; f.getProduct() != null &amp;&amp; productId.equals(f.getProduct().getId()));</span>
+    }
+
+    public void deleteByUserIdAndProductId(UUID userId, UUID productId) {
+<span class="fc" id="L49">        store.values().removeIf(f -&gt;</span>
+<span class="pc bpc" id="L50" title="2 of 4 branches missed.">                f.getUser() != null &amp;&amp; userId.equals(f.getUser().getId())</span>
+<span class="pc bpc" id="L51" title="2 of 4 branches missed.">                        &amp;&amp; f.getProduct() != null &amp;&amp; productId.equals(f.getProduct().getId()));</span>
+<span class="fc" id="L52">    }</span>
+
+    public void deleteById(UUID id) {
+<span class="nc" id="L55">        store.remove(id);</span>
+<span class="nc" id="L56">    }</span>
+
+    public long count() {
+<span class="fc" id="L59">        return store.size();</span>
+    }
+
+    public void clear() {
+<span class="nc" id="L63">        store.clear();</span>
+<span class="nc" id="L64">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

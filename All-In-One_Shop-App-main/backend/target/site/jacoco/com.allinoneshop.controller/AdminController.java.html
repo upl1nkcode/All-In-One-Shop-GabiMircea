@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AdminController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">AllInOne Shop API</a> &gt; <a href="index.source.html" class="el_package">com.allinoneshop.controller</a> &gt; <span class="el_source">AdminController.java</span></div><h1>AdminController.java</h1><pre class="source lang-java linenums">package com.allinoneshop.controller;
+
+import com.allinoneshop.dto.ApiResponse;
+import com.allinoneshop.dto.ProductDTO;
+import com.allinoneshop.service.AdminService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
+
+@RestController
+@RequestMapping(&quot;/admin&quot;)
+<span class="nc" id="L17">@RequiredArgsConstructor</span>
+@Tag(name = &quot;Admin&quot;, description = &quot;Administration and ingestion endpoints&quot;)
+public class AdminController {
+
+    private final AdminService adminService;
+
+    @GetMapping(&quot;/stats&quot;)
+    @PreAuthorize(&quot;hasRole('ADMIN')&quot;)
+    @Operation(summary = &quot;Get dashboard statistics&quot;)
+    public ResponseEntity&lt;ApiResponse&lt;Map&lt;String, Object&gt;&gt;&gt; getStats() {
+<span class="nc" id="L27">        return ResponseEntity.ok(ApiResponse.success(adminService.getDashboardStats()));</span>
+    }
+
+    @PostMapping(&quot;/ingest&quot;)
+    @Operation(summary = &quot;Ingest scraped product data&quot;)
+    public ResponseEntity&lt;ApiResponse&lt;ProductDTO&gt;&gt; ingestProduct(@RequestBody Map&lt;String, Object&gt; payload) {
+<span class="nc" id="L33">        ProductDTO ingested = adminService.ingestProduct(payload);</span>
+<span class="nc" id="L34">        return ResponseEntity.ok(ApiResponse.success(ingested));</span>
+    }
+
+    @PostMapping(&quot;/scrape&quot;)
+    @PreAuthorize(&quot;hasRole('ADMIN')&quot;)
+    @Operation(summary = &quot;Trigger scraper to populate products from all stores&quot;)
+    public ResponseEntity&lt;ApiResponse&lt;Map&lt;String, Object&gt;&gt;&gt; runScraper() {
+<span class="nc" id="L41">        Map&lt;String, Object&gt; result = adminService.runScraper();</span>
+<span class="nc" id="L42">        return ResponseEntity.ok(ApiResponse.success(result));</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

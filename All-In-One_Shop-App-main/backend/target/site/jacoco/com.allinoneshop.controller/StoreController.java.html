@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>StoreController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">AllInOne Shop API</a> &gt; <a href="index.source.html" class="el_package">com.allinoneshop.controller</a> &gt; <span class="el_source">StoreController.java</span></div><h1>StoreController.java</h1><pre class="source lang-java linenums">package com.allinoneshop.controller;
+
+import com.allinoneshop.dto.*;
+import com.allinoneshop.service.StoreService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.UUID;
+
+@RestController
+@RequestMapping(&quot;/stores&quot;)
+<span class="nc" id="L18">@RequiredArgsConstructor</span>
+@Tag(name = &quot;Stores&quot;, description = &quot;Store information endpoints&quot;)
+public class StoreController {
+
+    private final StoreService storeService;
+
+    @GetMapping
+    @Operation(summary = &quot;Get all stores&quot;)
+    public ResponseEntity&lt;ApiResponse&lt;List&lt;StoreDTO&gt;&gt;&gt; getAllStores() {
+<span class="nc" id="L27">        List&lt;StoreDTO&gt; stores = storeService.getAllStores();</span>
+<span class="nc" id="L28">        return ResponseEntity.ok(ApiResponse.success(stores));</span>
+    }
+
+    @GetMapping(&quot;/{id}&quot;)
+    @Operation(summary = &quot;Get store by ID&quot;)
+    public ResponseEntity&lt;ApiResponse&lt;StoreDTO&gt;&gt; getStoreById(@PathVariable UUID id) {
+<span class="nc" id="L34">        StoreDTO store = storeService.getStoreById(id);</span>
+<span class="nc" id="L35">        return ResponseEntity.ok(ApiResponse.success(store));</span>
+    }
+
+    @PostMapping
+    @PreAuthorize(&quot;hasRole('ADMIN')&quot;)
+    @Operation(summary = &quot;Create store&quot;)
+    public ResponseEntity&lt;ApiResponse&lt;StoreDTO&gt;&gt; createStore(@Valid @RequestBody StoreDTO dto) {
+<span class="nc" id="L42">        return ResponseEntity.ok(ApiResponse.success(storeService.createStore(dto)));</span>
+    }
+
+    @PutMapping(&quot;/{id}&quot;)
+    @PreAuthorize(&quot;hasRole('ADMIN')&quot;)
+    @Operation(summary = &quot;Update store&quot;)
+    public ResponseEntity&lt;ApiResponse&lt;StoreDTO&gt;&gt; updateStore(
+            @PathVariable UUID id, @Valid @RequestBody StoreDTO dto) {
+<span class="nc" id="L50">        return ResponseEntity.ok(ApiResponse.success(storeService.updateStore(id, dto)));</span>
+    }
+
+    @DeleteMapping(&quot;/{id}&quot;)
+    @PreAuthorize(&quot;hasRole('ADMIN')&quot;)
+    @Operation(summary = &quot;Delete store&quot;)
+    public ResponseEntity&lt;ApiResponse&lt;Void&gt;&gt; deleteStore(@PathVariable UUID id) {
+<span class="nc" id="L57">        storeService.deleteStore(id);</span>
+<span class="nc" id="L58">        return ResponseEntity.ok(ApiResponse.success(null));</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

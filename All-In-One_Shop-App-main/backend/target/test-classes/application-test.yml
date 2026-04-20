@@ -1,17 +1,17 @@
 spring:
-  datasource:
-    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1
-    username: sa
-    password:
-    driver-class-name: org.h2.Driver
-  jpa:
-    hibernate:
-      ddl-auto: create-drop
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.H2Dialect
+  application:
+    name: allinone-shop-api-test
+
   autoconfigure:
-    exclude: com.allinoneshop.config.MeilisearchConfig
+    exclude:
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+      - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration
+
+server:
+  port: 0
+  servlet:
+    context-path: /api
 
 jwt:
   secret: test-secret-key-for-unit-testing-only-at-least-256-bits-long-enough
@@ -19,7 +19,3 @@ jwt:
 
 cors:
   allowed-origins: http://localhost:3000
-
-meilisearch:
-  host: http://localhost:7700
-  api-key: test-key

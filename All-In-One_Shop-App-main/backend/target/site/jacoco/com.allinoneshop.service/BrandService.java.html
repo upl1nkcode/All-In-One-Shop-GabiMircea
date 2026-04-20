@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BrandService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">AllInOne Shop API</a> &gt; <a href="index.source.html" class="el_package">com.allinoneshop.service</a> &gt; <span class="el_source">BrandService.java</span></div><h1>BrandService.java</h1><pre class="source lang-java linenums">package com.allinoneshop.service;
+
+import com.allinoneshop.dto.BrandDTO;
+import com.allinoneshop.entity.Brand;
+import com.allinoneshop.repository.BrandRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+@Service
+<span class="fc" id="L14">@RequiredArgsConstructor</span>
+public class BrandService {
+
+    private final BrandRepository brandRepository;
+
+    public List&lt;BrandDTO&gt; getAllBrands() {
+<span class="fc" id="L20">        return brandRepository.findAll().stream()</span>
+<span class="fc" id="L21">                .map(this::convertToDTO)</span>
+<span class="fc" id="L22">                .collect(Collectors.toList());</span>
+    }
+
+    public BrandDTO getBrandById(UUID id) {
+<span class="fc" id="L26">        Brand brand = brandRepository.findById(id)</span>
+<span class="fc" id="L27">                .orElseThrow(() -&gt; new RuntimeException(&quot;Brand not found&quot;));</span>
+<span class="fc" id="L28">        return convertToDTO(brand);</span>
+    }
+
+    public BrandDTO createBrand(BrandDTO dto) {
+<span class="fc bfc" id="L32" title="All 2 branches covered.">        if (brandRepository.findByName(dto.getName()).isPresent()) {</span>
+<span class="fc" id="L33">            throw new RuntimeException(&quot;Brand with this name already exists&quot;);</span>
+        }
+<span class="fc" id="L35">        Brand brand = Brand.builder()</span>
+<span class="fc" id="L36">                .name(dto.getName())</span>
+<span class="fc" id="L37">                .logoUrl(dto.getLogoUrl())</span>
+<span class="fc" id="L38">                .build();</span>
+<span class="fc" id="L39">        brand = brandRepository.save(brand);</span>
+<span class="fc" id="L40">        return convertToDTO(brand);</span>
+    }
+
+    public BrandDTO updateBrand(UUID id, BrandDTO dto) {
+<span class="fc" id="L44">        Brand brand = brandRepository.findById(id)</span>
+<span class="fc" id="L45">                .orElseThrow(() -&gt; new RuntimeException(&quot;Brand not found&quot;));</span>
+<span class="fc" id="L46">        brand.setName(dto.getName());</span>
+<span class="fc" id="L47">        brand.setLogoUrl(dto.getLogoUrl());</span>
+<span class="fc" id="L48">        brand = brandRepository.save(brand);</span>
+<span class="fc" id="L49">        return convertToDTO(brand);</span>
+    }
+
+    public void deleteBrand(UUID id) {
+<span class="fc" id="L53">        brandRepository.findById(id)</span>
+<span class="fc" id="L54">                .orElseThrow(() -&gt; new RuntimeException(&quot;Brand not found&quot;));</span>
+<span class="fc" id="L55">        brandRepository.deleteById(id);</span>
+<span class="fc" id="L56">    }</span>
+
+    private BrandDTO convertToDTO(Brand brand) {
+<span class="fc" id="L59">        return BrandDTO.builder()</span>
+<span class="fc" id="L60">                .id(brand.getId())</span>
+<span class="fc" id="L61">                .name(brand.getName())</span>
+<span class="fc" id="L62">                .logoUrl(brand.getLogoUrl())</span>
+<span class="fc" id="L63">                .build();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

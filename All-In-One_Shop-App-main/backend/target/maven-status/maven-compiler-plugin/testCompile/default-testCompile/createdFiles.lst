@@ -1,0 +1,9 @@
+com\allinoneshop\service\StoreServiceTest.class
+com\allinoneshop\service\UserServiceTest.class
+com\allinoneshop\service\BrandServiceTest.class
+com\allinoneshop\service\AdminServiceTest.class
+com\allinoneshop\service\SearchHistoryServiceTest.class
+com\allinoneshop\service\AuthServiceTest.class
+com\allinoneshop\service\CategoryServiceTest.class
+com\allinoneshop\service\FavoriteServiceTest.class
+com\allinoneshop\service\ProductServiceTest.class

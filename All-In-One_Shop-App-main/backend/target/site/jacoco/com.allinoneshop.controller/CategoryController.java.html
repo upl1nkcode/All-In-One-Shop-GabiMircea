@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CategoryController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">AllInOne Shop API</a> &gt; <a href="index.source.html" class="el_package">com.allinoneshop.controller</a> &gt; <span class="el_source">CategoryController.java</span></div><h1>CategoryController.java</h1><pre class="source lang-java linenums">package com.allinoneshop.controller;
+
+import com.allinoneshop.dto.*;
+import com.allinoneshop.service.CategoryService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.UUID;
+
+@RestController
+@RequestMapping(&quot;/categories&quot;)
+<span class="nc" id="L18">@RequiredArgsConstructor</span>
+@Tag(name = &quot;Categories&quot;, description = &quot;Product category endpoints&quot;)
+public class CategoryController {
+
+    private final CategoryService categoryService;
+
+    @GetMapping
+    @Operation(summary = &quot;Get all categories&quot;)
+    public ResponseEntity&lt;ApiResponse&lt;List&lt;CategoryDTO&gt;&gt;&gt; getAllCategories() {
+<span class="nc" id="L27">        List&lt;CategoryDTO&gt; categories = categoryService.getAllCategories();</span>
+<span class="nc" id="L28">        return ResponseEntity.ok(ApiResponse.success(categories));</span>
+    }
+
+    @GetMapping(&quot;/{id}&quot;)
+    @Operation(summary = &quot;Get category by ID&quot;)
+    public ResponseEntity&lt;ApiResponse&lt;CategoryDTO&gt;&gt; getCategoryById(@PathVariable UUID id) {
+<span class="nc" id="L34">        CategoryDTO category = categoryService.getCategoryById(id);</span>
+<span class="nc" id="L35">        return ResponseEntity.ok(ApiResponse.success(category));</span>
+    }
+
+    @GetMapping(&quot;/slug/{slug}&quot;)
+    @Operation(summary = &quot;Get category by slug&quot;)
+    public ResponseEntity&lt;ApiResponse&lt;CategoryDTO&gt;&gt; getCategoryBySlug(@PathVariable String slug) {
+<span class="nc" id="L41">        CategoryDTO category = categoryService.getCategoryBySlug(slug);</span>
+<span class="nc" id="L42">        return ResponseEntity.ok(ApiResponse.success(category));</span>
+    }
+
+    @PostMapping
+    @PreAuthorize(&quot;hasRole('ADMIN')&quot;)
+    @Operation(summary = &quot;Create category&quot;)
+    public ResponseEntity&lt;ApiResponse&lt;CategoryDTO&gt;&gt; createCategory(@Valid @RequestBody CategoryDTO dto) {
+<span class="nc" id="L49">        return ResponseEntity.ok(ApiResponse.success(categoryService.createCategory(dto)));</span>
+    }
+
+    @PutMapping(&quot;/{id}&quot;)
+    @PreAuthorize(&quot;hasRole('ADMIN')&quot;)
+    @Operation(summary = &quot;Update category&quot;)
+    public ResponseEntity&lt;ApiResponse&lt;CategoryDTO&gt;&gt; updateCategory(
+            @PathVariable UUID id, @Valid @RequestBody CategoryDTO dto) {
+<span class="nc" id="L57">        return ResponseEntity.ok(ApiResponse.success(categoryService.updateCategory(id, dto)));</span>
+    }
+
+    @DeleteMapping(&quot;/{id}&quot;)
+    @PreAuthorize(&quot;hasRole('ADMIN')&quot;)
+    @Operation(summary = &quot;Delete category&quot;)
+    public ResponseEntity&lt;ApiResponse&lt;Void&gt;&gt; deleteCategory(@PathVariable UUID id) {
+<span class="nc" id="L64">        categoryService.deleteCategory(id);</span>
+<span class="nc" id="L65">        return ResponseEntity.ok(ApiResponse.success(null));</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

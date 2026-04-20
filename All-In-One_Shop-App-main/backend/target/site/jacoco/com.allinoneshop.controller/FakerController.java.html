@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FakerController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">AllInOne Shop API</a> &gt; <a href="index.source.html" class="el_package">com.allinoneshop.controller</a> &gt; <span class="el_source">FakerController.java</span></div><h1>FakerController.java</h1><pre class="source lang-java linenums">package com.allinoneshop.controller;
+
+import com.allinoneshop.dto.ApiResponse;
+import com.allinoneshop.service.FakerService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
+
+@RestController
+@RequestMapping(&quot;/faker&quot;)
+<span class="nc" id="L15">@RequiredArgsConstructor</span>
+@Tag(name = &quot;Faker&quot;, description = &quot;Fake entity generation endpoints (Silver challenge)&quot;)
+public class FakerController {
+
+    private final FakerService fakerService;
+
+    @PostMapping(&quot;/start&quot;)
+    @Operation(summary = &quot;Start generating fake products asynchronously&quot;)
+    public ResponseEntity&lt;ApiResponse&lt;Map&lt;String, Object&gt;&gt;&gt; startGenerating(
+            @RequestParam(defaultValue = &quot;3000&quot;) int intervalMs,
+            @RequestParam(defaultValue = &quot;5&quot;) int batchSize) {
+<span class="nc" id="L26">        fakerService.startGenerating(intervalMs, batchSize);</span>
+<span class="nc" id="L27">        return ResponseEntity.ok(ApiResponse.success(&quot;Fake generation started&quot;,</span>
+<span class="nc" id="L28">                Map.of(&quot;intervalMs&quot;, intervalMs, &quot;batchSize&quot;, batchSize)));</span>
+    }
+
+    @PostMapping(&quot;/stop&quot;)
+    @Operation(summary = &quot;Stop generating fake products&quot;)
+    public ResponseEntity&lt;ApiResponse&lt;Void&gt;&gt; stopGenerating() {
+<span class="nc" id="L34">        fakerService.stopGenerating();</span>
+<span class="nc" id="L35">        return ResponseEntity.ok(ApiResponse.success(&quot;Fake generation stopped&quot;, null));</span>
+    }
+
+    @GetMapping(&quot;/status&quot;)
+    @Operation(summary = &quot;Check if fake generation is running&quot;)
+    public ResponseEntity&lt;ApiResponse&lt;Map&lt;String, Object&gt;&gt;&gt; getStatus() {
+<span class="nc" id="L41">        return ResponseEntity.ok(ApiResponse.success(</span>
+<span class="nc" id="L42">                Map.of(&quot;generating&quot;, fakerService.isGenerating())));</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

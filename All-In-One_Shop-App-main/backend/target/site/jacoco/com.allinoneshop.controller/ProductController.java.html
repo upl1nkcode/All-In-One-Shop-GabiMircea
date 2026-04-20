@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ProductController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">AllInOne Shop API</a> &gt; <a href="index.source.html" class="el_package">com.allinoneshop.controller</a> &gt; <span class="el_source">ProductController.java</span></div><h1>ProductController.java</h1><pre class="source lang-java linenums">package com.allinoneshop.controller;
+
+import com.allinoneshop.dto.*;
+import com.allinoneshop.entity.User;
+import com.allinoneshop.service.ProductService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
+
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.UUID;
+
+@RestController
+@RequestMapping(&quot;/products&quot;)
+<span class="nc" id="L21">@RequiredArgsConstructor</span>
+@Tag(name = &quot;Products&quot;, description = &quot;Product search and retrieval endpoints&quot;)
+public class ProductController {
+
+    private final ProductService productService;
+
+    @PostMapping(&quot;/search&quot;)
+    @Operation(summary = &quot;Search products with filters (paginated)&quot;)
+    public ResponseEntity&lt;ApiResponse&lt;PagedResponse&lt;ProductDTO&gt;&gt;&gt; searchProducts(
+            @RequestBody SearchRequest request,
+            @AuthenticationPrincipal User user) {
+<span class="nc bnc" id="L32" title="All 2 branches missed.">        UUID userId = user != null ? user.getId() : null;</span>
+<span class="nc" id="L33">        PagedResponse&lt;ProductDTO&gt; products = productService.searchProductsPaged(request, userId);</span>
+<span class="nc" id="L34">        return ResponseEntity.ok(ApiResponse.success(products));</span>
+    }
+
+    @GetMapping
+    @Operation(summary = &quot;Get all products (paginated)&quot;)
+    public ResponseEntity&lt;ApiResponse&lt;PagedResponse&lt;ProductDTO&gt;&gt;&gt; getAllProducts(
+            @RequestParam(required = false) String query,
+            @RequestParam(required = false) String brandId,
+            @RequestParam(required = false) String categoryId,
+            @RequestParam(required = false) BigDecimal minPrice,
+            @RequestParam(required = false) BigDecimal maxPrice,
+            @RequestParam(required = false) String gender,
+            @RequestParam(required = false) String sortBy,
+            @RequestParam(defaultValue = &quot;0&quot;) int page,
+            @RequestParam(defaultValue = &quot;20&quot;) int size) {
+
+<span class="nc" id="L50">        SearchRequest request = new SearchRequest();</span>
+<span class="nc" id="L51">        request.setQuery(query);</span>
+<span class="nc bnc" id="L52" title="All 2 branches missed.">        if (brandId != null) request.setBrandIds(List.of(UUID.fromString(brandId)));</span>
+<span class="nc bnc" id="L53" title="All 2 branches missed.">        if (categoryId != null) request.setCategoryIds(List.of(UUID.fromString(categoryId)));</span>
+<span class="nc" id="L54">        request.setMinPrice(minPrice);</span>
+<span class="nc" id="L55">        request.setMaxPrice(maxPrice);</span>
+<span class="nc" id="L56">        request.setSortBy(sortBy);</span>
+<span class="nc" id="L57">        request.setPage(page);</span>
+<span class="nc" id="L58">        request.setSize(size);</span>
+
+<span class="nc" id="L60">        PagedResponse&lt;ProductDTO&gt; products = productService.searchProductsPaged(request, null);</span>
+<span class="nc" id="L61">        return ResponseEntity.ok(ApiResponse.success(products));</span>
+    }
+
+    @GetMapping(&quot;/{id}&quot;)
+    @Operation(summary = &quot;Get product by ID&quot;)
+    public ResponseEntity&lt;ApiResponse&lt;ProductDTO&gt;&gt; getProductById(@PathVariable UUID id) {
+<span class="nc" id="L67">        ProductDTO product = productService.getProductById(id);</span>
+<span class="nc" id="L68">        return ResponseEntity.ok(ApiResponse.success(product));</span>
+    }
+
+    @GetMapping(&quot;/category/{slug}&quot;)
+    @Operation(summary = &quot;Get products by category&quot;)
+    public ResponseEntity&lt;ApiResponse&lt;List&lt;ProductDTO&gt;&gt;&gt; getProductsByCategory(@PathVariable String slug) {
+<span class="nc" id="L74">        List&lt;ProductDTO&gt; products = productService.getProductsByCategory(slug);</span>
+<span class="nc" id="L75">        return ResponseEntity.ok(ApiResponse.success(products));</span>
+    }
+
+    @GetMapping(&quot;/brand/{name}&quot;)
+    @Operation(summary = &quot;Get products by brand&quot;)
+    public ResponseEntity&lt;ApiResponse&lt;List&lt;ProductDTO&gt;&gt;&gt; getProductsByBrand(@PathVariable String name) {
+<span class="nc" id="L81">        List&lt;ProductDTO&gt; products = productService.getProductsByBrand(name);</span>
+<span class="nc" id="L82">        return ResponseEntity.ok(ApiResponse.success(products));</span>
+    }
+
+    @GetMapping(&quot;/{id}/similar&quot;)
+    @Operation(summary = &quot;Get similar products&quot;)
+    public ResponseEntity&lt;ApiResponse&lt;List&lt;ProductDTO&gt;&gt;&gt; getSimilarProducts(
+            @PathVariable UUID id,
+            @RequestParam(defaultValue = &quot;4&quot;) int limit) {
+<span class="nc" id="L90">        List&lt;ProductDTO&gt; products = productService.getSimilarProducts(id, limit);</span>
+<span class="nc" id="L91">        return ResponseEntity.ok(ApiResponse.success(products));</span>
+    }
+
+    @GetMapping(&quot;/trending&quot;)
+    @Operation(summary = &quot;Get trending products&quot;)
+    public ResponseEntity&lt;ApiResponse&lt;List&lt;ProductDTO&gt;&gt;&gt; getTrendingProducts(
+            @RequestParam(defaultValue = &quot;8&quot;) int limit) {
+<span class="nc" id="L98">        List&lt;ProductDTO&gt; products = productService.getTrendingProducts(limit);</span>
+<span class="nc" id="L99">        return ResponseEntity.ok(ApiResponse.success(products));</span>
+    }
+
+    @PostMapping
+    @PreAuthorize(&quot;hasRole('ADMIN')&quot;)
+    @Operation(summary = &quot;Create product&quot;)
+    public ResponseEntity&lt;ApiResponse&lt;ProductDTO&gt;&gt; createProduct(@Valid @RequestBody ProductDTO dto) {
+<span class="nc" id="L106">        return ResponseEntity.ok(ApiResponse.success(productService.createProduct(dto)));</span>
+    }
+
+    @PutMapping(&quot;/{id}&quot;)
+    @PreAuthorize(&quot;hasRole('ADMIN')&quot;)
+    @Operation(summary = &quot;Update product&quot;)
+    public ResponseEntity&lt;ApiResponse&lt;ProductDTO&gt;&gt; updateProduct(
+            @PathVariable UUID id, @Valid @RequestBody ProductDTO dto) {
+<span class="nc" id="L114">        return ResponseEntity.ok(ApiResponse.success(productService.updateProduct(id, dto)));</span>
+    }
+
+    @DeleteMapping(&quot;/{id}&quot;)
+    @PreAuthorize(&quot;hasRole('ADMIN')&quot;)
+    @Operation(summary = &quot;Delete product&quot;)
+    public ResponseEntity&lt;ApiResponse&lt;Void&gt;&gt; deleteProduct(@PathVariable UUID id) {
+<span class="nc" id="L121">        productService.deleteProduct(id);</span>
+<span class="nc" id="L122">        return ResponseEntity.ok(ApiResponse.success(null));</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

@@ -4,49 +4,38 @@ import com.allinoneshop.dto.UserDTO;
 import com.allinoneshop.entity.User;
 import com.allinoneshop.entity.enums.Role;
 import com.allinoneshop.repository.UserRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
 class UserServiceTest {
 
-    @Mock
     private UserRepository userRepository;
-
-    @InjectMocks
     private UserService userService;
 
-    // ── helpers ───────────────────────────────────────────────
+    @BeforeEach
+    void setUp() {
+        userRepository = new UserRepository();
+        userService = new UserService(userRepository);
+    }
 
-    private User buildUser(UUID id, String firstName, String lastName) {
-        User user = new User();
-        user.setId(id);
-        user.setEmail("user@example.com");
-        user.setPasswordHash("hash");
-        user.setFirstName(firstName);
-        user.setLastName(lastName);
-        user.setRole(Role.USER);
-        return user;
+    private User createUser(String email, String firstName, String lastName) {
+        return userRepository.save(User.builder()
+                .email(email).passwordHash("hash")
+                .firstName(firstName).lastName(lastName)
+                .role(Role.USER).build());
     }
 
     // ── getUserProfile ────────────────────────────────────────
 
     @Test
     void getUserProfile_found_returnsCorrectDTO() {
-        UUID userId = UUID.randomUUID();
-        User user = buildUser(userId, "John", "Doe");
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        User user = createUser("user@example.com", "John", "Doe");
 
-        UserDTO result = userService.getUserProfile(userId);
+        UserDTO result = userService.getUserProfile(user.getId());
 
         assertThat(result.getEmail()).isEqualTo("user@example.com");
         assertThat(result.getFirstName()).isEqualTo("John");
@@ -56,10 +45,7 @@ class UserServiceTest {
 
     @Test
     void getUserProfile_notFound_throwsRuntimeException() {
-        UUID userId = UUID.randomUUID();
-        when(userRepository.findById(userId)).thenReturn(Optional.empty());
-
-        assertThatThrownBy(() -> userService.getUserProfile(userId))
+        assertThatThrownBy(() -> userService.getUserProfile(UUID.randomUUID()))
                 .isInstanceOf(RuntimeException.class)
                 .hasMessageContaining("User not found");
     }
@@ -68,26 +54,20 @@ class UserServiceTest {
 
     @Test
     void updateProfile_allFields_updatesAndSaves() {
-        UUID userId = UUID.randomUUID();
-        User user = buildUser(userId, "Old", "Name");
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-        when(userRepository.save(user)).thenReturn(user);
+        User user = createUser("u@example.com", "Old", "Name");
 
-        UserDTO result = userService.updateProfile(userId, "New", "Surname", "https://img.com/a.png");
+        UserDTO result = userService.updateProfile(user.getId(), "New", "Surname", "https://img.com/a.png");
 
         assertThat(result.getFirstName()).isEqualTo("New");
         assertThat(result.getLastName()).isEqualTo("Surname");
-        verify(userRepository).save(user);
+        assertThat(result.getAvatarUrl()).isEqualTo("https://img.com/a.png");
     }
 
     @Test
     void updateProfile_nullFields_doesNotOverwriteExistingValues() {
-        UUID userId = UUID.randomUUID();
-        User user = buildUser(userId, "Original", "Name");
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-        when(userRepository.save(user)).thenReturn(user);
+        User user = createUser("u2@example.com", "Original", "Name");
 
-        UserDTO result = userService.updateProfile(userId, null, null, null);
+        UserDTO result = userService.updateProfile(user.getId(), null, null, null);
 
         assertThat(result.getFirstName()).isEqualTo("Original");
         assertThat(result.getLastName()).isEqualTo("Name");
@@ -95,12 +75,9 @@ class UserServiceTest {
 
     @Test
     void updateProfile_partialUpdate_onlyUpdatesProvidedFields() {
-        UUID userId = UUID.randomUUID();
-        User user = buildUser(userId, "First", "Last");
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-        when(userRepository.save(user)).thenReturn(user);
+        User user = createUser("u3@example.com", "First", "Last");
 
-        UserDTO result = userService.updateProfile(userId, "UpdatedFirst", null, null);
+        UserDTO result = userService.updateProfile(user.getId(), "UpdatedFirst", null, null);
 
         assertThat(result.getFirstName()).isEqualTo("UpdatedFirst");
         assertThat(result.getLastName()).isEqualTo("Last");
@@ -108,23 +85,19 @@ class UserServiceTest {
 
     @Test
     void updateProfile_notFound_throwsRuntimeException() {
-        UUID userId = UUID.randomUUID();
-        when(userRepository.findById(userId)).thenReturn(Optional.empty());
-
-        assertThatThrownBy(() -> userService.updateProfile(userId, "First", "Last", null))
+        assertThatThrownBy(() -> userService.updateProfile(UUID.randomUUID(), "First", "Last", null))
                 .isInstanceOf(RuntimeException.class)
                 .hasMessageContaining("User not found");
     }
 
     @Test
-    void updateProfile_savesOnce() {
-        UUID userId = UUID.randomUUID();
-        User user = buildUser(userId, "A", "B");
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-        when(userRepository.save(user)).thenReturn(user);
+    void updateProfile_persistsToRepository() {
+        User user = createUser("persist@example.com", "A", "B");
 
-        userService.updateProfile(userId, "X", "Y", null);
+        userService.updateProfile(user.getId(), "X", "Y", null);
 
-        verify(userRepository, times(1)).save(user);
+        User updated = userRepository.findById(user.getId()).orElseThrow();
+        assertThat(updated.getFirstName()).isEqualTo("X");
+        assertThat(updated.getLastName()).isEqualTo("Y");
     }
 }

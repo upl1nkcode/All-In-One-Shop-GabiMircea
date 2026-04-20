@@ -1,74 +1,85 @@
 package com.allinoneshop.repository;
 
 import com.allinoneshop.entity.Product;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 @Repository
-public interface ProductRepository extends JpaRepository<Product, UUID>, JpaSpecificationExecutor<Product> {
+public class ProductRepository {
 
-    @Query("SELECT DISTINCT p FROM Product p " +
-           "LEFT JOIN FETCH p.brand " +
-           "LEFT JOIN FETCH p.category " +
-           "LEFT JOIN FETCH p.prices pp " +
-           "LEFT JOIN FETCH pp.store " +
-           "WHERE LOWER(p.name) LIKE LOWER(CONCAT('%', :query, '%')) " +
-           "OR LOWER(p.description) LIKE LOWER(CONCAT('%', :query, '%'))")
-    List<Product> searchProducts(@Param("query") String query);
+    private final ConcurrentHashMap<UUID, Product> store = new ConcurrentHashMap<>();
 
-    @Query("SELECT DISTINCT p FROM Product p " +
-           "LEFT JOIN FETCH p.brand " +
-           "LEFT JOIN FETCH p.category " +
-           "LEFT JOIN FETCH p.prices pp " +
-           "LEFT JOIN FETCH pp.store " +
-           "WHERE p.category.slug = :categorySlug")
-    List<Product> findByCategorySlug(@Param("categorySlug") String categorySlug);
+    public Product save(Product product) {
+        if (product.getId() == null) {
+            product.setId(UUID.randomUUID());
+            product.setCreatedAt(java.time.OffsetDateTime.now());
+        }
+        product.setUpdatedAt(java.time.OffsetDateTime.now());
+        store.put(product.getId(), product);
+        return product;
+    }
 
-    @Query("SELECT DISTINCT p FROM Product p " +
-           "LEFT JOIN FETCH p.brand " +
-           "LEFT JOIN FETCH p.category " +
-           "LEFT JOIN FETCH p.prices pp " +
-           "LEFT JOIN FETCH pp.store " +
-           "WHERE p.brand.name = :brandName")
-    List<Product> findByBrandName(@Param("brandName") String brandName);
+    public Optional<Product> findById(UUID id) {
+        return Optional.ofNullable(store.get(id));
+    }
 
-    @Query("SELECT DISTINCT p FROM Product p " +
-           "LEFT JOIN FETCH p.brand " +
-           "LEFT JOIN FETCH p.category " +
-           "LEFT JOIN FETCH p.prices pp " +
-           "LEFT JOIN FETCH pp.store")
-    List<Product> findAllWithDetails();
+    public List<Product> findAll() {
+        return new ArrayList<>(store.values());
+    }
 
-    @Query("SELECT p FROM Product p " +
-           "LEFT JOIN FETCH p.brand " +
-           "LEFT JOIN FETCH p.category " +
-           "LEFT JOIN FETCH p.prices pp " +
-           "LEFT JOIN FETCH pp.store " +
-           "WHERE p.id = :id")
-    Product findByIdWithDetails(@Param("id") UUID id);
+    public void delete(Product product) {
+        store.remove(product.getId());
+    }
 
-    @Query("SELECT DISTINCT p FROM Product p " +
-           "JOIN p.prices pp " +
-           "WHERE pp.price BETWEEN :minPrice AND :maxPrice")
-    List<Product> findByPriceRange(@Param("minPrice") BigDecimal minPrice, 
-                                    @Param("maxPrice") BigDecimal maxPrice);
+    public void deleteById(UUID id) {
+        store.remove(id);
+    }
 
-    @Query("SELECT DISTINCT p FROM Product p " +
-           "LEFT JOIN FETCH p.brand " +
-           "LEFT JOIN FETCH p.category " +
-           "LEFT JOIN FETCH p.prices pp " +
-           "LEFT JOIN FETCH pp.store " +
-           "WHERE p.category.id = :categoryId AND p.id != :productId")
-    List<Product> findSimilarProducts(@Param("categoryId") UUID categoryId, 
-                                       @Param("productId") UUID productId, 
-                                       Pageable pageable);
+    public long count() {
+        return store.size();
+    }
+
+    public List<Product> findAllWithDetails() {
+        return new ArrayList<>(store.values());
+    }
+
+    public Product findByIdWithDetails(UUID id) {
+        return store.get(id);
+    }
+
+    public List<Product> searchProducts(String query) {
+        String lowerQuery = query.toLowerCase();
+        return store.values().stream()
+                .filter(p -> (p.getName() != null && p.getName().toLowerCase().contains(lowerQuery))
+                        || (p.getDescription() != null && p.getDescription().toLowerCase().contains(lowerQuery)))
+                .collect(Collectors.toList());
+    }
+
+    public List<Product> findByCategorySlug(String categorySlug) {
+        return store.values().stream()
+                .filter(p -> p.getCategory() != null && categorySlug.equals(p.getCategory().getSlug()))
+                .collect(Collectors.toList());
+    }
+
+    public List<Product> findByBrandName(String brandName) {
+        return store.values().stream()
+                .filter(p -> p.getBrand() != null && brandName.equalsIgnoreCase(p.getBrand().getName()))
+                .collect(Collectors.toList());
+    }
+
+    public List<Product> findSimilarProducts(UUID categoryId, UUID excludeProductId, int limit) {
+        return store.values().stream()
+                .filter(p -> p.getCategory() != null
+                        && p.getCategory().getId().equals(categoryId)
+                        && !p.getId().equals(excludeProductId))
+                .limit(limit)
+                .collect(Collectors.toList());
+    }
+
+    public void clear() {
+        store.clear();
+    }
 }

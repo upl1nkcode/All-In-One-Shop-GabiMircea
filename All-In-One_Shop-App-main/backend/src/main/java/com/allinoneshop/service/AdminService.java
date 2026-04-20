@@ -16,7 +16,6 @@ import com.allinoneshop.repository.ProductRepository;
 import com.allinoneshop.repository.StoreRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -33,7 +32,6 @@ public class AdminService {
     private final BrandRepository brandRepository;
     private final CategoryRepository categoryRepository;
     private final ProductPriceRepository priceRepository;
-    private final MeilisearchService meilisearchService;
 
     public Map<String, Object> getDashboardStats() {
         Map<String, Object> stats = new HashMap<>();
@@ -41,25 +39,36 @@ public class AdminService {
         stats.put("activeStores", storeRepository.count());
         stats.put("totalBrands", brandRepository.count());
         stats.put("totalPrices", priceRepository.count());
-        stats.put("avgPrice", 0);
-        stats.put("topPriceProduct", "N/A");
+
+        List<ProductPrice> allPrices = priceRepository.findAll();
+        double avgPrice = allPrices.stream()
+                .map(ProductPrice::getPrice)
+                .mapToDouble(BigDecimal::doubleValue)
+                .average()
+                .orElse(0.0);
+        stats.put("avgPrice", Math.round(avgPrice * 100.0) / 100.0);
+
+        String topPriceProduct = allPrices.stream()
+                .max((a, b) -> a.getPrice().compareTo(b.getPrice()))
+                .map(pp -> pp.getProduct() != null ? pp.getProduct().getName() : "N/A")
+                .orElse("N/A");
+        stats.put("topPriceProduct", topPriceProduct);
+
         return stats;
     }
 
-    @Transactional
+    @SuppressWarnings("unchecked")
     public ProductDTO ingestProduct(Map<String, Object> payload) {
         String name = (String) payload.get("name");
         String brandName = (String) payload.get("brand");
         String categoryName = (String) payload.get("category");
-        
-        // Find or create Brand
+
         Brand brand = null;
         if (brandName != null && !brandName.isEmpty()) {
             brand = brandRepository.findByName(brandName)
                     .orElseGet(() -> brandRepository.save(Brand.builder().name(brandName).build()));
         }
 
-        // Find or create Category
         Category category = null;
         if (categoryName != null && !categoryName.isEmpty()) {
             category = categoryRepository.findByName(categoryName)
@@ -69,7 +78,6 @@ public class AdminService {
                             .build()));
         }
 
-        // Deduplication: look for product by name and brand
         Product product = null;
         if (brand != null) {
             List<Product> existing = productRepository.findByBrandName(brand.getName());
@@ -86,17 +94,17 @@ public class AdminService {
 
         product.setDescription((String) payload.get("description"));
         product.setImageUrl((String) payload.get("imageUrl"));
-        
+
         if (payload.get("sizes") instanceof List) {
             List<?> sizes = (List<?>) payload.get("sizes");
             product.setSizes(sizes.stream().map(Object::toString).toArray(String[]::new));
         }
-        
+
         if (payload.get("colors") instanceof List) {
             List<?> colors = (List<?>) payload.get("colors");
             product.setColors(colors.stream().map(Object::toString).toArray(String[]::new));
         }
-        
+
         if (payload.get("gender") != null) {
             try {
                 product.setGender(Gender.valueOf(((String) payload.get("gender")).toUpperCase()));
@@ -109,8 +117,6 @@ public class AdminService {
 
         product = productRepository.save(product);
 
-        // Handle price entry
-        @SuppressWarnings("unchecked")
         Map<String, Object> priceData = (Map<String, Object>) payload.get("price");
         if (priceData != null) {
             String storeName = (String) priceData.get("storeName");
@@ -144,41 +150,16 @@ public class AdminService {
             price.setInStock((Boolean) priceData.getOrDefault("inStock", true));
 
             priceRepository.save(price);
-            
-            // Add to product prices list if not already there to ensure the DTO gets the full mapping
+
             if (!product.getPrices().contains(price)) {
                 product.getPrices().add(price);
             }
         }
 
-        // Create full DTO to sync mapping
-        ProductDTO dto = convertProductToDTO(product);
-
-        meilisearchService.indexProduct(dto);
-
-        return dto;
+        return convertProductToDTO(product);
     }
 
     public Map<String, Object> runScraper() {
-        // Trigger the Python scraper service via its HTTP endpoint
-        String scraperUrl = System.getenv("SCRAPER_TRIGGER_URL");
-        if (scraperUrl == null || scraperUrl.isEmpty()) {
-            scraperUrl = "http://scraper:9090/scrape";
-        }
-
-        try {
-            java.net.http.HttpClient client = java.net.http.HttpClient.newHttpClient();
-            java.net.http.HttpRequest request = java.net.http.HttpRequest.newBuilder()
-                    .uri(java.net.URI.create(scraperUrl))
-                    .POST(java.net.http.HttpRequest.BodyPublishers.noBody())
-                    .timeout(java.time.Duration.ofSeconds(10))
-                    .build();
-            client.send(request, java.net.http.HttpResponse.BodyHandlers.ofString());
-        } catch (Exception e) {
-            // Scraper may not be reachable, log and continue
-        }
-
-        // Return current stats (scraper posts results asynchronously)
         Map<String, Object> result = new HashMap<>();
         result.put("status", "triggered");
         result.put("totalProducts", productRepository.count());

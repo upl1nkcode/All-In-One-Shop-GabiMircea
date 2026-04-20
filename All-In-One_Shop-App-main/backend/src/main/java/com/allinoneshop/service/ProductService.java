@@ -5,9 +5,7 @@ import com.allinoneshop.entity.*;
 import com.allinoneshop.entity.enums.Gender;
 import com.allinoneshop.repository.*;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -15,7 +13,6 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class ProductService {
 
     private final ProductRepository productRepository;
@@ -29,22 +26,39 @@ public class ProductService {
 
         if (request.getQuery() != null && !request.getQuery().trim().isEmpty()) {
             products = productRepository.searchProducts(request.getQuery().trim());
-            
-            // Save search history
             saveSearchHistory(request.getQuery(), products.size(), userId);
         } else {
             products = productRepository.findAllWithDetails();
         }
 
-        // Apply filters
         products = applyFilters(products, request);
-
-        // Apply sorting
         products = applySorting(products, request.getSortBy());
 
         return products.stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
+    }
+
+    public PagedResponse<ProductDTO> searchProductsPaged(SearchRequest request, UUID userId) {
+        List<ProductDTO> allResults = searchProducts(request, userId);
+
+        int page = request.getPage() != null ? request.getPage() : 0;
+        int size = request.getSize() != null ? request.getSize() : 20;
+
+        int totalElements = allResults.size();
+        int totalPages = (int) Math.ceil((double) totalElements / size);
+        int fromIndex = Math.min(page * size, totalElements);
+        int toIndex = Math.min(fromIndex + size, totalElements);
+
+        List<ProductDTO> pageContent = allResults.subList(fromIndex, toIndex);
+
+        return PagedResponse.<ProductDTO>builder()
+                .content(pageContent)
+                .totalElements(totalElements)
+                .totalPages(totalPages)
+                .page(page)
+                .size(size)
+                .build();
     }
 
     public ProductDTO getProductById(UUID id) {
@@ -76,37 +90,36 @@ public class ProductService {
         return productRepository.findSimilarProducts(
                 product.getCategory().getId(),
                 productId,
-                PageRequest.of(0, limit)
+                limit
         ).stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
 
     public List<ProductDTO> getTrendingProducts(int limit) {
-        // For now, return first N products - can be enhanced with actual trending logic
         return productRepository.findAllWithDetails().stream()
                 .limit(limit)
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
 
-    @Transactional
     public void deleteProduct(UUID id) {
-        Product product = productRepository.findById(id).orElseThrow(() -> new RuntimeException("Product not found"));
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
         productRepository.delete(product);
     }
 
-    @Transactional
     public ProductDTO updateProduct(UUID id, ProductDTO dto) {
-        Product product = productRepository.findById(id).orElseThrow(() -> new RuntimeException("Product not found"));
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
         applyDtoToProduct(product, dto);
         return convertToDTO(productRepository.save(product));
     }
 
-    @Transactional
     public ProductDTO createProduct(ProductDTO dto) {
         Product product = new Product();
         product.setIsActive(true);
+        product.setPrices(new ArrayList<>());
         applyDtoToProduct(product, dto);
         return convertToDTO(productRepository.save(product));
     }
@@ -133,7 +146,6 @@ public class ProductService {
         if (dto.getColors() != null) product.setColors(dto.getColors());
     }
 
-    @Transactional
     private void saveSearchHistory(String query, int resultsCount, UUID userId) {
         SearchHistory history = SearchHistory.builder()
                 .searchQuery(query)
@@ -208,10 +220,10 @@ public class ProductService {
         Comparator<Product> comparator;
         switch (sortBy.toLowerCase()) {
             case "price_asc":
-                comparator = Comparator.comparing(p -> getLowestPrice(p));
+                comparator = Comparator.comparing(this::getLowestPrice);
                 break;
             case "price_desc":
-                comparator = Comparator.comparing(p -> getLowestPrice(p), Comparator.reverseOrder());
+                comparator = Comparator.comparing(this::getLowestPrice, Comparator.reverseOrder());
                 break;
             case "name_asc":
                 comparator = Comparator.comparing(Product::getName);
@@ -240,7 +252,7 @@ public class ProductService {
                 .orElse(BigDecimal.ZERO);
     }
 
-    private ProductDTO convertToDTO(Product product) {
+    public ProductDTO convertToDTO(Product product) {
         List<ProductPriceDTO> priceDTOs = new ArrayList<>();
         BigDecimal lowestPrice = null;
         BigDecimal highestPrice = null;

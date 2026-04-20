@@ -44,7 +44,7 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .sessionManagement(session -> 
+                .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         // Public endpoints
@@ -57,6 +57,10 @@ public class SecurityConfig {
                         // Search endpoints
                         .requestMatchers(HttpMethod.GET, "/search/trending").permitAll()
                         .requestMatchers(HttpMethod.GET, "/search/recent").permitAll()
+                        // WebSocket endpoint
+                        .requestMatchers("/ws/**").permitAll()
+                        // Faker endpoints (public for demo)
+                        .requestMatchers("/faker/**").permitAll()
                         // Swagger/OpenAPI
                         .requestMatchers("/swagger-ui/**", "/api-docs/**", "/swagger-ui.html").permitAll()
                         // Protected endpoints

@@ -5,7 +5,6 @@ import com.allinoneshop.entity.*;
 import com.allinoneshop.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -19,14 +18,12 @@ public class FavoriteService {
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
 
-    @Transactional(readOnly = true)
     public List<ProductDTO> getUserFavorites(UUID userId) {
         return favoriteRepository.findByUserIdWithProducts(userId).stream()
                 .map(favorite -> convertToDTO(favorite.getProduct()))
                 .collect(Collectors.toList());
     }
 
-    @Transactional
     public void addFavorite(UUID userId, UUID productId) {
         if (favoriteRepository.existsByUserIdAndProductId(userId, productId)) {
             throw new RuntimeException("Product already in favorites");
@@ -46,17 +43,14 @@ public class FavoriteService {
         favoriteRepository.save(favorite);
     }
 
-    @Transactional
     public void removeFavorite(UUID userId, UUID productId) {
         favoriteRepository.deleteByUserIdAndProductId(userId, productId);
     }
 
-    @Transactional(readOnly = true)
     public boolean isFavorite(UUID userId, UUID productId) {
         return favoriteRepository.existsByUserIdAndProductId(userId, productId);
     }
 
-    @Transactional(readOnly = true)
     public Set<UUID> getFavoriteProductIds(UUID userId) {
         return favoriteRepository.findByUserId(userId).stream()
                 .map(f -> f.getProduct().getId())

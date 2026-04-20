@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SearchHistoryController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">AllInOne Shop API</a> &gt; <a href="index.source.html" class="el_package">com.allinoneshop.controller</a> &gt; <span class="el_source">SearchHistoryController.java</span></div><h1>SearchHistoryController.java</h1><pre class="source lang-java linenums">package com.allinoneshop.controller;
+
+import com.allinoneshop.dto.ApiResponse;
+import com.allinoneshop.entity.User;
+import com.allinoneshop.service.SearchHistoryService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping(&quot;/search&quot;)
+<span class="nc" id="L17">@RequiredArgsConstructor</span>
+@Tag(name = &quot;Search&quot;, description = &quot;Search history and suggestions endpoints&quot;)
+public class SearchHistoryController {
+
+    private final SearchHistoryService searchHistoryService;
+
+    @GetMapping(&quot;/trending&quot;)
+    @Operation(summary = &quot;Get trending search queries&quot;)
+    public ResponseEntity&lt;ApiResponse&lt;List&lt;String&gt;&gt;&gt; getTrendingSearches(
+            @RequestParam(defaultValue = &quot;10&quot;) int limit) {
+<span class="nc" id="L27">        List&lt;String&gt; trending = searchHistoryService.getTrendingSearches(limit);</span>
+<span class="nc" id="L28">        return ResponseEntity.ok(ApiResponse.success(trending));</span>
+    }
+
+    @GetMapping(&quot;/recent&quot;)
+    @Operation(summary = &quot;Get user's recent searches&quot;)
+    public ResponseEntity&lt;ApiResponse&lt;List&lt;String&gt;&gt;&gt; getRecentSearches(
+            @AuthenticationPrincipal User user,
+            @RequestParam(defaultValue = &quot;10&quot;) int limit) {
+<span class="nc bnc" id="L36" title="All 2 branches missed.">        if (user == null) {</span>
+<span class="nc" id="L37">            return ResponseEntity.ok(ApiResponse.success(List.of()));</span>
+        }
+<span class="nc" id="L39">        List&lt;String&gt; recent = searchHistoryService.getRecentSearches(user.getId(), limit);</span>
+<span class="nc" id="L40">        return ResponseEntity.ok(ApiResponse.success(recent));</span>
+    }
+
+    @DeleteMapping(&quot;/history&quot;)
+    @Operation(summary = &quot;Clear user's search history&quot;)
+    public ResponseEntity&lt;ApiResponse&lt;Void&gt;&gt; clearSearchHistory(
+            @AuthenticationPrincipal User user) {
+<span class="nc bnc" id="L47" title="All 2 branches missed.">        if (user == null) {</span>
+<span class="nc" id="L48">            return ResponseEntity.status(401).body(ApiResponse.error(&quot;Not authenticated&quot;));</span>
+        }
+<span class="nc" id="L50">        searchHistoryService.clearUserHistory(user.getId());</span>
+<span class="nc" id="L51">        return ResponseEntity.ok(ApiResponse.success(&quot;Search history cleared&quot;, null));</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>
