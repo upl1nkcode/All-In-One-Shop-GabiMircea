@@ -1,0 +1,204 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e5]:
+        - link "AllInOne Shop" [ref=e6] [cursor=pointer]:
+          - /url: /
+          - img [ref=e7]
+          - generic [ref=e10]: AllInOne Shop
+        - navigation [ref=e11]:
+          - link "Browse" [ref=e12] [cursor=pointer]:
+            - /url: /search
+          - link "Sneakers" [ref=e13] [cursor=pointer]:
+            - /url: /search?category=sneakers
+          - link "Jackets" [ref=e14] [cursor=pointer]:
+            - /url: /search?category=jackets
+        - generic [ref=e15]:
+          - link "Search" [ref=e16] [cursor=pointer]:
+            - /url: /search
+          - link "Login" [ref=e17] [cursor=pointer]:
+            - /url: /login
+            - img [ref=e18]
+            - generic [ref=e21]: Login
+    - generic [ref=e25]:
+      - generic [ref=e26]:
+        - img [ref=e27]
+        - text: Compare prices from 5+ stores
+      - heading "Find the Best Deals on Fashion" [level=1] [ref=e30]
+      - paragraph [ref=e31]: One search. Every store. Always the lowest price. Compare products from Zalando, Nike, ASOS, and more.
+      - generic [ref=e33]:
+        - img [ref=e34]
+        - textbox "Search for products, brands, or categories..." [ref=e37]
+        - button "Search" [ref=e38] [cursor=pointer]
+      - generic [ref=e39]:
+        - generic [ref=e40]: "Searching across:"
+        - generic [ref=e41]: Zalando
+        - generic [ref=e42]: Nike
+        - generic [ref=e43]: ASOS
+        - generic [ref=e44]: H&M
+        - generic [ref=e45]: AboutYou
+    - generic [ref=e46]:
+      - generic [ref=e47]:
+        - generic [ref=e48]:
+          - heading "Trending Now" [level=2] [ref=e49]
+          - paragraph [ref=e50]: Most popular products across all stores
+        - link "View all" [ref=e51] [cursor=pointer]:
+          - /url: /search
+          - text: View all
+          - img [ref=e52]
+      - generic [ref=e54]:
+        - link "Baggy Denim - Stone Wash Black mnml Baggy Denim - Stone Wash Black €74 Available at 1 store" [ref=e55] [cursor=pointer]:
+          - /url: /product/b5944508-1b74-4d49-85e9-8890ac3e0e71
+          - img "Baggy Denim - Stone Wash Black" [ref=e57]
+          - generic [ref=e58]:
+            - text: mnml
+            - heading "Baggy Denim - Stone Wash Black" [level=3] [ref=e59]
+            - generic [ref=e61]: €74
+            - paragraph [ref=e62]: Available at 1 store
+        - link "Baggy Cut Off Denim Shorts - Light Blue mnml Baggy Cut Off Denim Shorts - Light Blue €60 Available at 1 store" [ref=e63] [cursor=pointer]:
+          - /url: /product/5c7eadb5-95fc-466f-859d-ba48448dede3
+          - img "Baggy Cut Off Denim Shorts - Light Blue" [ref=e65]
+          - generic [ref=e66]:
+            - text: mnml
+            - heading "Baggy Cut Off Denim Shorts - Light Blue" [level=3] [ref=e67]
+            - generic [ref=e69]: €60
+            - paragraph [ref=e70]: Available at 1 store
+        - link "404 Monte Carlo Jacket Stone 404 404 Monte Carlo Jacket Stone €79.95 Available at 1 store" [ref=e71] [cursor=pointer]:
+          - /url: /product/14436a98-f21e-4503-9e2f-4fd8ca35de71
+          - img "404 Monte Carlo Jacket Stone" [ref=e73]
+          - generic [ref=e74]:
+            - text: "404"
+            - heading "404 Monte Carlo Jacket Stone" [level=3] [ref=e75]
+            - generic [ref=e77]: €79.95
+            - paragraph [ref=e78]: Available at 1 store
+        - link "Cable Knit Cardigan Sweater - Tan mnml Cable Knit Cardigan Sweater - Tan €28 Available at 1 store" [ref=e79] [cursor=pointer]:
+          - /url: /product/1e090d2e-2c64-42a8-9434-576e3f3b130a
+          - img "Cable Knit Cardigan Sweater - Tan" [ref=e81]
+          - generic [ref=e82]:
+            - text: mnml
+            - heading "Cable Knit Cardigan Sweater - Tan" [level=3] [ref=e83]
+            - generic [ref=e85]: €28
+            - paragraph [ref=e86]: Available at 1 store
+        - link "Oversized Graphic Tee Adidas Oversized Graphic Tee €32 €38 Available at 3 stores" [ref=e87] [cursor=pointer]:
+          - /url: /product/d1000000-0000-0000-0000-000000000005
+          - img "Oversized Graphic Tee" [ref=e89]
+          - generic [ref=e90]:
+            - text: Adidas
+            - heading "Oversized Graphic Tee" [level=3] [ref=e91]
+            - generic [ref=e92]:
+              - generic [ref=e93]: €32
+              - generic [ref=e94]: €38
+            - paragraph [ref=e95]: Available at 3 stores
+        - link "(RTV) New Balance GS 990v6 - Reflection / Marblehead New Balance (RTV) New Balance GS 990v6 - Reflection / Marblehead €130 Available at 1 store" [ref=e96] [cursor=pointer]:
+          - /url: /product/e07e3ab6-aea5-4f47-abf7-14316ac353f8
+          - img "(RTV) New Balance GS 990v6 - Reflection / Marblehead" [ref=e98]
+          - generic [ref=e99]:
+            - text: New Balance
+            - heading "(RTV) New Balance GS 990v6 - Reflection / Marblehead" [level=3] [ref=e100]
+            - generic [ref=e102]: €130
+            - paragraph [ref=e103]: Available at 1 store
+    - generic [ref=e105]:
+      - heading "Shop by Category" [level=2] [ref=e106]
+      - generic [ref=e107]:
+        - link "👟 Sneakers 120+ items" [ref=e108] [cursor=pointer]:
+          - /url: /search?category=sneakers
+          - generic [ref=e109]: 👟
+          - generic [ref=e110]: Sneakers
+          - generic [ref=e111]: 120+ items
+        - link "🧥 Hoodies 85+ items" [ref=e112] [cursor=pointer]:
+          - /url: /search?category=hoodies
+          - generic [ref=e113]: 🧥
+          - generic [ref=e114]: Hoodies
+          - generic [ref=e115]: 85+ items
+        - link "🧥 Jackets 64+ items" [ref=e116] [cursor=pointer]:
+          - /url: /search?category=jackets
+          - generic [ref=e117]: 🧥
+          - generic [ref=e118]: Jackets
+          - generic [ref=e119]: 64+ items
+        - link "👖 Pants 92+ items" [ref=e120] [cursor=pointer]:
+          - /url: /search?category=pants
+          - generic [ref=e121]: 👖
+          - generic [ref=e122]: Pants
+          - generic [ref=e123]: 92+ items
+        - link "👕 T-Shirts 156+ items" [ref=e124] [cursor=pointer]:
+          - /url: /search?category=t-shirts
+          - generic [ref=e125]: 👕
+          - generic [ref=e126]: T-Shirts
+          - generic [ref=e127]: 156+ items
+        - link "👖 Jeans 78+ items" [ref=e128] [cursor=pointer]:
+          - /url: /search?category=jeans
+          - generic [ref=e129]: 👖
+          - generic [ref=e130]: Jeans
+          - generic [ref=e131]: 78+ items
+    - generic [ref=e132]:
+      - heading "Why AllInOne Shop?" [level=2] [ref=e133]
+      - generic [ref=e134]:
+        - generic [ref=e135]:
+          - img [ref=e137]
+          - heading "Compare Prices" [level=3] [ref=e140]
+          - paragraph [ref=e141]: See prices from all major stores side by side and find the best deal instantly.
+        - generic [ref=e142]:
+          - img [ref=e144]
+          - heading "Fast & Easy" [level=3] [ref=e146]
+          - paragraph [ref=e147]: One search shows results from everywhere. Click through to buy directly at the store.
+        - generic [ref=e148]:
+          - img [ref=e150]
+          - heading "Save Money" [level=3] [ref=e152]
+          - paragraph [ref=e153]: Always find the lowest price. We track discounts and price drops for you.
+    - generic [ref=e155]:
+      - heading "Start saving on fashion today" [level=2] [ref=e156]
+      - paragraph [ref=e157]: Join thousands of smart shoppers who compare before they buy.
+      - link "Browse Products" [ref=e158] [cursor=pointer]:
+        - /url: /search
+        - text: Browse Products
+        - img [ref=e159]
+    - contentinfo [ref=e161]:
+      - generic [ref=e162]:
+        - generic [ref=e163]:
+          - generic [ref=e164]:
+            - link "AllInOne Shop" [ref=e165] [cursor=pointer]:
+              - /url: /
+              - img [ref=e166]
+              - generic [ref=e169]: AllInOne Shop
+            - paragraph [ref=e170]: Compare fashion prices from multiple stores. Find the best deals, always.
+          - generic [ref=e171]:
+            - heading "Categories" [level=4] [ref=e172]
+            - list [ref=e173]:
+              - listitem [ref=e174]:
+                - link "Sneakers" [ref=e175] [cursor=pointer]:
+                  - /url: /search?category=sneakers
+              - listitem [ref=e176]:
+                - link "Hoodies" [ref=e177] [cursor=pointer]:
+                  - /url: /search?category=hoodies
+              - listitem [ref=e178]:
+                - link "Jackets" [ref=e179] [cursor=pointer]:
+                  - /url: /search?category=jackets
+              - listitem [ref=e180]:
+                - link "Pants" [ref=e181] [cursor=pointer]:
+                  - /url: /search?category=pants
+          - generic [ref=e182]:
+            - heading "Stores" [level=4] [ref=e183]
+            - list [ref=e184]:
+              - listitem [ref=e185]: Zalando
+              - listitem [ref=e186]: Nike
+              - listitem [ref=e187]: ASOS
+              - listitem [ref=e188]: H&M
+          - generic [ref=e189]:
+            - heading "Legal" [level=4] [ref=e190]
+            - list [ref=e191]:
+              - listitem [ref=e192]:
+                - link "Privacy Policy" [ref=e193] [cursor=pointer]:
+                  - /url: "#"
+              - listitem [ref=e194]:
+                - link "Terms of Service" [ref=e195] [cursor=pointer]:
+                  - /url: "#"
+              - listitem [ref=e196]:
+                - link "Admin" [ref=e197] [cursor=pointer]:
+                  - /url: /login
+        - generic [ref=e198]: © 2026 AllInOne Shop. All rights reserved.
+  - region "Notifications alt+T"
+  - alert [ref=e199]
+```

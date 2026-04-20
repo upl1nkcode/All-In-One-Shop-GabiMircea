@@ -1,0 +1,59 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Activity Monitor",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/activity-monitor/server.js",
+      "cwd": "${workspaceFolder}/activity-monitor",
+      "console": "integratedTerminal",
+      "env": { "PORT": "4000" }
+    },
+    {
+      "name": "Playwright — All Tests",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/tests/node_modules/.bin/playwright",
+      "args": ["test"],
+      "cwd": "${workspaceFolder}/tests",
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Playwright — Headed (visible browser)",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/tests/node_modules/.bin/playwright",
+      "args": ["test", "--headed"],
+      "cwd": "${workspaceFolder}/tests",
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Playwright — Auth only",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/tests/node_modules/.bin/playwright",
+      "args": ["test", "auth.spec.ts"],
+      "cwd": "${workspaceFolder}/tests",
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Playwright — Admin only",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/tests/node_modules/.bin/playwright",
+      "args": ["test", "admin.spec.ts"],
+      "cwd": "${workspaceFolder}/tests",
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Playwright — Products only",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/tests/node_modules/.bin/playwright",
+      "args": ["test", "products.spec.ts"],
+      "cwd": "${workspaceFolder}/tests",
+      "console": "integratedTerminal"
+    }
+  ]
+}

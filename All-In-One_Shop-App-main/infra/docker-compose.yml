@@ -1,0 +1,118 @@
+version: '3.8'
+
+services:
+  # ── PostgreSQL ──────────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: allinone-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-allinone_shop}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./postgres/001_schema.sql:/docker-entrypoint-initdb.d/001_schema.sql
+      - ./postgres/002_seed.sql:/docker-entrypoint-initdb.d/002_seed.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ── Meilisearch ─────────────────────────────────────────────
+  meilisearch:
+    image: getmeili/meilisearch:v1.6
+    container_name: allinone-meilisearch
+    restart: unless-stopped
+    environment:
+      MEILI_MASTER_KEY: ${MEILI_MASTER_KEY:-changeme-meili-master-key}
+      MEILI_ENV: development
+    ports:
+      - "7700:7700"
+    volumes:
+      - meili_data:/meili_data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7700/health"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ── Backend (Spring Boot) ───────────────────────────────────
+  backend:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    container_name: allinone-backend
+    restart: unless-stopped
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-allinone_shop}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-postgres}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+      JWT_SECRET: ${JWT_SECRET:-your-256-bit-secret-key-change-this}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000}
+      MEILI_HOST: http://meilisearch:7700
+      MEILI_MASTER_KEY: ${MEILI_MASTER_KEY:-changeme-meili-master-key}
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      meilisearch:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:8080/api/products?size=1 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+
+  # ── Frontend (Next.js) ──────────────────────────────────────
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+      args:
+        # Baked into the Next.js routes manifest at build time.
+        # Must use the internal Docker service name so the server-side
+        # rewrite proxy can reach the backend container.
+        NEXT_PUBLIC_API_URL: http://backend:8080/api
+    container_name: allinone-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+  # ── Activity Monitor (Node.js) ──────────────────────────────
+  activity-monitor:
+    build:
+      context: ../activity-monitor
+      dockerfile: Dockerfile
+    container_name: allinone-activity-monitor
+    restart: unless-stopped
+    ports:
+      - "4000:4000"
+
+  # ── Scraper (Python) ────────────────────────────────────────
+  scraper:
+    build:
+      context: ../scraper
+      dockerfile: Dockerfile
+    container_name: allinone-scraper
+    restart: unless-stopped
+    environment:
+      SCRAPER_API_URL: ${SCRAPER_API_URL:-http://backend:8080/api}
+      SCRAPER_API_KEY: ${SCRAPER_API_KEY:-changeme-scraper-key}
+      SCRAPER_TRIGGER_PORT: "9090"
+    ports:
+      - "9090:9090"
+    depends_on:
+      backend:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
+  meili_data:

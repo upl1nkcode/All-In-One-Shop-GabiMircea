@@ -1,0 +1,14 @@
+{
+  "name": "allinone-shop-e2e",
+  "version": "1.0.0",
+  "description": "Playwright E2E tests for All-In-One Shop",
+  "scripts": {
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "test:headed": "playwright test --headed",
+    "report": "playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.44.0"
+  }
+}
