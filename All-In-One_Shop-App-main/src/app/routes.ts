@@ -3,6 +3,7 @@ import { LandingPage } from './components/LandingPage';
 import { SearchResults } from './components/SearchResults';
 import { ProductDetail } from './components/ProductDetail';
 import { FavoritesPage } from './components/FavoritesPage';
+import { LiveFeedPage } from './components/LiveFeedPage';
 import { NotFound } from './components/NotFound';
 
 export const router = createBrowserRouter([
@@ -23,7 +24,12 @@ export const router = createBrowserRouter([
     Component: FavoritesPage,
   },
   {
+    path: '/live',
+    Component: LiveFeedPage,
+  },
+  {
     path: '*',
     Component: NotFound,
   },
 ]);
+

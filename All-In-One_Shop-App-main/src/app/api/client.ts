@@ -11,9 +11,10 @@ import type {
   RegisterRequest,
   User,
 } from './types';
+import { cacheSet, cacheGet, enqueueOperation } from './offlineStorage';
 
 // Base URL for the API - will be replaced with actual backend URL
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
+export const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
 
 // Token management
 let authToken: string | null = localStorage.getItem('auth_token');
@@ -35,7 +36,7 @@ export function isAuthenticated(): boolean {
   return !!authToken;
 }
 
-// Generic fetch wrapper
+// Generic fetch wrapper with offline support
 async function apiRequest<T>(
   endpoint: string,
   options: RequestInit = {}
@@ -49,17 +50,55 @@ async function apiRequest<T>(
     (headers as Record<string, string>)['Authorization'] = `Bearer ${authToken}`;
   }
 
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-    ...options,
-    headers,
-  });
+  const method = (options.method || 'GET').toUpperCase();
+  const cacheKey = `${method}:${endpoint}`;
 
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ message: 'Network error' }));
-    throw new Error(error.message || 'Request failed');
+  try {
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      ...options,
+      headers,
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: 'Network error' }));
+      throw new Error(error.message || 'Request failed');
+    }
+
+    const json: ApiResponse<T> = await response.json();
+
+    // Cache successful GET responses for offline fallback
+    if (method === 'GET') {
+      cacheSet(cacheKey, json);
+    }
+
+    return json;
+  } catch (err) {
+    // If this is a network error (not a server error), try offline handling
+    if (err instanceof TypeError || (err instanceof Error && err.message === 'Failed to fetch')) {
+      // For read requests, try the cache
+      if (method === 'GET') {
+        const cached = cacheGet<ApiResponse<T>>(cacheKey);
+        if (cached) return cached;
+      }
+
+      // For mutating requests, queue the operation for later sync
+      if (['POST', 'PUT', 'DELETE'].includes(method)) {
+        enqueueOperation({
+          endpoint,
+          method,
+          body: options.body as string | undefined,
+        });
+        // Return a synthetic success so the UI isn't blocked
+        return {
+          success: true,
+          message: 'Saved offline — will sync when back online',
+          data: {} as T,
+        };
+      }
+    }
+
+    throw err;
   }
-
-  return response.json();
 }
 
 // Product API
