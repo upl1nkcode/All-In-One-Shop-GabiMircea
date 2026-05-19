@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.datafaker.Faker;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -46,8 +47,12 @@ public class FakerService {
                 while (generating.get()) {
                     List<ProductDTO> generated = new ArrayList<>();
                     for (int i = 0; i < batchSize; i++) {
-                        ProductDTO dto = generateFakeProduct();
-                        generated.add(dto);
+                        try {
+                            ProductDTO dto = generateFakeProduct();
+                            generated.add(dto);
+                        } catch (Exception e) {
+                            log.warn("Failed to generate fake product: {}", e.getMessage());
+                        }
                     }
 
                     Map<String, Object> message = new HashMap<>();
@@ -83,7 +88,8 @@ public class FakerService {
         generating.set(false);
     }
 
-    private ProductDTO generateFakeProduct() {
+    @Transactional
+    protected ProductDTO generateFakeProduct() {
         // Find or create a brand
         String brandName = faker.company().name();
         Brand brand = brandRepository.findByName(brandName)
@@ -118,10 +124,10 @@ public class FakerService {
                 .imageUrl("https://picsum.photos/seed/" + UUID.randomUUID().toString().substring(0, 8) + "/400/400")
                 .gender(gender)
                 .isActive(true)
-                .sizes(new String[]{"S", "M", "L", "XL"})
-                .colors(new String[]{faker.color().name(), faker.color().name()})
                 .prices(new ArrayList<>())
                 .build();
+        product.setSizes(new String[]{"S", "M", "L", "XL"});
+        product.setColors(new String[]{faker.color().name(), faker.color().name()});
         product = productRepository.save(product);
 
         // Create price

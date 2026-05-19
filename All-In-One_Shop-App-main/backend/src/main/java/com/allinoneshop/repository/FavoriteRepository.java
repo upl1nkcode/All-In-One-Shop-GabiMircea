@@ -1,65 +1,24 @@
 package com.allinoneshop.repository;
 
 import com.allinoneshop.entity.Favorite;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
+import java.util.List;
+import java.util.UUID;
 
 @Repository
-public class FavoriteRepository {
+public interface FavoriteRepository extends JpaRepository<Favorite, UUID> {
 
-    private final ConcurrentHashMap<UUID, Favorite> store = new ConcurrentHashMap<>();
+    List<Favorite> findByUserId(UUID userId);
 
-    public Favorite save(Favorite favorite) {
-        if (favorite.getId() == null) {
-            favorite.setId(UUID.randomUUID());
-            favorite.setCreatedAt(java.time.OffsetDateTime.now());
-        }
-        store.put(favorite.getId(), favorite);
-        return favorite;
-    }
+    @Query("SELECT f FROM Favorite f JOIN FETCH f.product p LEFT JOIN FETCH p.brand " +
+           "LEFT JOIN FETCH p.category WHERE f.user.id = :userId")
+    List<Favorite> findByUserIdWithProducts(@Param("userId") UUID userId);
 
-    public Optional<Favorite> findById(UUID id) {
-        return Optional.ofNullable(store.get(id));
-    }
+    boolean existsByUserIdAndProductId(UUID userId, UUID productId);
 
-    public List<Favorite> findAll() {
-        return new ArrayList<>(store.values());
-    }
-
-    public List<Favorite> findByUserId(UUID userId) {
-        return store.values().stream()
-                .filter(f -> f.getUser() != null && userId.equals(f.getUser().getId()))
-                .collect(Collectors.toList());
-    }
-
-    public List<Favorite> findByUserIdWithProducts(UUID userId) {
-        return findByUserId(userId);
-    }
-
-    public boolean existsByUserIdAndProductId(UUID userId, UUID productId) {
-        return store.values().stream()
-                .anyMatch(f -> f.getUser() != null && userId.equals(f.getUser().getId())
-                        && f.getProduct() != null && productId.equals(f.getProduct().getId()));
-    }
-
-    public void deleteByUserIdAndProductId(UUID userId, UUID productId) {
-        store.values().removeIf(f ->
-                f.getUser() != null && userId.equals(f.getUser().getId())
-                        && f.getProduct() != null && productId.equals(f.getProduct().getId()));
-    }
-
-    public void deleteById(UUID id) {
-        store.remove(id);
-    }
-
-    public long count() {
-        return store.size();
-    }
-
-    public void clear() {
-        store.clear();
-    }
+    void deleteByUserIdAndProductId(UUID userId, UUID productId);
 }

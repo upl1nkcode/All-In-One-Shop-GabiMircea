@@ -1,25 +1,27 @@
 package com.allinoneshop.service;
 
 import com.allinoneshop.dto.BrandDTO;
+import com.allinoneshop.entity.Brand;
 import com.allinoneshop.repository.BrandRepository;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 class BrandServiceTest {
 
-    private BrandRepository brandRepository;
-    private BrandService brandService;
-
-    @BeforeEach
-    void setUp() {
-        brandRepository = new BrandRepository();
-        brandService = new BrandService(brandRepository);
-    }
+    @Mock private BrandRepository brandRepository;
+    @InjectMocks private BrandService brandService;
 
     private BrandDTO buildDto(String name) {
         BrandDTO dto = new BrandDTO();
@@ -29,6 +31,11 @@ class BrandServiceTest {
 
     @Test
     void createBrand_savesAndReturnsDTO() {
+        when(brandRepository.findByName("Nike")).thenReturn(Optional.empty());
+        when(brandRepository.save(any(Brand.class))).thenAnswer(inv -> {
+            Brand b = inv.getArgument(0); b.setId(UUID.randomUUID()); return b;
+        });
+
         BrandDTO result = brandService.createBrand(buildDto("Nike"));
 
         assertThat(result.getId()).isNotNull();
@@ -37,7 +44,8 @@ class BrandServiceTest {
 
     @Test
     void createBrand_duplicateName_throwsException() {
-        brandService.createBrand(buildDto("Nike"));
+        when(brandRepository.findByName("Nike"))
+                .thenReturn(Optional.of(Brand.builder().name("Nike").build()));
 
         assertThatThrownBy(() -> brandService.createBrand(buildDto("Nike")))
                 .isInstanceOf(RuntimeException.class)
@@ -46,8 +54,9 @@ class BrandServiceTest {
 
     @Test
     void getAllBrands_returnsAll() {
-        brandService.createBrand(buildDto("Nike"));
-        brandService.createBrand(buildDto("Adidas"));
+        when(brandRepository.findAll()).thenReturn(List.of(
+                Brand.builder().id(UUID.randomUUID()).name("Nike").build(),
+                Brand.builder().id(UUID.randomUUID()).name("Adidas").build()));
 
         List<BrandDTO> result = brandService.getAllBrands();
         assertThat(result).hasSize(2);
@@ -55,14 +64,17 @@ class BrandServiceTest {
 
     @Test
     void getBrandById_found() {
-        BrandDTO created = brandService.createBrand(buildDto("Puma"));
+        UUID id = UUID.randomUUID();
+        when(brandRepository.findById(id))
+                .thenReturn(Optional.of(Brand.builder().id(id).name("Puma").build()));
 
-        BrandDTO result = brandService.getBrandById(created.getId());
+        BrandDTO result = brandService.getBrandById(id);
         assertThat(result.getName()).isEqualTo("Puma");
     }
 
     @Test
     void getBrandById_notFound_throwsException() {
+        when(brandRepository.findById(any())).thenReturn(Optional.empty());
         assertThatThrownBy(() -> brandService.getBrandById(UUID.randomUUID()))
                 .isInstanceOf(RuntimeException.class)
                 .hasMessageContaining("Brand not found");
@@ -70,14 +82,18 @@ class BrandServiceTest {
 
     @Test
     void updateBrand_existingBrand_updatesFields() {
-        BrandDTO created = brandService.createBrand(buildDto("Old Brand"));
+        UUID id = UUID.randomUUID();
+        Brand existing = Brand.builder().id(id).name("Old Brand").build();
+        when(brandRepository.findById(id)).thenReturn(Optional.of(existing));
+        when(brandRepository.save(any(Brand.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        BrandDTO result = brandService.updateBrand(created.getId(), buildDto("New Brand"));
+        BrandDTO result = brandService.updateBrand(id, buildDto("New Brand"));
         assertThat(result.getName()).isEqualTo("New Brand");
     }
 
     @Test
     void updateBrand_notFound_throwsException() {
+        when(brandRepository.findById(any())).thenReturn(Optional.empty());
         assertThatThrownBy(() -> brandService.updateBrand(UUID.randomUUID(), buildDto("x")))
                 .isInstanceOf(RuntimeException.class)
                 .hasMessageContaining("Brand not found");
@@ -85,14 +101,17 @@ class BrandServiceTest {
 
     @Test
     void deleteBrand_existingBrand_removesIt() {
-        BrandDTO created = brandService.createBrand(buildDto("Delete Me"));
+        UUID id = UUID.randomUUID();
+        when(brandRepository.findById(id))
+                .thenReturn(Optional.of(Brand.builder().id(id).name("Delete Me").build()));
 
-        brandService.deleteBrand(created.getId());
-        assertThat(brandRepository.count()).isZero();
+        brandService.deleteBrand(id);
+        verify(brandRepository).deleteById(id);
     }
 
     @Test
     void deleteBrand_notFound_throwsException() {
+        when(brandRepository.findById(any())).thenReturn(Optional.empty());
         assertThatThrownBy(() -> brandService.deleteBrand(UUID.randomUUID()))
                 .isInstanceOf(RuntimeException.class)
                 .hasMessageContaining("Brand not found");

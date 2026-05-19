@@ -1,72 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SearchHistoryRepository.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">AllInOne Shop API</a> &gt; <a href="index.source.html" class="el_package">com.allinoneshop.repository</a> &gt; <span class="el_source">SearchHistoryRepository.java</span></div><h1>SearchHistoryRepository.java</h1><pre class="source lang-java linenums">package com.allinoneshop.repository;
 
 import com.allinoneshop.entity.SearchHistory;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
+import java.util.List;
+import java.util.UUID;
 
 @Repository
-<span class="fc" id="L11">public class SearchHistoryRepository {</span>
+public interface SearchHistoryRepository extends JpaRepository&lt;SearchHistory, UUID&gt; {
 
-<span class="fc" id="L13">    private final ConcurrentHashMap&lt;UUID, SearchHistory&gt; store = new ConcurrentHashMap&lt;&gt;();</span>
+    List&lt;SearchHistory&gt; findByUserIdOrderByCreatedAtDesc(UUID userId);
 
-    public SearchHistory save(SearchHistory history) {
-<span class="pc bpc" id="L16" title="1 of 2 branches missed.">        if (history.getId() == null) {</span>
-<span class="fc" id="L17">            history.setId(UUID.randomUUID());</span>
-<span class="fc" id="L18">            history.setCreatedAt(java.time.OffsetDateTime.now());</span>
-        }
-<span class="fc" id="L20">        store.put(history.getId(), history);</span>
-<span class="fc" id="L21">        return history;</span>
+    @Query(&quot;SELECT sh.searchQuery FROM SearchHistory sh WHERE sh.user.id = :userId &quot; +
+           &quot;GROUP BY sh.searchQuery ORDER BY MAX(sh.createdAt) DESC&quot;)
+    List&lt;String&gt; findRecentSearchesByUserId(@Param(&quot;userId&quot;) UUID userId);
+
+    default List&lt;String&gt; findRecentSearchesByUserId(UUID userId, int limit) {
+<span class="nc" id="L22">        List&lt;String&gt; results = findRecentSearchesByUserId(userId);</span>
+<span class="nc bnc" id="L23" title="All 2 branches missed.">        return results.size() &gt; limit ? results.subList(0, limit) : results;</span>
     }
 
-    public List&lt;SearchHistory&gt; findAll() {
-<span class="nc" id="L25">        return new ArrayList&lt;&gt;(store.values());</span>
+    @Query(&quot;SELECT sh.searchQuery FROM SearchHistory sh &quot; +
+           &quot;GROUP BY sh.searchQuery ORDER BY COUNT(sh) DESC&quot;)
+    List&lt;String&gt; findTrendingSearchesAll();
+
+    default List&lt;String&gt; findTrendingSearches(int limit) {
+<span class="nc" id="L31">        List&lt;String&gt; results = findTrendingSearchesAll();</span>
+<span class="nc bnc" id="L32" title="All 2 branches missed.">        return results.size() &gt; limit ? results.subList(0, limit) : results;</span>
     }
 
-    public List&lt;SearchHistory&gt; findByUserIdOrderByCreatedAtDesc(UUID userId, int limit) {
-<span class="nc" id="L29">        return store.values().stream()</span>
-<span class="nc bnc" id="L30" title="All 4 branches missed.">                .filter(sh -&gt; sh.getUser() != null &amp;&amp; userId.equals(sh.getUser().getId()))</span>
-<span class="nc" id="L31">                .sorted(Comparator.comparing(SearchHistory::getCreatedAt, Comparator.nullsLast(Comparator.reverseOrder())))</span>
-<span class="nc" id="L32">                .limit(limit)</span>
-<span class="nc" id="L33">                .collect(Collectors.toList());</span>
-    }
-
-    public List&lt;String&gt; findRecentSearchesByUserId(UUID userId, int limit) {
-<span class="fc" id="L37">        return store.values().stream()</span>
-<span class="pc bpc" id="L38" title="2 of 4 branches missed.">                .filter(sh -&gt; sh.getUser() != null &amp;&amp; userId.equals(sh.getUser().getId()))</span>
-<span class="fc" id="L39">                .sorted(Comparator.comparing(SearchHistory::getCreatedAt, Comparator.nullsLast(Comparator.reverseOrder())))</span>
-<span class="fc" id="L40">                .map(SearchHistory::getSearchQuery)</span>
-<span class="fc" id="L41">                .distinct()</span>
-<span class="fc" id="L42">                .limit(limit)</span>
-<span class="fc" id="L43">                .collect(Collectors.toList());</span>
-    }
-
-    public List&lt;String&gt; findTrendingSearches(int limit) {
-<span class="fc" id="L47">        return store.values().stream()</span>
-<span class="fc" id="L48">                .collect(Collectors.groupingBy(SearchHistory::getSearchQuery, Collectors.counting()))</span>
-<span class="fc" id="L49">                .entrySet().stream()</span>
-<span class="fc" id="L50">                .sorted(Map.Entry.&lt;String, Long&gt;comparingByValue().reversed())</span>
-<span class="fc" id="L51">                .limit(limit)</span>
-<span class="fc" id="L52">                .map(Map.Entry::getKey)</span>
-<span class="fc" id="L53">                .collect(Collectors.toList());</span>
-    }
-
-    public void deleteByUserId(UUID userId) {
-<span class="pc bpc" id="L57" title="1 of 4 branches missed.">        store.values().removeIf(sh -&gt; sh.getUser() != null &amp;&amp; userId.equals(sh.getUser().getId()));</span>
-<span class="fc" id="L58">    }</span>
-
-    public void deleteById(UUID id) {
-<span class="nc" id="L61">        store.remove(id);</span>
-<span class="nc" id="L62">    }</span>
-
-    public long count() {
-<span class="fc" id="L65">        return store.size();</span>
-    }
-
-    public void clear() {
-<span class="nc" id="L69">        store.clear();</span>
-<span class="nc" id="L70">    }</span>
+    void deleteByUserId(UUID userId);
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

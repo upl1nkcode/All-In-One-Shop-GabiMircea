@@ -32,7 +32,7 @@ public class AuthService {
                 .passwordHash(passwordEncoder.encode(request.getPassword()))
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
-                .role(Role.ADMIN)
+                .role(Role.USER)
                 .build();
 
         user = userRepository.save(user);

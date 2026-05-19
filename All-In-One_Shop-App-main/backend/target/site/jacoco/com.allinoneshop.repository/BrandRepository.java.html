@@ -1,49 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BrandRepository.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">AllInOne Shop API</a> &gt; <a href="index.source.html" class="el_package">com.allinoneshop.repository</a> &gt; <span class="el_source">BrandRepository.java</span></div><h1>BrandRepository.java</h1><pre class="source lang-java linenums">package com.allinoneshop.repository;
 
 import com.allinoneshop.entity.Brand;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Optional;
+import java.util.UUID;
 
 @Repository
-<span class="fc" id="L10">public class BrandRepository {</span>
+public interface BrandRepository extends JpaRepository&lt;Brand, UUID&gt; {
 
-<span class="fc" id="L12">    private final ConcurrentHashMap&lt;UUID, Brand&gt; store = new ConcurrentHashMap&lt;&gt;();</span>
+    Optional&lt;Brand&gt; findByNameIgnoreCase(String name);
 
-    public Brand save(Brand brand) {
-<span class="fc bfc" id="L15" title="All 2 branches covered.">        if (brand.getId() == null) {</span>
-<span class="fc" id="L16">            brand.setId(UUID.randomUUID());</span>
-<span class="fc" id="L17">            brand.setCreatedAt(java.time.OffsetDateTime.now());</span>
-        }
-<span class="fc" id="L19">        store.put(brand.getId(), brand);</span>
-<span class="fc" id="L20">        return brand;</span>
+    default Optional&lt;Brand&gt; findByName(String name) {
+<span class="nc" id="L16">        return findByNameIgnoreCase(name);</span>
     }
 
-    public Optional&lt;Brand&gt; findById(UUID id) {
-<span class="fc" id="L24">        return Optional.ofNullable(store.get(id));</span>
-    }
-
-    public Optional&lt;Brand&gt; findByName(String name) {
-<span class="fc" id="L28">        return store.values().stream()</span>
-<span class="fc" id="L29">                .filter(b -&gt; name.equalsIgnoreCase(b.getName()))</span>
-<span class="fc" id="L30">                .findFirst();</span>
-    }
-
-    public List&lt;Brand&gt; findAll() {
-<span class="fc" id="L34">        return new ArrayList&lt;&gt;(store.values());</span>
-    }
-
-    public void deleteById(UUID id) {
-<span class="fc" id="L38">        store.remove(id);</span>
-<span class="fc" id="L39">    }</span>
-
-    public long count() {
-<span class="fc" id="L42">        return store.size();</span>
-    }
-
-    public void clear() {
-<span class="nc" id="L46">        store.clear();</span>
-<span class="nc" id="L47">    }</span>
+    boolean existsByNameIgnoreCase(String name);
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

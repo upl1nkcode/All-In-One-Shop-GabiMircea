@@ -44,6 +44,7 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin())) // H2 console
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
@@ -61,6 +62,8 @@ public class SecurityConfig {
                         .requestMatchers("/ws/**").permitAll()
                         // Faker endpoints (public for demo)
                         .requestMatchers("/faker/**").permitAll()
+                        // H2 Console (development only)
+                        .requestMatchers("/h2-console/**").permitAll()
                         // Swagger/OpenAPI
                         .requestMatchers("/swagger-ui/**", "/api-docs/**", "/swagger-ui.html").permitAll()
                         // Protected endpoints

@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: com.allinoneshop.service.FavoriteServiceTest
 -------------------------------------------------------------------------------
-Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.040 s -- in com.allinoneshop.service.FavoriteServiceTest
+Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.145 s -- in com.allinoneshop.service.FavoriteServiceTest

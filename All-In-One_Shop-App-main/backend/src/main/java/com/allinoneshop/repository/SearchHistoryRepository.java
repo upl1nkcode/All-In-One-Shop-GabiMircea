@@ -1,71 +1,36 @@
 package com.allinoneshop.repository;
 
 import com.allinoneshop.entity.SearchHistory;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
+import java.util.List;
+import java.util.UUID;
 
 @Repository
-public class SearchHistoryRepository {
+public interface SearchHistoryRepository extends JpaRepository<SearchHistory, UUID> {
 
-    private final ConcurrentHashMap<UUID, SearchHistory> store = new ConcurrentHashMap<>();
+    List<SearchHistory> findByUserIdOrderByCreatedAtDesc(UUID userId);
 
-    public SearchHistory save(SearchHistory history) {
-        if (history.getId() == null) {
-            history.setId(UUID.randomUUID());
-            history.setCreatedAt(java.time.OffsetDateTime.now());
-        }
-        store.put(history.getId(), history);
-        return history;
+    @Query("SELECT sh.searchQuery FROM SearchHistory sh WHERE sh.user.id = :userId " +
+           "GROUP BY sh.searchQuery ORDER BY MAX(sh.createdAt) DESC")
+    List<String> findRecentSearchesByUserId(@Param("userId") UUID userId);
+
+    default List<String> findRecentSearchesByUserId(UUID userId, int limit) {
+        List<String> results = findRecentSearchesByUserId(userId);
+        return results.size() > limit ? results.subList(0, limit) : results;
     }
 
-    public List<SearchHistory> findAll() {
-        return new ArrayList<>(store.values());
+    @Query("SELECT sh.searchQuery FROM SearchHistory sh " +
+           "GROUP BY sh.searchQuery ORDER BY COUNT(sh) DESC")
+    List<String> findTrendingSearchesAll();
+
+    default List<String> findTrendingSearches(int limit) {
+        List<String> results = findTrendingSearchesAll();
+        return results.size() > limit ? results.subList(0, limit) : results;
     }
 
-    public List<SearchHistory> findByUserIdOrderByCreatedAtDesc(UUID userId, int limit) {
-        return store.values().stream()
-                .filter(sh -> sh.getUser() != null && userId.equals(sh.getUser().getId()))
-                .sorted(Comparator.comparing(SearchHistory::getCreatedAt, Comparator.nullsLast(Comparator.reverseOrder())))
-                .limit(limit)
-                .collect(Collectors.toList());
-    }
-
-    public List<String> findRecentSearchesByUserId(UUID userId, int limit) {
-        return store.values().stream()
-                .filter(sh -> sh.getUser() != null && userId.equals(sh.getUser().getId()))
-                .sorted(Comparator.comparing(SearchHistory::getCreatedAt, Comparator.nullsLast(Comparator.reverseOrder())))
-                .map(SearchHistory::getSearchQuery)
-                .distinct()
-                .limit(limit)
-                .collect(Collectors.toList());
-    }
-
-    public List<String> findTrendingSearches(int limit) {
-        return store.values().stream()
-                .collect(Collectors.groupingBy(SearchHistory::getSearchQuery, Collectors.counting()))
-                .entrySet().stream()
-                .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
-                .limit(limit)
-                .map(Map.Entry::getKey)
-                .collect(Collectors.toList());
-    }
-
-    public void deleteByUserId(UUID userId) {
-        store.values().removeIf(sh -> sh.getUser() != null && userId.equals(sh.getUser().getId()));
-    }
-
-    public void deleteById(UUID id) {
-        store.remove(id);
-    }
-
-    public long count() {
-        return store.size();
-    }
-
-    public void clear() {
-        store.clear();
-    }
+    void deleteByUserId(UUID userId);
 }

@@ -60,6 +60,10 @@ async function apiRequest<T>(
     });
 
     if (!response.ok) {
+      // If unauthorized, clear the auth token
+      if (response.status === 401) {
+        setAuthToken(null);
+      }
       const error = await response.json().catch(() => ({ message: 'Network error' }));
       throw new Error(error.message || 'Request failed');
     }
@@ -156,8 +160,14 @@ export const authApi = {
     return response;
   },
 
-  logout: () => {
-    setAuthToken(null);
+  logout: async () => {
+    try {
+      await apiRequest<void>('/auth/logout', { method: 'POST' });
+    } catch {
+      // Ignore errors - we logout locally regardless
+    } finally {
+      setAuthToken(null);
+    }
   },
 
   getCurrentUser: () => apiRequest<User>('/auth/me'),

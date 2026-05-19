@@ -44,68 +44,71 @@ public class SecurityConfig {
 <span class="nc" id="L44">        http</span>
 <span class="nc" id="L45">                .csrf(AbstractHttpConfigurer::disable)</span>
 <span class="nc" id="L46">                .cors(cors -&gt; cors.configurationSource(corsConfigurationSource()))</span>
-<span class="nc" id="L47">                .sessionManagement(session -&gt;</span>
-<span class="nc" id="L48">                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))</span>
-<span class="nc" id="L49">                .authorizeHttpRequests(auth -&gt; auth</span>
+<span class="nc" id="L47">                .headers(headers -&gt; headers.frameOptions(frame -&gt; frame.sameOrigin())) // H2 console</span>
+<span class="nc" id="L48">                .sessionManagement(session -&gt;</span>
+<span class="nc" id="L49">                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))</span>
+<span class="nc" id="L50">                .authorizeHttpRequests(auth -&gt; auth</span>
                         // Public endpoints
-<span class="nc" id="L51">                        .requestMatchers(&quot;/auth/**&quot;).permitAll()</span>
-<span class="nc" id="L52">                        .requestMatchers(HttpMethod.GET, &quot;/products/**&quot;).permitAll()</span>
-<span class="nc" id="L53">                        .requestMatchers(HttpMethod.GET, &quot;/categories/**&quot;).permitAll()</span>
-<span class="nc" id="L54">                        .requestMatchers(HttpMethod.GET, &quot;/brands/**&quot;).permitAll()</span>
-<span class="nc" id="L55">                        .requestMatchers(HttpMethod.GET, &quot;/stores/**&quot;).permitAll()</span>
-<span class="nc" id="L56">                        .requestMatchers(HttpMethod.POST, &quot;/products/search&quot;).permitAll()</span>
+<span class="nc" id="L52">                        .requestMatchers(&quot;/auth/**&quot;).permitAll()</span>
+<span class="nc" id="L53">                        .requestMatchers(HttpMethod.GET, &quot;/products/**&quot;).permitAll()</span>
+<span class="nc" id="L54">                        .requestMatchers(HttpMethod.GET, &quot;/categories/**&quot;).permitAll()</span>
+<span class="nc" id="L55">                        .requestMatchers(HttpMethod.GET, &quot;/brands/**&quot;).permitAll()</span>
+<span class="nc" id="L56">                        .requestMatchers(HttpMethod.GET, &quot;/stores/**&quot;).permitAll()</span>
+<span class="nc" id="L57">                        .requestMatchers(HttpMethod.POST, &quot;/products/search&quot;).permitAll()</span>
                         // Search endpoints
-<span class="nc" id="L58">                        .requestMatchers(HttpMethod.GET, &quot;/search/trending&quot;).permitAll()</span>
-<span class="nc" id="L59">                        .requestMatchers(HttpMethod.GET, &quot;/search/recent&quot;).permitAll()</span>
+<span class="nc" id="L59">                        .requestMatchers(HttpMethod.GET, &quot;/search/trending&quot;).permitAll()</span>
+<span class="nc" id="L60">                        .requestMatchers(HttpMethod.GET, &quot;/search/recent&quot;).permitAll()</span>
                         // WebSocket endpoint
-<span class="nc" id="L61">                        .requestMatchers(&quot;/ws/**&quot;).permitAll()</span>
+<span class="nc" id="L62">                        .requestMatchers(&quot;/ws/**&quot;).permitAll()</span>
                         // Faker endpoints (public for demo)
-<span class="nc" id="L63">                        .requestMatchers(&quot;/faker/**&quot;).permitAll()</span>
+<span class="nc" id="L64">                        .requestMatchers(&quot;/faker/**&quot;).permitAll()</span>
+                        // H2 Console (development only)
+<span class="nc" id="L66">                        .requestMatchers(&quot;/h2-console/**&quot;).permitAll()</span>
                         // Swagger/OpenAPI
-<span class="nc" id="L65">                        .requestMatchers(&quot;/swagger-ui/**&quot;, &quot;/api-docs/**&quot;, &quot;/swagger-ui.html&quot;).permitAll()</span>
+<span class="nc" id="L68">                        .requestMatchers(&quot;/swagger-ui/**&quot;, &quot;/api-docs/**&quot;, &quot;/swagger-ui.html&quot;).permitAll()</span>
                         // Protected endpoints
-<span class="nc" id="L67">                        .requestMatchers(&quot;/favorites/**&quot;).authenticated()</span>
-<span class="nc" id="L68">                        .requestMatchers(&quot;/users/**&quot;).authenticated()</span>
-<span class="nc" id="L69">                        .requestMatchers(HttpMethod.DELETE, &quot;/search/history&quot;).authenticated()</span>
-<span class="nc" id="L70">                        .requestMatchers(&quot;/admin/stats&quot;).hasRole(&quot;ADMIN&quot;)</span>
-<span class="nc" id="L71">                        .anyRequest().permitAll()</span>
+<span class="nc" id="L70">                        .requestMatchers(&quot;/favorites/**&quot;).authenticated()</span>
+<span class="nc" id="L71">                        .requestMatchers(&quot;/users/**&quot;).authenticated()</span>
+<span class="nc" id="L72">                        .requestMatchers(HttpMethod.DELETE, &quot;/search/history&quot;).authenticated()</span>
+<span class="nc" id="L73">                        .requestMatchers(&quot;/admin/stats&quot;).hasRole(&quot;ADMIN&quot;)</span>
+<span class="nc" id="L74">                        .anyRequest().permitAll()</span>
                 )
-<span class="nc" id="L73">                .authenticationProvider(authenticationProvider())</span>
-<span class="nc" id="L74">                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);</span>
+<span class="nc" id="L76">                .authenticationProvider(authenticationProvider())</span>
+<span class="nc" id="L77">                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);</span>
 
-<span class="nc" id="L76">        return http.build();</span>
+<span class="nc" id="L79">        return http.build();</span>
     }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
-<span class="nc" id="L81">        CorsConfiguration configuration = new CorsConfiguration();</span>
-<span class="nc" id="L82">        configuration.setAllowedOriginPatterns(List.of(&quot;*&quot;));</span>
-<span class="nc" id="L83">        configuration.setAllowedMethods(Arrays.asList(&quot;GET&quot;, &quot;POST&quot;, &quot;PUT&quot;, &quot;DELETE&quot;, &quot;OPTIONS&quot;, &quot;PATCH&quot;));</span>
-<span class="nc" id="L84">        configuration.setAllowedHeaders(List.of(&quot;*&quot;));</span>
-<span class="nc" id="L85">        configuration.setAllowCredentials(true);</span>
-<span class="nc" id="L86">        configuration.setMaxAge(3600L);</span>
+<span class="nc" id="L84">        CorsConfiguration configuration = new CorsConfiguration();</span>
+<span class="nc" id="L85">        configuration.setAllowedOriginPatterns(List.of(&quot;*&quot;));</span>
+<span class="nc" id="L86">        configuration.setAllowedMethods(Arrays.asList(&quot;GET&quot;, &quot;POST&quot;, &quot;PUT&quot;, &quot;DELETE&quot;, &quot;OPTIONS&quot;, &quot;PATCH&quot;));</span>
+<span class="nc" id="L87">        configuration.setAllowedHeaders(List.of(&quot;*&quot;));</span>
+<span class="nc" id="L88">        configuration.setAllowCredentials(true);</span>
+<span class="nc" id="L89">        configuration.setMaxAge(3600L);</span>
 
-<span class="nc" id="L88">        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();</span>
-<span class="nc" id="L89">        source.registerCorsConfiguration(&quot;/**&quot;, configuration);</span>
-<span class="nc" id="L90">        return source;</span>
+<span class="nc" id="L91">        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();</span>
+<span class="nc" id="L92">        source.registerCorsConfiguration(&quot;/**&quot;, configuration);</span>
+<span class="nc" id="L93">        return source;</span>
     }
 
     @Bean
     public AuthenticationProvider authenticationProvider() {
-<span class="nc" id="L95">        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();</span>
-<span class="nc" id="L96">        authProvider.setUserDetailsService(userDetailsService);</span>
-<span class="nc" id="L97">        authProvider.setPasswordEncoder(passwordEncoder());</span>
-<span class="nc" id="L98">        return authProvider;</span>
+<span class="nc" id="L98">        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();</span>
+<span class="nc" id="L99">        authProvider.setUserDetailsService(userDetailsService);</span>
+<span class="nc" id="L100">        authProvider.setPasswordEncoder(passwordEncoder());</span>
+<span class="nc" id="L101">        return authProvider;</span>
     }
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
-<span class="nc" id="L103">        return config.getAuthenticationManager();</span>
+<span class="nc" id="L106">        return config.getAuthenticationManager();</span>
     }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-<span class="nc" id="L108">        return new BCryptPasswordEncoder();</span>
+<span class="nc" id="L111">        return new BCryptPasswordEncoder();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

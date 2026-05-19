@@ -18,24 +18,26 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.Optional;
+import java.util.UUID;
+
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class AuthServiceTest {
 
-    private UserRepository userRepository;
-    private PasswordEncoder passwordEncoder;
-
+    @Mock private UserRepository userRepository;
     @Mock private JwtTokenProvider jwtTokenProvider;
     @Mock private AuthenticationManager authenticationManager;
 
+    private PasswordEncoder passwordEncoder;
     private AuthService authService;
 
     @BeforeEach
     void setUp() {
-        userRepository = new UserRepository();
         passwordEncoder = new BCryptPasswordEncoder();
         authService = new AuthService(userRepository, passwordEncoder, jwtTokenProvider, authenticationManager);
     }
@@ -44,6 +46,12 @@ class AuthServiceTest {
 
     @Test
     void register_newEmail_savesUserAndReturnsToken() {
+        when(userRepository.existsByEmail("new@example.com")).thenReturn(false);
+        when(userRepository.save(any(User.class))).thenAnswer(inv -> {
+            User u = inv.getArgument(0);
+            u.setId(UUID.randomUUID());
+            return u;
+        });
         when(jwtTokenProvider.generateToken(any(User.class))).thenReturn("jwt.token");
 
         RegisterRequest req = new RegisterRequest();
@@ -58,17 +66,12 @@ class AuthServiceTest {
         assertThat(response.getTokenType()).isEqualTo("Bearer");
         assertThat(response.getUser().getEmail()).isEqualTo("new@example.com");
         assertThat(response.getUser().getFirstName()).isEqualTo("Jane");
-        assertThat(userRepository.count()).isEqualTo(1);
+        verify(userRepository).save(any(User.class));
     }
 
     @Test
     void register_existingEmail_throwsAndNeverSaves() {
-        when(jwtTokenProvider.generateToken(any(User.class))).thenReturn("t");
-
-        RegisterRequest first = new RegisterRequest();
-        first.setEmail("taken@example.com");
-        first.setPassword("pass1234");
-        authService.register(first);
+        when(userRepository.existsByEmail("taken@example.com")).thenReturn(true);
 
         RegisterRequest dup = new RegisterRequest();
         dup.setEmail("taken@example.com");
@@ -78,11 +81,17 @@ class AuthServiceTest {
                 .isInstanceOf(RuntimeException.class)
                 .hasMessageContaining("Email already registered");
 
-        assertThat(userRepository.count()).isEqualTo(1);
+        verify(userRepository, never()).save(any());
     }
 
     @Test
     void register_passwordIsHashed() {
+        when(userRepository.existsByEmail("hash@example.com")).thenReturn(false);
+        when(userRepository.save(any(User.class))).thenAnswer(inv -> {
+            User u = inv.getArgument(0);
+            u.setId(UUID.randomUUID());
+            return u;
+        });
         when(jwtTokenProvider.generateToken(any(User.class))).thenReturn("t");
 
         RegisterRequest req = new RegisterRequest();
@@ -90,13 +99,21 @@ class AuthServiceTest {
         req.setPassword("plaintext");
         authService.register(req);
 
-        User stored = userRepository.findByEmail("hash@example.com").orElseThrow();
-        assertThat(stored.getPasswordHash()).isNotEqualTo("plaintext");
-        assertThat(passwordEncoder.matches("plaintext", stored.getPasswordHash())).isTrue();
+        verify(userRepository).save(argThat(user -> {
+            assertThat(user.getPasswordHash()).isNotEqualTo("plaintext");
+            assertThat(passwordEncoder.matches("plaintext", user.getPasswordHash())).isTrue();
+            return true;
+        }));
     }
 
     @Test
-    void register_setsRoleAdmin() {
+    void register_setsRoleUser() {
+        when(userRepository.existsByEmail("role@example.com")).thenReturn(false);
+        when(userRepository.save(any(User.class))).thenAnswer(inv -> {
+            User u = inv.getArgument(0);
+            u.setId(UUID.randomUUID());
+            return u;
+        });
         when(jwtTokenProvider.generateToken(any(User.class))).thenReturn("t");
 
         RegisterRequest req = new RegisterRequest();
@@ -104,7 +121,7 @@ class AuthServiceTest {
         req.setPassword("pass1234");
         AuthResponse response = authService.register(req);
 
-        assertThat(response.getUser().getRole()).isEqualTo("ADMIN");
+        assertThat(response.getUser().getRole()).isEqualTo("USER");
     }
 
     // ── login ─────────────────────────────────────────────────
@@ -112,11 +129,11 @@ class AuthServiceTest {
     @Test
     void login_validCredentials_returnsTokenAndUser() {
         User user = User.builder()
+                .id(UUID.randomUUID())
                 .email("admin@example.com")
                 .passwordHash(passwordEncoder.encode("admin123"))
                 .role(Role.ADMIN).firstName("Admin").lastName("User")
                 .build();
-        userRepository.save(user);
 
         Authentication auth = mock(Authentication.class);
         when(auth.getPrincipal()).thenReturn(user);
@@ -149,8 +166,9 @@ class AuthServiceTest {
 
     @Test
     void login_callsAuthManagerWithCorrectCredentials() {
-        User user = User.builder().email("u@test.com").passwordHash("h").role(Role.USER).build();
-        userRepository.save(user);
+        User user = User.builder()
+                .id(UUID.randomUUID())
+                .email("u@test.com").passwordHash("h").role(Role.USER).build();
 
         Authentication auth = mock(Authentication.class);
         when(auth.getPrincipal()).thenReturn(user);
@@ -176,10 +194,11 @@ class AuthServiceTest {
     @Test
     void getCurrentUser_existingEmail_returnsDTO() {
         User user = User.builder()
+                .id(UUID.randomUUID())
                 .email("admin@allinone.com").passwordHash("h")
                 .firstName("Admin").lastName("User").role(Role.ADMIN)
                 .build();
-        userRepository.save(user);
+        when(userRepository.findByEmail("admin@allinone.com")).thenReturn(Optional.of(user));
 
         UserDTO result = authService.getCurrentUser("admin@allinone.com");
 
@@ -189,6 +208,8 @@ class AuthServiceTest {
 
     @Test
     void getCurrentUser_unknownEmail_throwsRuntimeException() {
+        when(userRepository.findByEmail("ghost@example.com")).thenReturn(Optional.empty());
+
         assertThatThrownBy(() -> authService.getCurrentUser("ghost@example.com"))
                 .isInstanceOf(RuntimeException.class)
                 .hasMessageContaining("User not found");

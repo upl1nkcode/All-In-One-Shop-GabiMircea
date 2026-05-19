@@ -1,74 +1,23 @@
 package com.allinoneshop.repository;
 
 import com.allinoneshop.entity.ProductPrice;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Repository
-public class ProductPriceRepository {
+public interface ProductPriceRepository extends JpaRepository<ProductPrice, UUID> {
 
-    private final ConcurrentHashMap<UUID, ProductPrice> store = new ConcurrentHashMap<>();
+    List<ProductPrice> findByProductId(UUID productId);
 
-    public ProductPrice save(ProductPrice price) {
-        if (price.getId() == null) {
-            price.setId(UUID.randomUUID());
-            price.setCreatedAt(java.time.OffsetDateTime.now());
-        }
-        price.setLastChecked(java.time.OffsetDateTime.now());
-        store.put(price.getId(), price);
-        return price;
-    }
+    List<ProductPrice> findByStoreId(UUID storeId);
 
-    public Optional<ProductPrice> findById(UUID id) {
-        return Optional.ofNullable(store.get(id));
-    }
+    List<ProductPrice> findByProductIdOrderByPriceAsc(UUID productId);
 
-    public List<ProductPrice> findAll() {
-        return new ArrayList<>(store.values());
-    }
+    Optional<ProductPrice> findByProductIdAndStoreId(UUID productId, UUID storeId);
 
-    public List<ProductPrice> findByProductId(UUID productId) {
-        return store.values().stream()
-                .filter(pp -> pp.getProduct() != null && productId.equals(pp.getProduct().getId()))
-                .collect(Collectors.toList());
-    }
-
-    public List<ProductPrice> findByStoreId(UUID storeId) {
-        return store.values().stream()
-                .filter(pp -> pp.getStore() != null && storeId.equals(pp.getStore().getId()))
-                .collect(Collectors.toList());
-    }
-
-    public List<ProductPrice> findByProductIdOrderByPriceAsc(UUID productId) {
-        return findByProductId(productId).stream()
-                .sorted(Comparator.comparing(ProductPrice::getPrice))
-                .collect(Collectors.toList());
-    }
-
-    public ProductPrice findByProductIdAndStoreId(UUID productId, UUID storeId) {
-        return store.values().stream()
-                .filter(pp -> pp.getProduct() != null && productId.equals(pp.getProduct().getId())
-                        && pp.getStore() != null && storeId.equals(pp.getStore().getId()))
-                .findFirst()
-                .orElse(null);
-    }
-
-    public void deleteByStoreId(UUID storeId) {
-        store.values().removeIf(pp -> pp.getStore() != null && storeId.equals(pp.getStore().getId()));
-    }
-
-    public void deleteById(UUID id) {
-        store.remove(id);
-    }
-
-    public long count() {
-        return store.size();
-    }
-
-    public void clear() {
-        store.clear();
-    }
+    void deleteByStoreId(UUID storeId);
 }

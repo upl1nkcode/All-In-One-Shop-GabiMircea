@@ -1,28 +1,29 @@
 package com.allinoneshop.service;
 
 import com.allinoneshop.dto.StoreDTO;
+import com.allinoneshop.entity.Store;
 import com.allinoneshop.repository.ProductPriceRepository;
 import com.allinoneshop.repository.StoreRepository;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 class StoreServiceTest {
 
-    private StoreRepository storeRepository;
-    private ProductPriceRepository priceRepository;
-    private StoreService storeService;
-
-    @BeforeEach
-    void setUp() {
-        storeRepository = new StoreRepository();
-        priceRepository = new ProductPriceRepository();
-        storeService = new StoreService(storeRepository, priceRepository);
-    }
+    @Mock private StoreRepository storeRepository;
+    @Mock private ProductPriceRepository priceRepository;
+    @InjectMocks private StoreService storeService;
 
     private StoreDTO buildDto(String name, String website) {
         StoreDTO dto = new StoreDTO();
@@ -33,6 +34,10 @@ class StoreServiceTest {
 
     @Test
     void createStore_savesAndReturnsDTO() {
+        when(storeRepository.save(any(Store.class))).thenAnswer(inv -> {
+            Store s = inv.getArgument(0); s.setId(UUID.randomUUID()); return s;
+        });
+
         StoreDTO result = storeService.createStore(buildDto("TestStore", "https://test.com"));
 
         assertThat(result.getId()).isNotNull();
@@ -43,8 +48,9 @@ class StoreServiceTest {
 
     @Test
     void getAllStores_returnsAll() {
-        storeService.createStore(buildDto("Store1", "https://s1.com"));
-        storeService.createStore(buildDto("Store2", "https://s2.com"));
+        when(storeRepository.findAll()).thenReturn(List.of(
+                Store.builder().id(UUID.randomUUID()).name("Store1").isActive(true).build(),
+                Store.builder().id(UUID.randomUUID()).name("Store2").isActive(true).build()));
 
         List<StoreDTO> result = storeService.getAllStores();
         assertThat(result).hasSize(2);
@@ -52,49 +58,55 @@ class StoreServiceTest {
 
     @Test
     void getStoreById_found_returnsDTO() {
-        StoreDTO created = storeService.createStore(buildDto("Find Me", "https://f.com"));
+        UUID id = UUID.randomUUID();
+        when(storeRepository.findById(id))
+                .thenReturn(Optional.of(Store.builder().id(id).name("Find Me").isActive(true).build()));
 
-        StoreDTO result = storeService.getStoreById(created.getId());
+        StoreDTO result = storeService.getStoreById(id);
         assertThat(result.getName()).isEqualTo("Find Me");
     }
 
     @Test
     void getStoreById_notFound_throwsException() {
+        when(storeRepository.findById(any())).thenReturn(Optional.empty());
         assertThatThrownBy(() -> storeService.getStoreById(UUID.randomUUID()))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessageContaining("Store not found");
+                .isInstanceOf(RuntimeException.class).hasMessageContaining("Store not found");
     }
 
     @Test
     void updateStore_existingStore_updatesFields() {
-        StoreDTO created = storeService.createStore(buildDto("Old", "https://old.com"));
+        UUID id = UUID.randomUUID();
+        Store existing = Store.builder().id(id).name("Old").website("https://old.com").isActive(true).build();
+        when(storeRepository.findById(id)).thenReturn(Optional.of(existing));
+        when(storeRepository.save(any(Store.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        StoreDTO result = storeService.updateStore(created.getId(), buildDto("New", "https://new.com"));
-
+        StoreDTO result = storeService.updateStore(id, buildDto("New", "https://new.com"));
         assertThat(result.getName()).isEqualTo("New");
         assertThat(result.getWebsite()).isEqualTo("https://new.com");
     }
 
     @Test
     void updateStore_notFound_throwsException() {
+        when(storeRepository.findById(any())).thenReturn(Optional.empty());
         assertThatThrownBy(() -> storeService.updateStore(UUID.randomUUID(), buildDto("x", "y")))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessageContaining("Store not found");
+                .isInstanceOf(RuntimeException.class).hasMessageContaining("Store not found");
     }
 
     @Test
     void deleteStore_existingStore_removesIt() {
-        StoreDTO created = storeService.createStore(buildDto("Delete Me", "https://d.com"));
+        UUID id = UUID.randomUUID();
+        when(storeRepository.findById(id))
+                .thenReturn(Optional.of(Store.builder().id(id).name("Delete Me").isActive(true).build()));
 
-        storeService.deleteStore(created.getId());
-
-        assertThat(storeRepository.count()).isZero();
+        storeService.deleteStore(id);
+        verify(priceRepository).deleteByStoreId(id);
+        verify(storeRepository).deleteById(id);
     }
 
     @Test
     void deleteStore_notFound_throwsException() {
+        when(storeRepository.findById(any())).thenReturn(Optional.empty());
         assertThatThrownBy(() -> storeService.deleteStore(UUID.randomUUID()))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessageContaining("Store not found");
+                .isInstanceOf(RuntimeException.class).hasMessageContaining("Store not found");
     }
 }

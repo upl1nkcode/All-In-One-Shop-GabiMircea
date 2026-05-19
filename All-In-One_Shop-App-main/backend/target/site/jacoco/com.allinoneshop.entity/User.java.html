@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>User.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">AllInOne Shop API</a> &gt; <a href="index.source.html" class="el_package">com.allinoneshop.entity</a> &gt; <span class="el_source">User.java</span></div><h1>User.java</h1><pre class="source lang-java linenums">package com.allinoneshop.entity;
 
+import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -12,59 +13,91 @@ import java.util.List;
 import java.util.UUID;
 
 @Getter
-<span class="pc" id="L15">@Setter</span>
-<span class="nc" id="L16">@NoArgsConstructor</span>
-<span class="fc" id="L17">@AllArgsConstructor</span>
-<span class="pc bpc" id="L18" title="1 of 2 branches missed.">@Builder</span>
+<span class="pc" id="L16">@Setter</span>
+<span class="nc" id="L17">@NoArgsConstructor</span>
+<span class="fc" id="L18">@AllArgsConstructor</span>
+<span class="pc bpc" id="L19" title="1 of 2 branches missed.">@Builder</span>
+@Entity
+@Table(name = &quot;users&quot;)
 public class User implements UserDetails {
 
-<span class="fc" id="L21">    private UUID id;</span>
-<span class="fc" id="L22">    private String email;</span>
-<span class="fc" id="L23">    private String passwordHash;</span>
-<span class="fc" id="L24">    private String firstName;</span>
-<span class="fc" id="L25">    private String lastName;</span>
-<span class="fc" id="L26">    private String avatarUrl;</span>
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+<span class="fc" id="L26">    private UUID id;</span>
+
+    @Column(nullable = false, unique = true)
+<span class="fc" id="L29">    private String email;</span>
+
+    @Column(name = &quot;password_hash&quot;, nullable = false)
+<span class="fc" id="L32">    private String passwordHash;</span>
+
+    @Column(name = &quot;first_name&quot;)
+<span class="fc" id="L35">    private String firstName;</span>
+
+    @Column(name = &quot;last_name&quot;)
+<span class="fc" id="L38">    private String lastName;</span>
+
+    @Column(name = &quot;avatar_url&quot;)
+<span class="fc" id="L41">    private String avatarUrl;</span>
 
     @Builder.Default
-<span class="fc" id="L29">    private Role role = Role.USER;</span>
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+<span class="fc" id="L46">    private Role role = Role.USER;</span>
 
-<span class="nc" id="L31">    private List&lt;Favorite&gt; favorites;</span>
-<span class="nc" id="L32">    private OffsetDateTime createdAt;</span>
-<span class="nc" id="L33">    private OffsetDateTime updatedAt;</span>
+    @OneToMany(mappedBy = &quot;user&quot;, fetch = FetchType.LAZY)
+<span class="nc" id="L49">    private List&lt;Favorite&gt; favorites;</span>
+
+    @Column(name = &quot;created_at&quot;)
+<span class="nc" id="L52">    private OffsetDateTime createdAt;</span>
+
+    @Column(name = &quot;updated_at&quot;)
+<span class="nc" id="L55">    private OffsetDateTime updatedAt;</span>
+
+    @PrePersist
+    protected void onCreate() {
+<span class="nc bnc" id="L59" title="All 2 branches missed.">        if (createdAt == null) createdAt = OffsetDateTime.now();</span>
+<span class="nc" id="L60">        updatedAt = OffsetDateTime.now();</span>
+<span class="nc" id="L61">    }</span>
+
+    @PreUpdate
+    protected void onUpdate() {
+<span class="nc" id="L65">        updatedAt = OffsetDateTime.now();</span>
+<span class="nc" id="L66">    }</span>
 
     @Override
     public Collection&lt;? extends GrantedAuthority&gt; getAuthorities() {
-<span class="nc" id="L37">        return List.of(new SimpleGrantedAuthority(&quot;ROLE_&quot; + role.name()));</span>
+<span class="nc" id="L70">        return List.of(new SimpleGrantedAuthority(&quot;ROLE_&quot; + role.name()));</span>
     }
 
     @Override
     public String getPassword() {
-<span class="nc" id="L42">        return passwordHash;</span>
+<span class="nc" id="L75">        return passwordHash;</span>
     }
 
     @Override
     public String getUsername() {
-<span class="nc" id="L47">        return email;</span>
+<span class="nc" id="L80">        return email;</span>
     }
 
     @Override
     public boolean isAccountNonExpired() {
-<span class="nc" id="L52">        return true;</span>
+<span class="nc" id="L85">        return true;</span>
     }
 
     @Override
     public boolean isAccountNonLocked() {
-<span class="nc" id="L57">        return true;</span>
+<span class="nc" id="L90">        return true;</span>
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-<span class="nc" id="L62">        return true;</span>
+<span class="nc" id="L95">        return true;</span>
     }
 
     @Override
     public boolean isEnabled() {
-<span class="nc" id="L67">        return true;</span>
+<span class="nc" id="L100">        return true;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

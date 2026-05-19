@@ -6,6 +6,7 @@ import com.allinoneshop.repository.ProductPriceRepository;
 import com.allinoneshop.repository.StoreRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -50,6 +51,7 @@ public class StoreService {
         return convertToDTO(store);
     }
 
+    @Transactional
     public void deleteStore(UUID id) {
         storeRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Store not found"));

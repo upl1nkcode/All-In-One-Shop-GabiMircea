@@ -74,3 +74,4 @@ com\allinoneshop\dto\UserDTO.class
 com\allinoneshop\entity\User.class
 com\allinoneshop\entity\Category.class
 com\allinoneshop\security\JwtAuthenticationFilter.class
+com\allinoneshop\security\TokenBlacklistService.class

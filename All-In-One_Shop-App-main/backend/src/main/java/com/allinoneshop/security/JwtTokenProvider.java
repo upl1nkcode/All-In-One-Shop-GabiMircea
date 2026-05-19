@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.Date;
 
 @Component
@@ -34,6 +35,7 @@ public class JwtTokenProvider {
         return Jwts.builder()
                 .subject(user.getEmail())
                 .claim("userId", user.getId().toString())
+                .claim("role", user.getRole().name())
                 .issuedAt(now)
                 .expiration(expiryDate)
                 .signWith(key)
@@ -58,6 +60,19 @@ public class JwtTokenProvider {
                 .getPayload();
 
         return claims.get("userId", String.class);
+    }
+
+    /**
+     * Get the expiration instant of a token (for blacklisting).
+     */
+    public Instant getExpirationFromToken(String token) {
+        Claims claims = Jwts.parser()
+                .verifyWith(key)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+
+        return claims.getExpiration().toInstant();
     }
 
     public boolean validateToken(String token) {

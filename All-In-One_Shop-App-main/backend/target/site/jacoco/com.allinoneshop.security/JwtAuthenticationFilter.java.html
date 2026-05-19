@@ -22,41 +22,48 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtTokenProvider jwtTokenProvider;
     private final UserDetailsService userDetailsService;
+    private final TokenBlacklistService tokenBlacklistService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, 
                                     HttpServletResponse response, 
                                     FilterChain filterChain) throws ServletException, IOException {
         try {
-<span class="nc" id="L31">            String jwt = getJwtFromRequest(request);</span>
+<span class="nc" id="L32">            String jwt = getJwtFromRequest(request);</span>
 
-<span class="nc bnc" id="L33" title="All 4 branches missed.">            if (StringUtils.hasText(jwt) &amp;&amp; jwtTokenProvider.validateToken(jwt)) {</span>
-<span class="nc" id="L34">                String email = jwtTokenProvider.getEmailFromToken(jwt);</span>
+<span class="nc bnc" id="L34" title="All 4 branches missed.">            if (StringUtils.hasText(jwt) &amp;&amp; jwtTokenProvider.validateToken(jwt)) {</span>
+                // Check if token has been blacklisted (logout)
+<span class="nc bnc" id="L36" title="All 2 branches missed.">                if (tokenBlacklistService.isBlacklisted(jwt)) {</span>
+<span class="nc" id="L37">                    filterChain.doFilter(request, response);</span>
+<span class="nc" id="L38">                    return;</span>
+                }
 
-<span class="nc" id="L36">                UserDetails userDetails = userDetailsService.loadUserByUsername(email);</span>
-<span class="nc" id="L37">                UsernamePasswordAuthenticationToken authentication = </span>
+<span class="nc" id="L41">                String email = jwtTokenProvider.getEmailFromToken(jwt);</span>
+
+<span class="nc" id="L43">                UserDetails userDetails = userDetailsService.loadUserByUsername(email);</span>
+<span class="nc" id="L44">                UsernamePasswordAuthenticationToken authentication = </span>
                         new UsernamePasswordAuthenticationToken(
                                 userDetails, 
                                 null, 
-<span class="nc" id="L41">                                userDetails.getAuthorities()</span>
+<span class="nc" id="L48">                                userDetails.getAuthorities()</span>
                         );
-<span class="nc" id="L43">                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));</span>
+<span class="nc" id="L50">                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));</span>
 
-<span class="nc" id="L45">                SecurityContextHolder.getContext().setAuthentication(authentication);</span>
+<span class="nc" id="L52">                SecurityContextHolder.getContext().setAuthentication(authentication);</span>
             }
-<span class="nc" id="L47">        } catch (Exception ex) {</span>
-<span class="nc" id="L48">            logger.error(&quot;Could not set user authentication in security context&quot;, ex);</span>
-<span class="nc" id="L49">        }</span>
+<span class="nc" id="L54">        } catch (Exception ex) {</span>
+<span class="nc" id="L55">            logger.error(&quot;Could not set user authentication in security context&quot;, ex);</span>
+<span class="nc" id="L56">        }</span>
 
-<span class="nc" id="L51">        filterChain.doFilter(request, response);</span>
-<span class="nc" id="L52">    }</span>
+<span class="nc" id="L58">        filterChain.doFilter(request, response);</span>
+<span class="nc" id="L59">    }</span>
 
     private String getJwtFromRequest(HttpServletRequest request) {
-<span class="nc" id="L55">        String bearerToken = request.getHeader(&quot;Authorization&quot;);</span>
-<span class="nc bnc" id="L56" title="All 4 branches missed.">        if (StringUtils.hasText(bearerToken) &amp;&amp; bearerToken.startsWith(&quot;Bearer &quot;)) {</span>
-<span class="nc" id="L57">            return bearerToken.substring(7);</span>
+<span class="nc" id="L62">        String bearerToken = request.getHeader(&quot;Authorization&quot;);</span>
+<span class="nc bnc" id="L63" title="All 4 branches missed.">        if (StringUtils.hasText(bearerToken) &amp;&amp; bearerToken.startsWith(&quot;Bearer &quot;)) {</span>
+<span class="nc" id="L64">            return bearerToken.substring(7);</span>
         }
-<span class="nc" id="L59">        return null;</span>
+<span class="nc" id="L66">        return null;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

@@ -1,86 +1,45 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ProductRepository.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">AllInOne Shop API</a> &gt; <a href="index.source.html" class="el_package">com.allinoneshop.repository</a> &gt; <span class="el_source">ProductRepository.java</span></div><h1>ProductRepository.java</h1><pre class="source lang-java linenums">package com.allinoneshop.repository;
 
 import com.allinoneshop.entity.Product;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
+import java.util.List;
+import java.util.UUID;
 
 @Repository
-<span class="fc" id="L11">public class ProductRepository {</span>
+public interface ProductRepository extends JpaRepository&lt;Product, UUID&gt; {
 
-<span class="fc" id="L13">    private final ConcurrentHashMap&lt;UUID, Product&gt; store = new ConcurrentHashMap&lt;&gt;();</span>
+    @Query(&quot;SELECT p FROM Product p LEFT JOIN FETCH p.brand LEFT JOIN FETCH p.category&quot;)
+    List&lt;Product&gt; findAllWithDetails();
 
-    public Product save(Product product) {
-<span class="fc bfc" id="L16" title="All 2 branches covered.">        if (product.getId() == null) {</span>
-<span class="fc" id="L17">            product.setId(UUID.randomUUID());</span>
-<span class="fc" id="L18">            product.setCreatedAt(java.time.OffsetDateTime.now());</span>
-        }
-<span class="fc" id="L20">        product.setUpdatedAt(java.time.OffsetDateTime.now());</span>
-<span class="fc" id="L21">        store.put(product.getId(), product);</span>
-<span class="fc" id="L22">        return product;</span>
+    @Query(&quot;SELECT p FROM Product p LEFT JOIN FETCH p.brand LEFT JOIN FETCH p.category &quot; +
+           &quot;LEFT JOIN FETCH p.prices pp LEFT JOIN FETCH pp.store WHERE p.id = :id&quot;)
+    Product findByIdWithDetails(@Param(&quot;id&quot;) UUID id);
+
+    @Query(&quot;SELECT p FROM Product p LEFT JOIN FETCH p.brand LEFT JOIN FETCH p.category &quot; +
+           &quot;WHERE LOWER(p.name) LIKE LOWER(CONCAT('%', :query, '%')) &quot; +
+           &quot;OR LOWER(p.description) LIKE LOWER(CONCAT('%', :query, '%'))&quot;)
+    List&lt;Product&gt; searchProducts(@Param(&quot;query&quot;) String query);
+
+    @Query(&quot;SELECT p FROM Product p LEFT JOIN FETCH p.brand LEFT JOIN FETCH p.category &quot; +
+           &quot;WHERE p.category.slug = :slug&quot;)
+    List&lt;Product&gt; findByCategorySlug(@Param(&quot;slug&quot;) String slug);
+
+    @Query(&quot;SELECT p FROM Product p LEFT JOIN FETCH p.brand LEFT JOIN FETCH p.category &quot; +
+           &quot;WHERE LOWER(p.brand.name) = LOWER(:brandName)&quot;)
+    List&lt;Product&gt; findByBrandName(@Param(&quot;brandName&quot;) String brandName);
+
+    @Query(&quot;SELECT p FROM Product p LEFT JOIN FETCH p.brand LEFT JOIN FETCH p.category &quot; +
+           &quot;WHERE p.category.id = :categoryId AND p.id &lt;&gt; :excludeId&quot;)
+    List&lt;Product&gt; findByCategoryIdAndIdNot(@Param(&quot;categoryId&quot;) UUID categoryId,
+                                           @Param(&quot;excludeId&quot;) UUID excludeId);
+
+    default List&lt;Product&gt; findSimilarProducts(UUID categoryId, UUID excludeProductId, int limit) {
+<span class="nc" id="L41">        List&lt;Product&gt; results = findByCategoryIdAndIdNot(categoryId, excludeProductId);</span>
+<span class="nc bnc" id="L42" title="All 2 branches missed.">        return results.size() &gt; limit ? results.subList(0, limit) : results;</span>
     }
-
-    public Optional&lt;Product&gt; findById(UUID id) {
-<span class="fc" id="L26">        return Optional.ofNullable(store.get(id));</span>
-    }
-
-    public List&lt;Product&gt; findAll() {
-<span class="nc" id="L30">        return new ArrayList&lt;&gt;(store.values());</span>
-    }
-
-    public void delete(Product product) {
-<span class="fc" id="L34">        store.remove(product.getId());</span>
-<span class="fc" id="L35">    }</span>
-
-    public void deleteById(UUID id) {
-<span class="nc" id="L38">        store.remove(id);</span>
-<span class="nc" id="L39">    }</span>
-
-    public long count() {
-<span class="fc" id="L42">        return store.size();</span>
-    }
-
-    public List&lt;Product&gt; findAllWithDetails() {
-<span class="fc" id="L46">        return new ArrayList&lt;&gt;(store.values());</span>
-    }
-
-    public Product findByIdWithDetails(UUID id) {
-<span class="fc" id="L50">        return store.get(id);</span>
-    }
-
-    public List&lt;Product&gt; searchProducts(String query) {
-<span class="fc" id="L54">        String lowerQuery = query.toLowerCase();</span>
-<span class="fc" id="L55">        return store.values().stream()</span>
-<span class="pc bpc" id="L56" title="1 of 4 branches missed.">                .filter(p -&gt; (p.getName() != null &amp;&amp; p.getName().toLowerCase().contains(lowerQuery))</span>
-<span class="pc bpc" id="L57" title="3 of 4 branches missed.">                        || (p.getDescription() != null &amp;&amp; p.getDescription().toLowerCase().contains(lowerQuery)))</span>
-<span class="fc" id="L58">                .collect(Collectors.toList());</span>
-    }
-
-    public List&lt;Product&gt; findByCategorySlug(String categorySlug) {
-<span class="fc" id="L62">        return store.values().stream()</span>
-<span class="pc bpc" id="L63" title="1 of 4 branches missed.">                .filter(p -&gt; p.getCategory() != null &amp;&amp; categorySlug.equals(p.getCategory().getSlug()))</span>
-<span class="fc" id="L64">                .collect(Collectors.toList());</span>
-    }
-
-    public List&lt;Product&gt; findByBrandName(String brandName) {
-<span class="fc" id="L68">        return store.values().stream()</span>
-<span class="pc bpc" id="L69" title="1 of 4 branches missed.">                .filter(p -&gt; p.getBrand() != null &amp;&amp; brandName.equalsIgnoreCase(p.getBrand().getName()))</span>
-<span class="fc" id="L70">                .collect(Collectors.toList());</span>
-    }
-
-    public List&lt;Product&gt; findSimilarProducts(UUID categoryId, UUID excludeProductId, int limit) {
-<span class="fc" id="L74">        return store.values().stream()</span>
-<span class="fc bfc" id="L75" title="All 2 branches covered.">                .filter(p -&gt; p.getCategory() != null</span>
-<span class="pc bpc" id="L76" title="1 of 2 branches missed.">                        &amp;&amp; p.getCategory().getId().equals(categoryId)</span>
-<span class="fc bfc" id="L77" title="All 2 branches covered.">                        &amp;&amp; !p.getId().equals(excludeProductId))</span>
-<span class="fc" id="L78">                .limit(limit)</span>
-<span class="fc" id="L79">                .collect(Collectors.toList());</span>
-    }
-
-    public void clear() {
-<span class="nc" id="L83">        store.clear();</span>
-<span class="nc" id="L84">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

@@ -32,7 +32,7 @@ public class AuthService {
 <span class="fc" id="L32">                .passwordHash(passwordEncoder.encode(request.getPassword()))</span>
 <span class="fc" id="L33">                .firstName(request.getFirstName())</span>
 <span class="fc" id="L34">                .lastName(request.getLastName())</span>
-<span class="fc" id="L35">                .role(Role.ADMIN)</span>
+<span class="fc" id="L35">                .role(Role.USER)</span>
 <span class="fc" id="L36">                .build();</span>
 
 <span class="fc" id="L38">        user = userRepository.save(user);</span>

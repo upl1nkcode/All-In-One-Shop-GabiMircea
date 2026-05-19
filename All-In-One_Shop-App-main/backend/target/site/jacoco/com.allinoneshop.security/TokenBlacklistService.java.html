@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TokenBlacklistService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">AllInOne Shop API</a> &gt; <a href="index.source.html" class="el_package">com.allinoneshop.security</a> &gt; <span class="el_source">TokenBlacklistService.java</span></div><h1>TokenBlacklistService.java</h1><pre class="source lang-java linenums">package com.allinoneshop.security;
+
+import org.springframework.stereotype.Service;
+
+import java.time.Instant;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+/**
+ * In-memory token blacklist for logout support.
+ * Invalidated tokens are stored until they would have naturally expired.
+ */
+@Service
+<span class="nc" id="L14">public class TokenBlacklistService {</span>
+
+    // Maps token -&gt; expiration time (when the token would have expired naturally)
+<span class="nc" id="L17">    private final Map&lt;String, Instant&gt; blacklist = new ConcurrentHashMap&lt;&gt;();</span>
+
+    /**
+     * Add a token to the blacklist.
+     *
+     * @param token the JWT token to blacklist
+     * @param expiresAt when the token would naturally expire
+     */
+    public void blacklist(String token, Instant expiresAt) {
+<span class="nc" id="L26">        blacklist.put(token, expiresAt);</span>
+<span class="nc" id="L27">        cleanup(); // opportunistically clean up expired entries</span>
+<span class="nc" id="L28">    }</span>
+
+    /**
+     * Check if a token has been blacklisted.
+     */
+    public boolean isBlacklisted(String token) {
+<span class="nc" id="L34">        Instant expiry = blacklist.get(token);</span>
+<span class="nc bnc" id="L35" title="All 2 branches missed.">        if (expiry == null) return false;</span>
+
+        // If the token would have expired by now, remove it from the blacklist
+<span class="nc bnc" id="L38" title="All 2 branches missed.">        if (Instant.now().isAfter(expiry)) {</span>
+<span class="nc" id="L39">            blacklist.remove(token);</span>
+<span class="nc" id="L40">            return false;</span>
+        }
+<span class="nc" id="L42">        return true;</span>
+    }
+
+    /**
+     * Remove expired entries from the blacklist.
+     */
+    private void cleanup() {
+<span class="nc" id="L49">        Instant now = Instant.now();</span>
+<span class="nc" id="L50">        blacklist.entrySet().removeIf(entry -&gt; now.isAfter(entry.getValue()));</span>
+<span class="nc" id="L51">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

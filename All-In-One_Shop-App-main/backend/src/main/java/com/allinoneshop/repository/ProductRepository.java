@@ -1,85 +1,44 @@
 package com.allinoneshop.repository;
 
 import com.allinoneshop.entity.Product;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
+import java.util.List;
+import java.util.UUID;
 
 @Repository
-public class ProductRepository {
+public interface ProductRepository extends JpaRepository<Product, UUID> {
 
-    private final ConcurrentHashMap<UUID, Product> store = new ConcurrentHashMap<>();
+    @Query("SELECT p FROM Product p LEFT JOIN FETCH p.brand LEFT JOIN FETCH p.category")
+    List<Product> findAllWithDetails();
 
-    public Product save(Product product) {
-        if (product.getId() == null) {
-            product.setId(UUID.randomUUID());
-            product.setCreatedAt(java.time.OffsetDateTime.now());
-        }
-        product.setUpdatedAt(java.time.OffsetDateTime.now());
-        store.put(product.getId(), product);
-        return product;
-    }
+    @Query("SELECT p FROM Product p LEFT JOIN FETCH p.brand LEFT JOIN FETCH p.category " +
+           "LEFT JOIN FETCH p.prices pp LEFT JOIN FETCH pp.store WHERE p.id = :id")
+    Product findByIdWithDetails(@Param("id") UUID id);
 
-    public Optional<Product> findById(UUID id) {
-        return Optional.ofNullable(store.get(id));
-    }
+    @Query("SELECT p FROM Product p LEFT JOIN FETCH p.brand LEFT JOIN FETCH p.category " +
+           "WHERE LOWER(p.name) LIKE LOWER(CONCAT('%', :query, '%')) " +
+           "OR LOWER(p.description) LIKE LOWER(CONCAT('%', :query, '%'))")
+    List<Product> searchProducts(@Param("query") String query);
 
-    public List<Product> findAll() {
-        return new ArrayList<>(store.values());
-    }
+    @Query("SELECT p FROM Product p LEFT JOIN FETCH p.brand LEFT JOIN FETCH p.category " +
+           "WHERE p.category.slug = :slug")
+    List<Product> findByCategorySlug(@Param("slug") String slug);
 
-    public void delete(Product product) {
-        store.remove(product.getId());
-    }
+    @Query("SELECT p FROM Product p LEFT JOIN FETCH p.brand LEFT JOIN FETCH p.category " +
+           "WHERE LOWER(p.brand.name) = LOWER(:brandName)")
+    List<Product> findByBrandName(@Param("brandName") String brandName);
 
-    public void deleteById(UUID id) {
-        store.remove(id);
-    }
+    @Query("SELECT p FROM Product p LEFT JOIN FETCH p.brand LEFT JOIN FETCH p.category " +
+           "WHERE p.category.id = :categoryId AND p.id <> :excludeId")
+    List<Product> findByCategoryIdAndIdNot(@Param("categoryId") UUID categoryId,
+                                           @Param("excludeId") UUID excludeId);
 
-    public long count() {
-        return store.size();
-    }
-
-    public List<Product> findAllWithDetails() {
-        return new ArrayList<>(store.values());
-    }
-
-    public Product findByIdWithDetails(UUID id) {
-        return store.get(id);
-    }
-
-    public List<Product> searchProducts(String query) {
-        String lowerQuery = query.toLowerCase();
-        return store.values().stream()
-                .filter(p -> (p.getName() != null && p.getName().toLowerCase().contains(lowerQuery))
-                        || (p.getDescription() != null && p.getDescription().toLowerCase().contains(lowerQuery)))
-                .collect(Collectors.toList());
-    }
-
-    public List<Product> findByCategorySlug(String categorySlug) {
-        return store.values().stream()
-                .filter(p -> p.getCategory() != null && categorySlug.equals(p.getCategory().getSlug()))
-                .collect(Collectors.toList());
-    }
-
-    public List<Product> findByBrandName(String brandName) {
-        return store.values().stream()
-                .filter(p -> p.getBrand() != null && brandName.equalsIgnoreCase(p.getBrand().getName()))
-                .collect(Collectors.toList());
-    }
-
-    public List<Product> findSimilarProducts(UUID categoryId, UUID excludeProductId, int limit) {
-        return store.values().stream()
-                .filter(p -> p.getCategory() != null
-                        && p.getCategory().getId().equals(categoryId)
-                        && !p.getId().equals(excludeProductId))
-                .limit(limit)
-                .collect(Collectors.toList());
-    }
-
-    public void clear() {
-        store.clear();
+    default List<Product> findSimilarProducts(UUID categoryId, UUID excludeProductId, int limit) {
+        List<Product> results = findByCategoryIdAndIdNot(categoryId, excludeProductId);
+        return results.size() > limit ? results.subList(0, limit) : results;
     }
 }

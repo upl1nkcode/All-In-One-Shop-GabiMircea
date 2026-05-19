@@ -188,7 +188,7 @@ public class ProductService {
 
     private boolean filterByPrice(Product product, BigDecimal minPrice, BigDecimal maxPrice) {
 <span class="pc bpc" id="L190" title="1 of 4 branches missed.">        if (minPrice == null &amp;&amp; maxPrice == null) return true;</span>
-<span class="pc bpc" id="L191" title="1 of 4 branches missed.">        if (product.getPrices() == null || product.getPrices().isEmpty()) return false;</span>
+<span class="pc bpc" id="L191" title="2 of 4 branches missed.">        if (product.getPrices() == null || product.getPrices().isEmpty()) return false;</span>
 
 <span class="fc" id="L193">        BigDecimal lowestPrice = product.getPrices().stream()</span>
 <span class="fc" id="L194">                .map(ProductPrice::getPrice)</span>

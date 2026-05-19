@@ -1,48 +1,20 @@
 package com.allinoneshop.repository;
 
 import com.allinoneshop.entity.Brand;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Optional;
+import java.util.UUID;
 
 @Repository
-public class BrandRepository {
+public interface BrandRepository extends JpaRepository<Brand, UUID> {
 
-    private final ConcurrentHashMap<UUID, Brand> store = new ConcurrentHashMap<>();
+    Optional<Brand> findByNameIgnoreCase(String name);
 
-    public Brand save(Brand brand) {
-        if (brand.getId() == null) {
-            brand.setId(UUID.randomUUID());
-            brand.setCreatedAt(java.time.OffsetDateTime.now());
-        }
-        store.put(brand.getId(), brand);
-        return brand;
+    default Optional<Brand> findByName(String name) {
+        return findByNameIgnoreCase(name);
     }
 
-    public Optional<Brand> findById(UUID id) {
-        return Optional.ofNullable(store.get(id));
-    }
-
-    public Optional<Brand> findByName(String name) {
-        return store.values().stream()
-                .filter(b -> name.equalsIgnoreCase(b.getName()))
-                .findFirst();
-    }
-
-    public List<Brand> findAll() {
-        return new ArrayList<>(store.values());
-    }
-
-    public void deleteById(UUID id) {
-        store.remove(id);
-    }
-
-    public long count() {
-        return store.size();
-    }
-
-    public void clear() {
-        store.clear();
-    }
+    boolean existsByNameIgnoreCase(String name);
 }

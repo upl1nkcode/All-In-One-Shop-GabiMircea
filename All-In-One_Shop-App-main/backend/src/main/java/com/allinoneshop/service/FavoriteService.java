@@ -5,6 +5,7 @@ import com.allinoneshop.entity.*;
 import com.allinoneshop.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -43,6 +44,7 @@ public class FavoriteService {
         favoriteRepository.save(favorite);
     }
 
+    @Transactional
     public void removeFavorite(UUID userId, UUID productId) {
         favoriteRepository.deleteByUserIdAndProductId(userId, productId);
     }

@@ -3,13 +3,17 @@ package com.allinoneshop.controller;
 import com.allinoneshop.dto.*;
 import com.allinoneshop.dto.auth.*;
 import com.allinoneshop.entity.User;
+import com.allinoneshop.security.JwtTokenProvider;
+import com.allinoneshop.security.TokenBlacklistService;
 import com.allinoneshop.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -19,6 +23,8 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AuthService authService;
+    private final JwtTokenProvider jwtTokenProvider;
+    private final TokenBlacklistService tokenBlacklistService;
 
     @PostMapping("/register")
     @Operation(summary = "Register a new user")
@@ -42,5 +48,21 @@ public class AuthController {
         }
         UserDTO userDTO = authService.getCurrentUser(user.getEmail());
         return ResponseEntity.ok(ApiResponse.success(userDTO));
+    }
+
+    @PostMapping("/logout")
+    @Operation(summary = "Logout and invalidate token")
+    public ResponseEntity<ApiResponse<Void>> logout(HttpServletRequest request) {
+        String bearerToken = request.getHeader("Authorization");
+        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
+            String token = bearerToken.substring(7);
+            try {
+                var expiry = jwtTokenProvider.getExpirationFromToken(token);
+                tokenBlacklistService.blacklist(token, expiry);
+            } catch (Exception e) {
+                // Token may already be invalid, that's fine
+            }
+        }
+        return ResponseEntity.ok(ApiResponse.success("Logged out successfully", null));
     }
 }
