@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(&quot;/auth&quot;)
-<span class="nc" id="L21">@RequiredArgsConstructor</span>
+<span class="fc" id="L21">@RequiredArgsConstructor</span>
 @Tag(name = &quot;Authentication&quot;, description = &quot;User authentication endpoints&quot;)
 public class AuthController {
 
@@ -29,41 +29,41 @@ public class AuthController {
     @PostMapping(&quot;/register&quot;)
     @Operation(summary = &quot;Register a new user&quot;)
     public ResponseEntity&lt;ApiResponse&lt;AuthResponse&gt;&gt; register(@Valid @RequestBody RegisterRequest request) {
-<span class="nc" id="L32">        AuthResponse response = authService.register(request);</span>
-<span class="nc" id="L33">        return ResponseEntity.ok(ApiResponse.success(&quot;Registration successful&quot;, response));</span>
+<span class="fc" id="L32">        AuthResponse response = authService.register(request);</span>
+<span class="fc" id="L33">        return ResponseEntity.ok(ApiResponse.success(&quot;Registration successful&quot;, response));</span>
     }
 
     @PostMapping(&quot;/login&quot;)
     @Operation(summary = &quot;Login with email and password&quot;)
     public ResponseEntity&lt;ApiResponse&lt;AuthResponse&gt;&gt; login(@Valid @RequestBody LoginRequest request) {
-<span class="nc" id="L39">        AuthResponse response = authService.login(request);</span>
-<span class="nc" id="L40">        return ResponseEntity.ok(ApiResponse.success(&quot;Login successful&quot;, response));</span>
+<span class="fc" id="L39">        AuthResponse response = authService.login(request);</span>
+<span class="fc" id="L40">        return ResponseEntity.ok(ApiResponse.success(&quot;Login successful&quot;, response));</span>
     }
 
     @GetMapping(&quot;/me&quot;)
     @Operation(summary = &quot;Get current user profile&quot;)
     public ResponseEntity&lt;ApiResponse&lt;UserDTO&gt;&gt; getCurrentUser(@AuthenticationPrincipal User user) {
-<span class="nc bnc" id="L46" title="All 2 branches missed.">        if (user == null) {</span>
-<span class="nc" id="L47">            return ResponseEntity.status(401).body(ApiResponse.error(&quot;Not authenticated&quot;));</span>
+<span class="fc bfc" id="L46" title="All 2 branches covered.">        if (user == null) {</span>
+<span class="fc" id="L47">            return ResponseEntity.status(401).body(ApiResponse.error(&quot;Not authenticated&quot;));</span>
         }
-<span class="nc" id="L49">        UserDTO userDTO = authService.getCurrentUser(user.getEmail());</span>
-<span class="nc" id="L50">        return ResponseEntity.ok(ApiResponse.success(userDTO));</span>
+<span class="fc" id="L49">        UserDTO userDTO = authService.getCurrentUser(user.getEmail());</span>
+<span class="fc" id="L50">        return ResponseEntity.ok(ApiResponse.success(userDTO));</span>
     }
 
     @PostMapping(&quot;/logout&quot;)
     @Operation(summary = &quot;Logout and invalidate token&quot;)
     public ResponseEntity&lt;ApiResponse&lt;Void&gt;&gt; logout(HttpServletRequest request) {
-<span class="nc" id="L56">        String bearerToken = request.getHeader(&quot;Authorization&quot;);</span>
-<span class="nc bnc" id="L57" title="All 4 branches missed.">        if (StringUtils.hasText(bearerToken) &amp;&amp; bearerToken.startsWith(&quot;Bearer &quot;)) {</span>
-<span class="nc" id="L58">            String token = bearerToken.substring(7);</span>
+<span class="fc" id="L56">        String bearerToken = request.getHeader(&quot;Authorization&quot;);</span>
+<span class="pc bpc" id="L57" title="1 of 4 branches missed.">        if (StringUtils.hasText(bearerToken) &amp;&amp; bearerToken.startsWith(&quot;Bearer &quot;)) {</span>
+<span class="fc" id="L58">            String token = bearerToken.substring(7);</span>
             try {
-<span class="nc" id="L60">                var expiry = jwtTokenProvider.getExpirationFromToken(token);</span>
-<span class="nc" id="L61">                tokenBlacklistService.blacklist(token, expiry);</span>
+<span class="fc" id="L60">                var expiry = jwtTokenProvider.getExpirationFromToken(token);</span>
+<span class="fc" id="L61">                tokenBlacklistService.blacklist(token, expiry);</span>
 <span class="nc" id="L62">            } catch (Exception e) {</span>
                 // Token may already be invalid, that's fine
-<span class="nc" id="L64">            }</span>
+<span class="fc" id="L64">            }</span>
         }
-<span class="nc" id="L66">        return ResponseEntity.ok(ApiResponse.success(&quot;Logged out successfully&quot;, null));</span>
+<span class="fc" id="L66">        return ResponseEntity.ok(ApiResponse.success(&quot;Logged out successfully&quot;, null));</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

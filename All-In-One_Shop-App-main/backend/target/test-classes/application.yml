@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: allinone-shop-api-test
+
+server:
+  port: 8080
+
+jwt:
+  secret: test-secret-key-that-is-long-enough-for-hmac-sha256-algorithm-testing
+  expiration: 86400000
+
+cors:
+  allowed-origins: http://localhost:5173

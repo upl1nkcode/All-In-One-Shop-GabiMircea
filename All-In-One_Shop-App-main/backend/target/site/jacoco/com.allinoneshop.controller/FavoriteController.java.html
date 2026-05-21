@@ -17,7 +17,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping(&quot;/favorites&quot;)
-<span class="nc" id="L20">@RequiredArgsConstructor</span>
+<span class="fc" id="L20">@RequiredArgsConstructor</span>
 @Tag(name = &quot;Favorites&quot;, description = &quot;User favorites/wishlist management&quot;)
 @SecurityRequirement(name = &quot;bearerAuth&quot;)
 public class FavoriteController {
@@ -27,15 +27,15 @@ public class FavoriteController {
     @GetMapping
     @Operation(summary = &quot;Get user's favorite products&quot;)
     public ResponseEntity&lt;ApiResponse&lt;List&lt;ProductDTO&gt;&gt;&gt; getFavorites(@AuthenticationPrincipal User user) {
-<span class="nc" id="L30">        List&lt;ProductDTO&gt; favorites = favoriteService.getUserFavorites(user.getId());</span>
-<span class="nc" id="L31">        return ResponseEntity.ok(ApiResponse.success(favorites));</span>
+<span class="fc" id="L30">        List&lt;ProductDTO&gt; favorites = favoriteService.getUserFavorites(user.getId());</span>
+<span class="fc" id="L31">        return ResponseEntity.ok(ApiResponse.success(favorites));</span>
     }
 
     @GetMapping(&quot;/ids&quot;)
     @Operation(summary = &quot;Get IDs of user's favorite products&quot;)
     public ResponseEntity&lt;ApiResponse&lt;Set&lt;UUID&gt;&gt;&gt; getFavoriteIds(@AuthenticationPrincipal User user) {
-<span class="nc" id="L37">        Set&lt;UUID&gt; favoriteIds = favoriteService.getFavoriteProductIds(user.getId());</span>
-<span class="nc" id="L38">        return ResponseEntity.ok(ApiResponse.success(favoriteIds));</span>
+<span class="fc" id="L37">        Set&lt;UUID&gt; favoriteIds = favoriteService.getFavoriteProductIds(user.getId());</span>
+<span class="fc" id="L38">        return ResponseEntity.ok(ApiResponse.success(favoriteIds));</span>
     }
 
     @PostMapping(&quot;/{productId}&quot;)
@@ -43,8 +43,8 @@ public class FavoriteController {
     public ResponseEntity&lt;ApiResponse&lt;Void&gt;&gt; addFavorite(
             @AuthenticationPrincipal User user,
             @PathVariable UUID productId) {
-<span class="nc" id="L46">        favoriteService.addFavorite(user.getId(), productId);</span>
-<span class="nc" id="L47">        return ResponseEntity.ok(ApiResponse.success(&quot;Product added to favorites&quot;, null));</span>
+<span class="fc" id="L46">        favoriteService.addFavorite(user.getId(), productId);</span>
+<span class="fc" id="L47">        return ResponseEntity.ok(ApiResponse.success(&quot;Product added to favorites&quot;, null));</span>
     }
 
     @DeleteMapping(&quot;/{productId}&quot;)
@@ -52,8 +52,8 @@ public class FavoriteController {
     public ResponseEntity&lt;ApiResponse&lt;Void&gt;&gt; removeFavorite(
             @AuthenticationPrincipal User user,
             @PathVariable UUID productId) {
-<span class="nc" id="L55">        favoriteService.removeFavorite(user.getId(), productId);</span>
-<span class="nc" id="L56">        return ResponseEntity.ok(ApiResponse.success(&quot;Product removed from favorites&quot;, null));</span>
+<span class="fc" id="L55">        favoriteService.removeFavorite(user.getId(), productId);</span>
+<span class="fc" id="L56">        return ResponseEntity.ok(ApiResponse.success(&quot;Product removed from favorites&quot;, null));</span>
     }
 
     @GetMapping(&quot;/{productId}/check&quot;)
@@ -61,8 +61,8 @@ public class FavoriteController {
     public ResponseEntity&lt;ApiResponse&lt;Boolean&gt;&gt; checkFavorite(
             @AuthenticationPrincipal User user,
             @PathVariable UUID productId) {
-<span class="nc" id="L64">        boolean isFavorite = favoriteService.isFavorite(user.getId(), productId);</span>
-<span class="nc" id="L65">        return ResponseEntity.ok(ApiResponse.success(isFavorite));</span>
+<span class="fc" id="L64">        boolean isFavorite = favoriteService.isFavorite(user.getId(), productId);</span>
+<span class="fc" id="L65">        return ResponseEntity.ok(ApiResponse.success(isFavorite));</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

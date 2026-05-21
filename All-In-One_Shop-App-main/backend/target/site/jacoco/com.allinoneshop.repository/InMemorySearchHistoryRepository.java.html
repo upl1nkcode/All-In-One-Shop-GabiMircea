@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>InMemorySearchHistoryRepository.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">AllInOne Shop API</a> &gt; <a href="index.source.html" class="el_package">com.allinoneshop.repository</a> &gt; <span class="el_source">InMemorySearchHistoryRepository.java</span></div><h1>InMemorySearchHistoryRepository.java</h1><pre class="source lang-java linenums">package com.allinoneshop.repository;
+
+import com.allinoneshop.entity.SearchHistory;
+import org.springframework.stereotype.Repository;
+
+import java.time.OffsetDateTime;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
+
+@Repository
+<span class="fc" id="L12">public class InMemorySearchHistoryRepository implements SearchHistoryRepository {</span>
+
+<span class="fc" id="L14">    private final Map&lt;UUID, SearchHistory&gt; store = new ConcurrentHashMap&lt;&gt;();</span>
+
+    @Override
+    public SearchHistory save(SearchHistory history) {
+<span class="pc bpc" id="L18" title="1 of 2 branches missed.">        if (history.getId() == null) history.setId(UUID.randomUUID());</span>
+<span class="pc bpc" id="L19" title="1 of 2 branches missed.">        if (history.getCreatedAt() == null) history.setCreatedAt(OffsetDateTime.now());</span>
+<span class="fc" id="L20">        store.put(history.getId(), history);</span>
+<span class="fc" id="L21">        return history;</span>
+    }
+
+    @Override
+    public List&lt;String&gt; findRecentSearchesByUserId(UUID userId, int limit) {
+<span class="fc" id="L26">        return store.values().stream()</span>
+<span class="pc bpc" id="L27" title="1 of 4 branches missed.">                .filter(sh -&gt; sh.getUser() != null &amp;&amp; userId.equals(sh.getUser().getId()))</span>
+<span class="fc" id="L28">                .sorted(Comparator.comparing(SearchHistory::getCreatedAt, Comparator.reverseOrder()))</span>
+<span class="fc" id="L29">                .map(SearchHistory::getSearchQuery)</span>
+<span class="fc" id="L30">                .distinct()</span>
+<span class="fc" id="L31">                .limit(limit)</span>
+<span class="fc" id="L32">                .collect(Collectors.toList());</span>
+    }
+
+    @Override
+    public List&lt;String&gt; findTrendingSearches(int limit) {
+<span class="fc" id="L37">        return store.values().stream()</span>
+<span class="fc" id="L38">                .collect(Collectors.groupingBy(SearchHistory::getSearchQuery, Collectors.counting()))</span>
+<span class="fc" id="L39">                .entrySet().stream()</span>
+<span class="fc" id="L40">                .sorted(Map.Entry.&lt;String, Long&gt;comparingByValue().reversed())</span>
+<span class="fc" id="L41">                .map(Map.Entry::getKey)</span>
+<span class="fc" id="L42">                .limit(limit)</span>
+<span class="fc" id="L43">                .collect(Collectors.toList());</span>
+    }
+
+    @Override
+    public void deleteByUserId(UUID userId) {
+<span class="pc bpc" id="L48" title="1 of 4 branches missed.">        store.values().removeIf(sh -&gt; sh.getUser() != null &amp;&amp; userId.equals(sh.getUser().getId()));</span>
+<span class="fc" id="L49">    }</span>
+
+    @Override
+    public long count() {
+<span class="fc" id="L53">        return store.size();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

@@ -1,20 +1,22 @@
 package com.allinoneshop.repository;
 
 import com.allinoneshop.entity.Store;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-@Repository
-public interface StoreRepository extends JpaRepository<Store, UUID> {
+public interface StoreRepository {
 
-    Optional<Store> findByNameIgnoreCase(String name);
+    Optional<Store> findById(UUID id);
 
-    default Optional<Store> findByName(String name) {
-        return findByNameIgnoreCase(name);
-    }
+    Optional<Store> findByName(String name);
 
-    boolean existsByNameIgnoreCase(String name);
+    List<Store> findAll();
+
+    Store save(Store store);
+
+    void deleteById(UUID id);
+
+    long count();
 }

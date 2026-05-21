@@ -14,12 +14,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestControllerAdvice
-<span class="nc" id="L17">public class GlobalExceptionHandler {</span>
+<span class="fc" id="L17">public class GlobalExceptionHandler {</span>
 
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity&lt;ApiResponse&lt;Void&gt;&gt; handleRuntimeException(RuntimeException ex) {
-<span class="nc" id="L21">        return ResponseEntity.badRequest()</span>
-<span class="nc" id="L22">                .body(ApiResponse.error(ex.getMessage()));</span>
+<span class="fc" id="L21">        return ResponseEntity.badRequest()</span>
+<span class="fc" id="L22">                .body(ApiResponse.error(ex.getMessage()));</span>
     }
 
     @ExceptionHandler(BadCredentialsException.class)
@@ -37,20 +37,20 @@ import java.util.Map;
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity&lt;ApiResponse&lt;Map&lt;String, String&gt;&gt;&gt; handleValidationExceptions(
             MethodArgumentNotValidException ex) {
-<span class="nc" id="L40">        Map&lt;String, String&gt; errors = new HashMap&lt;&gt;();</span>
-<span class="nc" id="L41">        ex.getBindingResult().getAllErrors().forEach((error) -&gt; {</span>
-<span class="nc" id="L42">            String fieldName = ((FieldError) error).getField();</span>
-<span class="nc" id="L43">            String errorMessage = error.getDefaultMessage();</span>
-<span class="nc" id="L44">            errors.put(fieldName, errorMessage);</span>
-<span class="nc" id="L45">        });</span>
+<span class="fc" id="L40">        Map&lt;String, String&gt; errors = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L41">        ex.getBindingResult().getAllErrors().forEach((error) -&gt; {</span>
+<span class="fc" id="L42">            String fieldName = ((FieldError) error).getField();</span>
+<span class="fc" id="L43">            String errorMessage = error.getDefaultMessage();</span>
+<span class="fc" id="L44">            errors.put(fieldName, errorMessage);</span>
+<span class="fc" id="L45">        });</span>
         
-<span class="nc" id="L47">        ApiResponse&lt;Map&lt;String, String&gt;&gt; response = ApiResponse.&lt;Map&lt;String, String&gt;&gt;builder()</span>
-<span class="nc" id="L48">                .success(false)</span>
-<span class="nc" id="L49">                .message(&quot;Validation failed&quot;)</span>
-<span class="nc" id="L50">                .data(errors)</span>
-<span class="nc" id="L51">                .build();</span>
+<span class="fc" id="L47">        ApiResponse&lt;Map&lt;String, String&gt;&gt; response = ApiResponse.&lt;Map&lt;String, String&gt;&gt;builder()</span>
+<span class="fc" id="L48">                .success(false)</span>
+<span class="fc" id="L49">                .message(&quot;Validation failed&quot;)</span>
+<span class="fc" id="L50">                .data(errors)</span>
+<span class="fc" id="L51">                .build();</span>
         
-<span class="nc" id="L53">        return ResponseEntity.badRequest().body(response);</span>
+<span class="fc" id="L53">        return ResponseEntity.badRequest().body(response);</span>
     }
 
     @ExceptionHandler(Exception.class)

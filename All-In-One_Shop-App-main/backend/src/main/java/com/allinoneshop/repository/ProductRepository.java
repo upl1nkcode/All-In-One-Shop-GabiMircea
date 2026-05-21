@@ -1,44 +1,34 @@
 package com.allinoneshop.repository;
 
 import com.allinoneshop.entity.Product;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
-@Repository
-public interface ProductRepository extends JpaRepository<Product, UUID> {
+public interface ProductRepository {
 
-    @Query("SELECT p FROM Product p LEFT JOIN FETCH p.brand LEFT JOIN FETCH p.category")
+    Optional<Product> findById(UUID id);
+
+    Product findByIdWithDetails(UUID id);
+
+    List<Product> findAll();
+
     List<Product> findAllWithDetails();
 
-    @Query("SELECT p FROM Product p LEFT JOIN FETCH p.brand LEFT JOIN FETCH p.category " +
-           "LEFT JOIN FETCH p.prices pp LEFT JOIN FETCH pp.store WHERE p.id = :id")
-    Product findByIdWithDetails(@Param("id") UUID id);
+    List<Product> searchProducts(String query);
 
-    @Query("SELECT p FROM Product p LEFT JOIN FETCH p.brand LEFT JOIN FETCH p.category " +
-           "WHERE LOWER(p.name) LIKE LOWER(CONCAT('%', :query, '%')) " +
-           "OR LOWER(p.description) LIKE LOWER(CONCAT('%', :query, '%'))")
-    List<Product> searchProducts(@Param("query") String query);
+    List<Product> findByCategorySlug(String slug);
 
-    @Query("SELECT p FROM Product p LEFT JOIN FETCH p.brand LEFT JOIN FETCH p.category " +
-           "WHERE p.category.slug = :slug")
-    List<Product> findByCategorySlug(@Param("slug") String slug);
+    List<Product> findByBrandName(String brandName);
 
-    @Query("SELECT p FROM Product p LEFT JOIN FETCH p.brand LEFT JOIN FETCH p.category " +
-           "WHERE LOWER(p.brand.name) = LOWER(:brandName)")
-    List<Product> findByBrandName(@Param("brandName") String brandName);
+    List<Product> findSimilarProducts(UUID categoryId, UUID excludeId, int limit);
 
-    @Query("SELECT p FROM Product p LEFT JOIN FETCH p.brand LEFT JOIN FETCH p.category " +
-           "WHERE p.category.id = :categoryId AND p.id <> :excludeId")
-    List<Product> findByCategoryIdAndIdNot(@Param("categoryId") UUID categoryId,
-                                           @Param("excludeId") UUID excludeId);
+    Product save(Product product);
 
-    default List<Product> findSimilarProducts(UUID categoryId, UUID excludeProductId, int limit) {
-        List<Product> results = findByCategoryIdAndIdNot(categoryId, excludeProductId);
-        return results.size() > limit ? results.subList(0, limit) : results;
-    }
+    void delete(Product product);
+
+    void deleteById(UUID id);
+
+    long count();
 }

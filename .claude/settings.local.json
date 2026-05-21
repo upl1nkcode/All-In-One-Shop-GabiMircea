@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\Andrei\\\\OneDrive\\\\Desktop\\\\Repositories\\\\All-In-One-Shop-GabiMircea\" -Force | Select-Object Name, @{Name='Type';Expression={if\\($_.PSIsContainer\\){'DIR'}else{'FILE'}}} | Format-Table -AutoSize)",
+      "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\Andrei\\\\OneDrive\\\\Desktop\\\\Repositories\\\\All-In-One-Shop-GabiMircea\\\\All-In-One_Shop-App-main\" -Force | Select-Object Name, @{Name='Type';Expression={if\\($_.PSIsContainer\\){'DIR'}else{'FILE'}}} | Format-Table -AutoSize)",
+      "Bash(./mvnw compile *)",
+      "PowerShell(Get-Command *)",
+      "PowerShell(java *)",
+      "PowerShell(Get-ChildItem \"C:\\\\Program Files\" -ErrorAction SilentlyContinue | Where-Object {$_.Name -match \"java|jdk|jre\" -or $_.Name -match \"Eclipse\"} | Select-Object Name)",
+      "PowerShell($env:JAVA_HOME = \\(Get-ChildItem \"C:\\\\Users\\\\Andrei\\\\.jdks\" -ErrorAction SilentlyContinue | Select-Object -First 1\\).FullName; if \\(-not $env:JAVA_HOME\\) { $env:JAVA_HOME = \\(Get-ChildItem \"C:\\\\Users\\\\Andrei\\\\.gradle\\\\jdks\" -ErrorAction SilentlyContinue | Select-Object -First 1\\).FullName }; $env:JAVA_HOME)",
+      "PowerShell($env:JAVA_HOME = \"C:\\\\Users\\\\Andrei\\\\.jdks\\\\openjdk-25.0.1\"; $mvn = \"C:\\\\Users\\\\Andrei\\\\OneDrive\\\\Desktop\\\\Repositories\\\\All-In-One-Shop-GabiMircea\\\\All-In-One_Shop-App-main\\\\backend\\\\.mvn\\\\wrapper\\\\apache-maven-3.9.6\\\\bin\\\\mvn.cmd\"; $projDir = \"C:\\\\Users\\\\Andrei\\\\OneDrive\\\\Desktop\\\\Repositories\\\\All-In-One-Shop-GabiMircea\\\\All-In-One_Shop-App-main\\\\backend\"; & $mvn compile -f \"$projDir\\\\pom.xml\" 2>&1 | Select-String -Pattern \"ERROR|error:|BUILD\" | Select-Object -Last 50)",
+      "PowerShell($env:JAVA_HOME = \"C:\\\\Users\\\\Andrei\\\\.jdks\\\\openjdk-25.0.1\"; $mvn = \"C:\\\\Users\\\\Andrei\\\\OneDrive\\\\Desktop\\\\Repositories\\\\All-In-One-Shop-GabiMircea\\\\All-In-One_Shop-App-main\\\\backend\\\\.mvn\\\\wrapper\\\\apache-maven-3.9.6\\\\bin\\\\mvn.cmd\"; $projDir = \"C:\\\\Users\\\\Andrei\\\\OneDrive\\\\Desktop\\\\Repositories\\\\All-In-One-Shop-GabiMircea\\\\All-In-One_Shop-App-main\\\\backend\"; & $mvn compile -f \"$projDir\\\\pom.xml\" 2>&1 | Select-String -Pattern \"ERROR\" | Select-Object -First 80)",
+      "Bash(export JAVA_HOME)",
+      "Bash(\".mvn/wrapper/apache-maven-3.9.6/bin/mvn\" clean *)",
+      "Bash(\".mvn/wrapper/apache-maven-3.9.6/bin/mvn\" test *)"
+    ]
+  }
+}

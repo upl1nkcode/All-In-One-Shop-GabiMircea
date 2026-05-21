@@ -14,7 +14,7 @@ import type {
 import { cacheSet, cacheGet, enqueueOperation } from './offlineStorage';
 
 // Base URL for the API - will be replaced with actual backend URL
-export const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
+export const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://localhost:8443/api';
 
 // Token management
 let authToken: string | null = localStorage.getItem('auth_token');

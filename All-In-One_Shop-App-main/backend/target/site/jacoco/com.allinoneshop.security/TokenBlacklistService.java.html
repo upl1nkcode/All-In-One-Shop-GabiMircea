@@ -11,10 +11,10 @@ import java.util.concurrent.ConcurrentHashMap;
  * Invalidated tokens are stored until they would have naturally expired.
  */
 @Service
-<span class="nc" id="L14">public class TokenBlacklistService {</span>
+<span class="fc" id="L14">public class TokenBlacklistService {</span>
 
     // Maps token -&gt; expiration time (when the token would have expired naturally)
-<span class="nc" id="L17">    private final Map&lt;String, Instant&gt; blacklist = new ConcurrentHashMap&lt;&gt;();</span>
+<span class="fc" id="L17">    private final Map&lt;String, Instant&gt; blacklist = new ConcurrentHashMap&lt;&gt;();</span>
 
     /**
      * Add a token to the blacklist.

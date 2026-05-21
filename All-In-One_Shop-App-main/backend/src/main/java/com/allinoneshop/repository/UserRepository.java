@@ -1,24 +1,24 @@
 package com.allinoneshop.repository;
 
 import com.allinoneshop.entity.User;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-@Repository
-public interface UserRepository extends JpaRepository<User, UUID> {
+public interface UserRepository {
 
-    Optional<User> findByEmailIgnoreCase(String email);
+    Optional<User> findById(UUID id);
 
-    default Optional<User> findByEmail(String email) {
-        return findByEmailIgnoreCase(email);
-    }
+    Optional<User> findByEmail(String email);
 
-    boolean existsByEmailIgnoreCase(String email);
+    boolean existsByEmail(String email);
 
-    default boolean existsByEmail(String email) {
-        return existsByEmailIgnoreCase(email);
-    }
+    User save(User user);
+
+    List<User> findAll();
+
+    void deleteById(UUID id);
+
+    long count();
 }

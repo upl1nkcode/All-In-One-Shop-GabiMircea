@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>InMemoryProductPriceRepository.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">AllInOne Shop API</a> &gt; <a href="index.source.html" class="el_package">com.allinoneshop.repository</a> &gt; <span class="el_source">InMemoryProductPriceRepository.java</span></div><h1>InMemoryProductPriceRepository.java</h1><pre class="source lang-java linenums">package com.allinoneshop.repository;
+
+import com.allinoneshop.entity.ProductPrice;
+import org.springframework.stereotype.Repository;
+
+import java.time.OffsetDateTime;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
+
+@Repository
+<span class="fc" id="L12">public class InMemoryProductPriceRepository implements ProductPriceRepository {</span>
+
+<span class="fc" id="L14">    private final Map&lt;UUID, ProductPrice&gt; store = new ConcurrentHashMap&lt;&gt;();</span>
+
+    @Override
+    public Optional&lt;ProductPrice&gt; findById(UUID id) {
+<span class="nc" id="L18">        return Optional.ofNullable(store.get(id));</span>
+    }
+
+    @Override
+    public List&lt;ProductPrice&gt; findAll() {
+<span class="fc" id="L23">        return new ArrayList&lt;&gt;(store.values());</span>
+    }
+
+    @Override
+    public List&lt;ProductPrice&gt; findByProductId(UUID productId) {
+<span class="nc" id="L28">        return store.values().stream()</span>
+<span class="nc bnc" id="L29" title="All 4 branches missed.">                .filter(pp -&gt; pp.getProduct() != null &amp;&amp; productId.equals(pp.getProduct().getId()))</span>
+<span class="nc" id="L30">                .collect(Collectors.toList());</span>
+    }
+
+    @Override
+    public List&lt;ProductPrice&gt; findByStoreId(UUID storeId) {
+<span class="nc" id="L35">        return store.values().stream()</span>
+<span class="nc bnc" id="L36" title="All 4 branches missed.">                .filter(pp -&gt; pp.getStore() != null &amp;&amp; storeId.equals(pp.getStore().getId()))</span>
+<span class="nc" id="L37">                .collect(Collectors.toList());</span>
+    }
+
+    @Override
+    public List&lt;ProductPrice&gt; findByProductIdOrderByPriceAsc(UUID productId) {
+<span class="nc" id="L42">        return findByProductId(productId).stream()</span>
+<span class="nc" id="L43">                .sorted(Comparator.comparing(ProductPrice::getPrice))</span>
+<span class="nc" id="L44">                .collect(Collectors.toList());</span>
+    }
+
+    @Override
+    public Optional&lt;ProductPrice&gt; findByProductIdAndStoreId(UUID productId, UUID storeId) {
+<span class="nc" id="L49">        return store.values().stream()</span>
+<span class="nc bnc" id="L50" title="All 4 branches missed.">                .filter(pp -&gt; pp.getProduct() != null &amp;&amp; productId.equals(pp.getProduct().getId())</span>
+<span class="nc bnc" id="L51" title="All 4 branches missed.">                        &amp;&amp; pp.getStore() != null &amp;&amp; storeId.equals(pp.getStore().getId()))</span>
+<span class="nc" id="L52">                .findFirst();</span>
+    }
+
+    @Override
+    public void deleteByStoreId(UUID storeId) {
+<span class="nc bnc" id="L57" title="All 4 branches missed.">        store.values().removeIf(pp -&gt; pp.getStore() != null &amp;&amp; storeId.equals(pp.getStore().getId()));</span>
+<span class="nc" id="L58">    }</span>
+
+    @Override
+    public ProductPrice save(ProductPrice price) {
+<span class="nc bnc" id="L62" title="All 2 branches missed.">        if (price.getId() == null) price.setId(UUID.randomUUID());</span>
+<span class="nc bnc" id="L63" title="All 2 branches missed.">        if (price.getCreatedAt() == null) {</span>
+<span class="nc" id="L64">            price.setCreatedAt(OffsetDateTime.now());</span>
+<span class="nc" id="L65">            price.setLastChecked(OffsetDateTime.now());</span>
+        }
+<span class="nc" id="L67">        store.put(price.getId(), price);</span>
+<span class="nc" id="L68">        return price;</span>
+    }
+
+    @Override
+    public long count() {
+<span class="fc" id="L73">        return store.size();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

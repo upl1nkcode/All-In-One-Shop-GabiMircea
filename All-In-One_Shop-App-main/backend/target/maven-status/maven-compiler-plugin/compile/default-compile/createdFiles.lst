@@ -1,5 +1,7 @@
+com\allinoneshop\repository\InMemoryBrandRepository.class
 com\allinoneshop\controller\BrandController.class
 com\allinoneshop\controller\FavoriteController.class
+com\allinoneshop\repository\InMemoryProductRepository.class
 com\allinoneshop\AllInOneShopApplication.class
 com\allinoneshop\service\CategoryService.class
 com\allinoneshop\dto\auth\LoginRequest.class
@@ -11,6 +13,7 @@ com\allinoneshop\entity\Category$CategoryBuilder.class
 com\allinoneshop\controller\AdminController.class
 com\allinoneshop\config\SecurityConfig.class
 com\allinoneshop\entity\SearchHistory.class
+com\allinoneshop\repository\InMemoryFavoriteRepository.class
 com\allinoneshop\dto\ProductPriceDTO.class
 com\allinoneshop\controller\AuthController.class
 com\allinoneshop\repository\StoreRepository.class
@@ -19,6 +22,8 @@ com\allinoneshop\service\UserService.class
 com\allinoneshop\entity\SearchHistory$SearchHistoryBuilder.class
 com\allinoneshop\dto\StoreDTO$StoreDTOBuilder.class
 com\allinoneshop\entity\ProductPrice.class
+com\allinoneshop\repository\InMemoryUserRepository.class
+com\allinoneshop\repository\InMemoryProductPriceRepository.class
 com\allinoneshop\service\AuthService.class
 com\allinoneshop\dto\StoreDTO.class
 com\allinoneshop\controller\SearchHistoryController.class
@@ -43,7 +48,9 @@ com\allinoneshop\entity\enums\Role.class
 com\allinoneshop\entity\Store.class
 com\allinoneshop\entity\enums\Gender.class
 com\allinoneshop\repository\BrandRepository.class
+com\allinoneshop\repository\InMemoryStoreRepository.class
 com\allinoneshop\controller\UserController.class
+com\allinoneshop\repository\InMemoryCategoryRepository.class
 com\allinoneshop\service\BrandService.class
 com\allinoneshop\dto\ApiResponse.class
 com\allinoneshop\entity\Favorite.class
@@ -58,6 +65,7 @@ com\allinoneshop\dto\ProductDTO.class
 com\allinoneshop\exception\GlobalExceptionHandler.class
 com\allinoneshop\dto\SearchRequest$SearchRequestBuilder.class
 com\allinoneshop\dto\auth\AuthResponse.class
+com\allinoneshop\repository\InMemorySearchHistoryRepository.class
 com\allinoneshop\service\AdminService.class
 com\allinoneshop\service\StoreService.class
 com\allinoneshop\repository\CategoryRepository.class

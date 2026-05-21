@@ -16,7 +16,6 @@ import com.allinoneshop.repository.ProductRepository;
 import com.allinoneshop.repository.StoreRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -59,7 +58,6 @@ public class AdminService {
     }
 
     @SuppressWarnings("unchecked")
-    @Transactional
     public ProductDTO ingestProduct(Map<String, Object> payload) {
         String name = (String) payload.get("name");
         String brandName = (String) payload.get("brand");

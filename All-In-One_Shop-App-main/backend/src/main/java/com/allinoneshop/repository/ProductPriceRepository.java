@@ -1,15 +1,16 @@
 package com.allinoneshop.repository;
 
 import com.allinoneshop.entity.ProductPrice;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-@Repository
-public interface ProductPriceRepository extends JpaRepository<ProductPrice, UUID> {
+public interface ProductPriceRepository {
+
+    Optional<ProductPrice> findById(UUID id);
+
+    List<ProductPrice> findAll();
 
     List<ProductPrice> findByProductId(UUID productId);
 
@@ -20,4 +21,8 @@ public interface ProductPriceRepository extends JpaRepository<ProductPrice, UUID
     Optional<ProductPrice> findByProductIdAndStoreId(UUID productId, UUID storeId);
 
     void deleteByStoreId(UUID storeId);
+
+    ProductPrice save(ProductPrice price);
+
+    long count();
 }

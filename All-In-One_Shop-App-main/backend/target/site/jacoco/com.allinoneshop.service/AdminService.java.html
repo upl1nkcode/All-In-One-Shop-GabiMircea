@@ -16,7 +16,6 @@ import com.allinoneshop.repository.ProductRepository;
 import com.allinoneshop.repository.StoreRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -25,7 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-<span class="fc" id="L28">@RequiredArgsConstructor</span>
+<span class="fc" id="L27">@RequiredArgsConstructor</span>
 public class AdminService {
 
     private final ProductRepository productRepository;
@@ -35,173 +34,172 @@ public class AdminService {
     private final ProductPriceRepository priceRepository;
 
     public Map&lt;String, Object&gt; getDashboardStats() {
-<span class="fc" id="L38">        Map&lt;String, Object&gt; stats = new HashMap&lt;&gt;();</span>
-<span class="fc" id="L39">        stats.put(&quot;totalProducts&quot;, productRepository.count());</span>
-<span class="fc" id="L40">        stats.put(&quot;activeStores&quot;, storeRepository.count());</span>
-<span class="fc" id="L41">        stats.put(&quot;totalBrands&quot;, brandRepository.count());</span>
-<span class="fc" id="L42">        stats.put(&quot;totalPrices&quot;, priceRepository.count());</span>
+<span class="fc" id="L37">        Map&lt;String, Object&gt; stats = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L38">        stats.put(&quot;totalProducts&quot;, productRepository.count());</span>
+<span class="fc" id="L39">        stats.put(&quot;activeStores&quot;, storeRepository.count());</span>
+<span class="fc" id="L40">        stats.put(&quot;totalBrands&quot;, brandRepository.count());</span>
+<span class="fc" id="L41">        stats.put(&quot;totalPrices&quot;, priceRepository.count());</span>
 
-<span class="fc" id="L44">        List&lt;ProductPrice&gt; allPrices = priceRepository.findAll();</span>
-<span class="fc" id="L45">        double avgPrice = allPrices.stream()</span>
-<span class="fc" id="L46">                .map(ProductPrice::getPrice)</span>
-<span class="fc" id="L47">                .mapToDouble(BigDecimal::doubleValue)</span>
-<span class="fc" id="L48">                .average()</span>
-<span class="fc" id="L49">                .orElse(0.0);</span>
-<span class="fc" id="L50">        stats.put(&quot;avgPrice&quot;, Math.round(avgPrice * 100.0) / 100.0);</span>
+<span class="fc" id="L43">        List&lt;ProductPrice&gt; allPrices = priceRepository.findAll();</span>
+<span class="fc" id="L44">        double avgPrice = allPrices.stream()</span>
+<span class="fc" id="L45">                .map(ProductPrice::getPrice)</span>
+<span class="fc" id="L46">                .mapToDouble(BigDecimal::doubleValue)</span>
+<span class="fc" id="L47">                .average()</span>
+<span class="fc" id="L48">                .orElse(0.0);</span>
+<span class="fc" id="L49">        stats.put(&quot;avgPrice&quot;, Math.round(avgPrice * 100.0) / 100.0);</span>
 
-<span class="fc" id="L52">        String topPriceProduct = allPrices.stream()</span>
-<span class="pc" id="L53">                .max((a, b) -&gt; a.getPrice().compareTo(b.getPrice()))</span>
-<span class="pc bpc" id="L54" title="1 of 2 branches missed.">                .map(pp -&gt; pp.getProduct() != null ? pp.getProduct().getName() : &quot;N/A&quot;)</span>
-<span class="fc" id="L55">                .orElse(&quot;N/A&quot;);</span>
-<span class="fc" id="L56">        stats.put(&quot;topPriceProduct&quot;, topPriceProduct);</span>
+<span class="fc" id="L51">        String topPriceProduct = allPrices.stream()</span>
+<span class="pc" id="L52">                .max((a, b) -&gt; a.getPrice().compareTo(b.getPrice()))</span>
+<span class="pc bpc" id="L53" title="1 of 2 branches missed.">                .map(pp -&gt; pp.getProduct() != null ? pp.getProduct().getName() : &quot;N/A&quot;)</span>
+<span class="fc" id="L54">                .orElse(&quot;N/A&quot;);</span>
+<span class="fc" id="L55">        stats.put(&quot;topPriceProduct&quot;, topPriceProduct);</span>
 
-<span class="fc" id="L58">        return stats;</span>
+<span class="fc" id="L57">        return stats;</span>
     }
 
     @SuppressWarnings(&quot;unchecked&quot;)
-    @Transactional
     public ProductDTO ingestProduct(Map&lt;String, Object&gt; payload) {
-<span class="fc" id="L64">        String name = (String) payload.get(&quot;name&quot;);</span>
-<span class="fc" id="L65">        String brandName = (String) payload.get(&quot;brand&quot;);</span>
-<span class="fc" id="L66">        String categoryName = (String) payload.get(&quot;category&quot;);</span>
+<span class="fc" id="L62">        String name = (String) payload.get(&quot;name&quot;);</span>
+<span class="fc" id="L63">        String brandName = (String) payload.get(&quot;brand&quot;);</span>
+<span class="fc" id="L64">        String categoryName = (String) payload.get(&quot;category&quot;);</span>
 
-<span class="fc" id="L68">        Brand brand = null;</span>
-<span class="pc bpc" id="L69" title="1 of 4 branches missed.">        if (brandName != null &amp;&amp; !brandName.isEmpty()) {</span>
-<span class="fc" id="L70">            brand = brandRepository.findByName(brandName)</span>
-<span class="pc" id="L71">                    .orElseGet(() -&gt; brandRepository.save(Brand.builder().name(brandName).build()));</span>
+<span class="fc" id="L66">        Brand brand = null;</span>
+<span class="pc bpc" id="L67" title="1 of 4 branches missed.">        if (brandName != null &amp;&amp; !brandName.isEmpty()) {</span>
+<span class="fc" id="L68">            brand = brandRepository.findByName(brandName)</span>
+<span class="pc" id="L69">                    .orElseGet(() -&gt; brandRepository.save(Brand.builder().name(brandName).build()));</span>
         }
 
-<span class="fc" id="L74">        Category category = null;</span>
-<span class="pc bpc" id="L75" title="1 of 4 branches missed.">        if (categoryName != null &amp;&amp; !categoryName.isEmpty()) {</span>
-<span class="fc" id="L76">            category = categoryRepository.findByName(categoryName)</span>
-<span class="pc" id="L77">                    .orElseGet(() -&gt; categoryRepository.save(Category.builder()</span>
-<span class="nc" id="L78">                            .name(categoryName)</span>
-<span class="nc" id="L79">                            .slug(categoryName.toLowerCase().replace(&quot; &quot;, &quot;-&quot;))</span>
-<span class="nc" id="L80">                            .build()));</span>
+<span class="fc" id="L72">        Category category = null;</span>
+<span class="pc bpc" id="L73" title="1 of 4 branches missed.">        if (categoryName != null &amp;&amp; !categoryName.isEmpty()) {</span>
+<span class="fc" id="L74">            category = categoryRepository.findByName(categoryName)</span>
+<span class="pc" id="L75">                    .orElseGet(() -&gt; categoryRepository.save(Category.builder()</span>
+<span class="nc" id="L76">                            .name(categoryName)</span>
+<span class="nc" id="L77">                            .slug(categoryName.toLowerCase().replace(&quot; &quot;, &quot;-&quot;))</span>
+<span class="nc" id="L78">                            .build()));</span>
         }
 
-<span class="fc" id="L83">        Product product = null;</span>
-<span class="fc bfc" id="L84" title="All 2 branches covered.">        if (brand != null) {</span>
-<span class="fc" id="L85">            List&lt;Product&gt; existing = productRepository.findByBrandName(brand.getName());</span>
-<span class="pc" id="L86">            product = existing.stream().filter(p -&gt; p.getName().equalsIgnoreCase(name)).findFirst().orElse(null);</span>
+<span class="fc" id="L81">        Product product = null;</span>
+<span class="fc bfc" id="L82" title="All 2 branches covered.">        if (brand != null) {</span>
+<span class="fc" id="L83">            List&lt;Product&gt; existing = productRepository.findByBrandName(brand.getName());</span>
+<span class="pc" id="L84">            product = existing.stream().filter(p -&gt; p.getName().equalsIgnoreCase(name)).findFirst().orElse(null);</span>
         }
 
-<span class="pc bpc" id="L89" title="1 of 2 branches missed.">        if (product == null) {</span>
-<span class="fc" id="L90">            product = new Product();</span>
-<span class="fc" id="L91">            product.setName(name);</span>
-<span class="fc" id="L92">            product.setBrand(brand);</span>
-<span class="fc" id="L93">            product.setCategory(category);</span>
-<span class="fc" id="L94">            product.setPrices(new ArrayList&lt;&gt;());</span>
+<span class="pc bpc" id="L87" title="1 of 2 branches missed.">        if (product == null) {</span>
+<span class="fc" id="L88">            product = new Product();</span>
+<span class="fc" id="L89">            product.setName(name);</span>
+<span class="fc" id="L90">            product.setBrand(brand);</span>
+<span class="fc" id="L91">            product.setCategory(category);</span>
+<span class="fc" id="L92">            product.setPrices(new ArrayList&lt;&gt;());</span>
         }
 
-<span class="fc" id="L97">        product.setDescription((String) payload.get(&quot;description&quot;));</span>
-<span class="fc" id="L98">        product.setImageUrl((String) payload.get(&quot;imageUrl&quot;));</span>
+<span class="fc" id="L95">        product.setDescription((String) payload.get(&quot;description&quot;));</span>
+<span class="fc" id="L96">        product.setImageUrl((String) payload.get(&quot;imageUrl&quot;));</span>
 
-<span class="pc bpc" id="L100" title="1 of 2 branches missed.">        if (payload.get(&quot;sizes&quot;) instanceof List) {</span>
-<span class="nc" id="L101">            List&lt;?&gt; sizes = (List&lt;?&gt;) payload.get(&quot;sizes&quot;);</span>
-<span class="nc" id="L102">            product.setSizes(sizes.stream().map(Object::toString).toArray(String[]::new));</span>
+<span class="pc bpc" id="L98" title="1 of 2 branches missed.">        if (payload.get(&quot;sizes&quot;) instanceof List) {</span>
+<span class="nc" id="L99">            List&lt;?&gt; sizes = (List&lt;?&gt;) payload.get(&quot;sizes&quot;);</span>
+<span class="nc" id="L100">            product.setSizes(sizes.stream().map(Object::toString).toArray(String[]::new));</span>
         }
 
-<span class="pc bpc" id="L105" title="1 of 2 branches missed.">        if (payload.get(&quot;colors&quot;) instanceof List) {</span>
-<span class="nc" id="L106">            List&lt;?&gt; colors = (List&lt;?&gt;) payload.get(&quot;colors&quot;);</span>
-<span class="nc" id="L107">            product.setColors(colors.stream().map(Object::toString).toArray(String[]::new));</span>
+<span class="pc bpc" id="L103" title="1 of 2 branches missed.">        if (payload.get(&quot;colors&quot;) instanceof List) {</span>
+<span class="nc" id="L104">            List&lt;?&gt; colors = (List&lt;?&gt;) payload.get(&quot;colors&quot;);</span>
+<span class="nc" id="L105">            product.setColors(colors.stream().map(Object::toString).toArray(String[]::new));</span>
         }
 
-<span class="pc bpc" id="L110" title="1 of 2 branches missed.">        if (payload.get(&quot;gender&quot;) != null) {</span>
+<span class="pc bpc" id="L108" title="1 of 2 branches missed.">        if (payload.get(&quot;gender&quot;) != null) {</span>
             try {
-<span class="fc" id="L112">                product.setGender(Gender.valueOf(((String) payload.get(&quot;gender&quot;)).toUpperCase()));</span>
-<span class="fc" id="L113">            } catch (Exception e) {</span>
-<span class="fc" id="L114">                product.setGender(Gender.UNISEX);</span>
-<span class="fc" id="L115">            }</span>
+<span class="fc" id="L110">                product.setGender(Gender.valueOf(((String) payload.get(&quot;gender&quot;)).toUpperCase()));</span>
+<span class="fc" id="L111">            } catch (Exception e) {</span>
+<span class="fc" id="L112">                product.setGender(Gender.UNISEX);</span>
+<span class="fc" id="L113">            }</span>
         } else {
-<span class="nc" id="L117">            product.setGender(Gender.UNISEX);</span>
+<span class="nc" id="L115">            product.setGender(Gender.UNISEX);</span>
         }
 
-<span class="fc" id="L120">        product = productRepository.save(product);</span>
+<span class="fc" id="L118">        product = productRepository.save(product);</span>
 
-<span class="fc" id="L122">        Map&lt;String, Object&gt; priceData = (Map&lt;String, Object&gt;) payload.get(&quot;price&quot;);</span>
-<span class="fc bfc" id="L123" title="All 2 branches covered.">        if (priceData != null) {</span>
-<span class="fc" id="L124">            String storeName = (String) priceData.get(&quot;storeName&quot;);</span>
-<span class="fc" id="L125">            Store store = storeRepository.findByName(storeName)</span>
-<span class="pc" id="L126">                    .orElseGet(() -&gt; storeRepository.save(Store.builder()</span>
-<span class="nc" id="L127">                            .name(storeName)</span>
-<span class="nc" id="L128">                            .website(&quot;https://&quot; + storeName.toLowerCase() + &quot;.com&quot;)</span>
-<span class="nc" id="L129">                            .isActive(true)</span>
-<span class="nc" id="L130">                            .build()));</span>
+<span class="fc" id="L120">        Map&lt;String, Object&gt; priceData = (Map&lt;String, Object&gt;) payload.get(&quot;price&quot;);</span>
+<span class="fc bfc" id="L121" title="All 2 branches covered.">        if (priceData != null) {</span>
+<span class="fc" id="L122">            String storeName = (String) priceData.get(&quot;storeName&quot;);</span>
+<span class="fc" id="L123">            Store store = storeRepository.findByName(storeName)</span>
+<span class="pc" id="L124">                    .orElseGet(() -&gt; storeRepository.save(Store.builder()</span>
+<span class="nc" id="L125">                            .name(storeName)</span>
+<span class="nc" id="L126">                            .website(&quot;https://&quot; + storeName.toLowerCase() + &quot;.com&quot;)</span>
+<span class="nc" id="L127">                            .isActive(true)</span>
+<span class="nc" id="L128">                            .build()));</span>
 
-<span class="fc" id="L132">            final Product fProduct = product;</span>
-<span class="pc bpc" id="L133" title="1 of 2 branches missed.">            if (product.getPrices() == null) {</span>
-<span class="nc" id="L134">                product.setPrices(new ArrayList&lt;&gt;());</span>
+<span class="fc" id="L130">            final Product fProduct = product;</span>
+<span class="pc bpc" id="L131" title="1 of 2 branches missed.">            if (product.getPrices() == null) {</span>
+<span class="nc" id="L132">                product.setPrices(new ArrayList&lt;&gt;());</span>
             }
-<span class="fc" id="L136">            ProductPrice price = priceRepository.findByProductIdAndStoreId(fProduct.getId(), store.getId())</span>
-<span class="fc" id="L137">                    .orElseGet(() -&gt; {</span>
-<span class="fc" id="L138">                        ProductPrice pp = new ProductPrice();</span>
-<span class="fc" id="L139">                        pp.setProduct(fProduct);</span>
-<span class="fc" id="L140">                        pp.setStore(store);</span>
-<span class="fc" id="L141">                        return pp;</span>
+<span class="fc" id="L134">            ProductPrice price = priceRepository.findByProductIdAndStoreId(fProduct.getId(), store.getId())</span>
+<span class="fc" id="L135">                    .orElseGet(() -&gt; {</span>
+<span class="fc" id="L136">                        ProductPrice pp = new ProductPrice();</span>
+<span class="fc" id="L137">                        pp.setProduct(fProduct);</span>
+<span class="fc" id="L138">                        pp.setStore(store);</span>
+<span class="fc" id="L139">                        return pp;</span>
                     });
 
-<span class="fc" id="L144">            price.setPrice(new BigDecimal(priceData.get(&quot;price&quot;).toString()));</span>
-<span class="pc bpc" id="L145" title="1 of 2 branches missed.">            if (priceData.get(&quot;originalPrice&quot;) != null) {</span>
-<span class="fc" id="L146">                price.setOriginalPrice(new BigDecimal(priceData.get(&quot;originalPrice&quot;).toString()));</span>
+<span class="fc" id="L142">            price.setPrice(new BigDecimal(priceData.get(&quot;price&quot;).toString()));</span>
+<span class="pc bpc" id="L143" title="1 of 2 branches missed.">            if (priceData.get(&quot;originalPrice&quot;) != null) {</span>
+<span class="fc" id="L144">                price.setOriginalPrice(new BigDecimal(priceData.get(&quot;originalPrice&quot;).toString()));</span>
             }
-<span class="fc" id="L148">            price.setCurrency((String) priceData.get(&quot;currency&quot;));</span>
-<span class="fc" id="L149">            price.setProductUrl((String) priceData.get(&quot;productUrl&quot;));</span>
-<span class="fc" id="L150">            price.setInStock((Boolean) priceData.getOrDefault(&quot;inStock&quot;, true));</span>
+<span class="fc" id="L146">            price.setCurrency((String) priceData.get(&quot;currency&quot;));</span>
+<span class="fc" id="L147">            price.setProductUrl((String) priceData.get(&quot;productUrl&quot;));</span>
+<span class="fc" id="L148">            price.setInStock((Boolean) priceData.getOrDefault(&quot;inStock&quot;, true));</span>
 
-<span class="fc" id="L152">            priceRepository.save(price);</span>
+<span class="fc" id="L150">            priceRepository.save(price);</span>
 
-<span class="pc bpc" id="L154" title="1 of 2 branches missed.">            if (!product.getPrices().contains(price)) {</span>
-<span class="fc" id="L155">                product.getPrices().add(price);</span>
+<span class="pc bpc" id="L152" title="1 of 2 branches missed.">            if (!product.getPrices().contains(price)) {</span>
+<span class="fc" id="L153">                product.getPrices().add(price);</span>
             }
         }
 
-<span class="fc" id="L159">        return convertProductToDTO(product);</span>
+<span class="fc" id="L157">        return convertProductToDTO(product);</span>
     }
 
     public Map&lt;String, Object&gt; runScraper() {
-<span class="fc" id="L163">        Map&lt;String, Object&gt; result = new HashMap&lt;&gt;();</span>
-<span class="fc" id="L164">        result.put(&quot;status&quot;, &quot;triggered&quot;);</span>
-<span class="fc" id="L165">        result.put(&quot;totalProducts&quot;, productRepository.count());</span>
-<span class="fc" id="L166">        result.put(&quot;totalStores&quot;, storeRepository.count());</span>
-<span class="fc" id="L167">        result.put(&quot;totalPrices&quot;, priceRepository.count());</span>
-<span class="fc" id="L168">        return result;</span>
+<span class="fc" id="L161">        Map&lt;String, Object&gt; result = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L162">        result.put(&quot;status&quot;, &quot;triggered&quot;);</span>
+<span class="fc" id="L163">        result.put(&quot;totalProducts&quot;, productRepository.count());</span>
+<span class="fc" id="L164">        result.put(&quot;totalStores&quot;, storeRepository.count());</span>
+<span class="fc" id="L165">        result.put(&quot;totalPrices&quot;, priceRepository.count());</span>
+<span class="fc" id="L166">        return result;</span>
     }
 
     private ProductDTO convertProductToDTO(Product product) {
-<span class="fc" id="L172">        BigDecimal lowestPrice = null;</span>
-<span class="fc" id="L173">        BigDecimal highestPrice = null;</span>
+<span class="fc" id="L170">        BigDecimal lowestPrice = null;</span>
+<span class="fc" id="L171">        BigDecimal highestPrice = null;</span>
 
-<span class="pc bpc" id="L175" title="1 of 4 branches missed.">        if (product.getPrices() != null &amp;&amp; !product.getPrices().isEmpty()) {</span>
-<span class="fc" id="L176">            lowestPrice = product.getPrices().stream()</span>
-<span class="fc" id="L177">                    .map(ProductPrice::getPrice)</span>
-<span class="fc" id="L178">                    .min(BigDecimal::compareTo).orElse(BigDecimal.ZERO);</span>
-<span class="fc" id="L179">            highestPrice = product.getPrices().stream()</span>
-<span class="fc" id="L180">                    .map(ProductPrice::getPrice)</span>
-<span class="fc" id="L181">                    .max(BigDecimal::compareTo).orElse(BigDecimal.ZERO);</span>
+<span class="pc bpc" id="L173" title="1 of 4 branches missed.">        if (product.getPrices() != null &amp;&amp; !product.getPrices().isEmpty()) {</span>
+<span class="fc" id="L174">            lowestPrice = product.getPrices().stream()</span>
+<span class="fc" id="L175">                    .map(ProductPrice::getPrice)</span>
+<span class="fc" id="L176">                    .min(BigDecimal::compareTo).orElse(BigDecimal.ZERO);</span>
+<span class="fc" id="L177">            highestPrice = product.getPrices().stream()</span>
+<span class="fc" id="L178">                    .map(ProductPrice::getPrice)</span>
+<span class="fc" id="L179">                    .max(BigDecimal::compareTo).orElse(BigDecimal.ZERO);</span>
         }
 
-<span class="fc bfc" id="L184" title="All 2 branches covered.">        BrandDTO brandDTO = product.getBrand() != null ?</span>
-<span class="fc" id="L185">                BrandDTO.builder().id(product.getBrand().getId()).name(product.getBrand().getName()).build() : null;</span>
-<span class="fc bfc" id="L186" title="All 2 branches covered.">        CategoryDTO categoryDTO = product.getCategory() != null ?</span>
-<span class="fc" id="L187">                CategoryDTO.builder().id(product.getCategory().getId()).name(product.getCategory().getName())</span>
-<span class="fc" id="L188">                        .slug(product.getCategory().getSlug()).build() : null;</span>
+<span class="fc bfc" id="L182" title="All 2 branches covered.">        BrandDTO brandDTO = product.getBrand() != null ?</span>
+<span class="fc" id="L183">                BrandDTO.builder().id(product.getBrand().getId()).name(product.getBrand().getName()).build() : null;</span>
+<span class="fc bfc" id="L184" title="All 2 branches covered.">        CategoryDTO categoryDTO = product.getCategory() != null ?</span>
+<span class="fc" id="L185">                CategoryDTO.builder().id(product.getCategory().getId()).name(product.getCategory().getName())</span>
+<span class="fc" id="L186">                        .slug(product.getCategory().getSlug()).build() : null;</span>
 
-<span class="fc" id="L190">        return ProductDTO.builder()</span>
-<span class="fc" id="L191">                .id(product.getId())</span>
-<span class="fc" id="L192">                .name(product.getName())</span>
-<span class="fc" id="L193">                .description(product.getDescription())</span>
-<span class="fc" id="L194">                .imageUrl(product.getImageUrl())</span>
-<span class="fc" id="L195">                .brand(brandDTO)</span>
-<span class="fc" id="L196">                .category(categoryDTO)</span>
-<span class="fc" id="L197">                .sizes(product.getSizes())</span>
-<span class="fc" id="L198">                .colors(product.getColors())</span>
-<span class="fc" id="L199">                .lowestPrice(lowestPrice)</span>
-<span class="fc" id="L200">                .highestPrice(highestPrice)</span>
-<span class="pc bpc" id="L201" title="1 of 2 branches missed.">                .storeCount(product.getPrices() != null ? product.getPrices().size() : 0)</span>
-<span class="fc" id="L202">                .isActive(product.getIsActive())</span>
-<span class="pc bpc" id="L203" title="1 of 2 branches missed.">                .gender(product.getGender() != null ? product.getGender().name() : null)</span>
-<span class="fc" id="L204">                .build();</span>
+<span class="fc" id="L188">        return ProductDTO.builder()</span>
+<span class="fc" id="L189">                .id(product.getId())</span>
+<span class="fc" id="L190">                .name(product.getName())</span>
+<span class="fc" id="L191">                .description(product.getDescription())</span>
+<span class="fc" id="L192">                .imageUrl(product.getImageUrl())</span>
+<span class="fc" id="L193">                .brand(brandDTO)</span>
+<span class="fc" id="L194">                .category(categoryDTO)</span>
+<span class="fc" id="L195">                .sizes(product.getSizes())</span>
+<span class="fc" id="L196">                .colors(product.getColors())</span>
+<span class="fc" id="L197">                .lowestPrice(lowestPrice)</span>
+<span class="fc" id="L198">                .highestPrice(highestPrice)</span>
+<span class="pc bpc" id="L199" title="1 of 2 branches missed.">                .storeCount(product.getPrices() != null ? product.getPrices().size() : 0)</span>
+<span class="fc" id="L200">                .isActive(product.getIsActive())</span>
+<span class="pc bpc" id="L201" title="1 of 2 branches missed.">                .gender(product.getGender() != null ? product.getGender().name() : null)</span>
+<span class="fc" id="L202">                .build();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

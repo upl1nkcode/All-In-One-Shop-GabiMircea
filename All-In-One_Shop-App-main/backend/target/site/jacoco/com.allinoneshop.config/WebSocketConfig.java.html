@@ -8,19 +8,19 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 
 @Configuration
 @EnableWebSocketMessageBroker
-<span class="nc" id="L11">public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {</span>
+<span class="fc" id="L11">public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {</span>
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
-<span class="nc" id="L15">        config.enableSimpleBroker(&quot;/topic&quot;);</span>
-<span class="nc" id="L16">        config.setApplicationDestinationPrefixes(&quot;/app&quot;);</span>
-<span class="nc" id="L17">    }</span>
+<span class="fc" id="L15">        config.enableSimpleBroker(&quot;/topic&quot;);</span>
+<span class="fc" id="L16">        config.setApplicationDestinationPrefixes(&quot;/app&quot;);</span>
+<span class="fc" id="L17">    }</span>
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-<span class="nc" id="L21">        registry.addEndpoint(&quot;/ws&quot;)</span>
-<span class="nc" id="L22">                .setAllowedOriginPatterns(&quot;*&quot;)</span>
-<span class="nc" id="L23">                .withSockJS();</span>
-<span class="nc" id="L24">    }</span>
+<span class="fc" id="L21">        registry.addEndpoint(&quot;/ws&quot;)</span>
+<span class="fc" id="L22">                .setAllowedOriginPatterns(&quot;*&quot;)</span>
+<span class="fc" id="L23">                .withSockJS();</span>
+<span class="fc" id="L24">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

@@ -18,6 +18,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -44,7 +45,6 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin())) // H2 console
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
@@ -62,8 +62,6 @@ public class SecurityConfig {
                         .requestMatchers("/ws/**").permitAll()
                         // Faker endpoints (public for demo)
                         .requestMatchers("/faker/**").permitAll()
-                        // H2 Console (development only)
-                        .requestMatchers("/h2-console/**").permitAll()
                         // Swagger/OpenAPI
                         .requestMatchers("/swagger-ui/**", "/api-docs/**", "/swagger-ui.html").permitAll()
                         // Protected endpoints
@@ -73,6 +71,7 @@ public class SecurityConfig {
                         .requestMatchers("/admin/stats").hasRole("ADMIN")
                         .anyRequest().permitAll()
                 )
+                .exceptionHandling(ex -> ex.authenticationEntryPoint(restAuthenticationEntryPoint()))
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
@@ -109,5 +108,14 @@ public class SecurityConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public AuthenticationEntryPoint restAuthenticationEntryPoint() {
+        return (request, response, authException) -> {
+            response.setStatus(jakarta.servlet.http.HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json");
+            response.getWriter().write("{\"success\":false,\"message\":\"Authentication required\"}");
+        };
     }
 }

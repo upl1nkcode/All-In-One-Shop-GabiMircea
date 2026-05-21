@@ -4,33 +4,33 @@ import lombok.*;
 
 <span class="nc bnc" id="L5" title="All 26 branches missed.">@Data</span>
 <span class="nc" id="L6">@NoArgsConstructor</span>
-<span class="nc" id="L7">@AllArgsConstructor</span>
-<span class="nc" id="L8">@Builder</span>
+<span class="fc" id="L7">@AllArgsConstructor</span>
+<span class="pc" id="L8">@Builder</span>
 public class ApiResponse&lt;T&gt; {
-<span class="nc" id="L10">    private boolean success;</span>
-<span class="nc" id="L11">    private String message;</span>
-<span class="nc" id="L12">    private T data;</span>
+<span class="fc" id="L10">    private boolean success;</span>
+<span class="fc" id="L11">    private String message;</span>
+<span class="fc" id="L12">    private T data;</span>
 
     public static &lt;T&gt; ApiResponse&lt;T&gt; success(T data) {
-<span class="nc" id="L15">        return ApiResponse.&lt;T&gt;builder()</span>
-<span class="nc" id="L16">                .success(true)</span>
-<span class="nc" id="L17">                .data(data)</span>
-<span class="nc" id="L18">                .build();</span>
+<span class="fc" id="L15">        return ApiResponse.&lt;T&gt;builder()</span>
+<span class="fc" id="L16">                .success(true)</span>
+<span class="fc" id="L17">                .data(data)</span>
+<span class="fc" id="L18">                .build();</span>
     }
 
     public static &lt;T&gt; ApiResponse&lt;T&gt; success(String message, T data) {
-<span class="nc" id="L22">        return ApiResponse.&lt;T&gt;builder()</span>
-<span class="nc" id="L23">                .success(true)</span>
-<span class="nc" id="L24">                .message(message)</span>
-<span class="nc" id="L25">                .data(data)</span>
-<span class="nc" id="L26">                .build();</span>
+<span class="fc" id="L22">        return ApiResponse.&lt;T&gt;builder()</span>
+<span class="fc" id="L23">                .success(true)</span>
+<span class="fc" id="L24">                .message(message)</span>
+<span class="fc" id="L25">                .data(data)</span>
+<span class="fc" id="L26">                .build();</span>
     }
 
     public static &lt;T&gt; ApiResponse&lt;T&gt; error(String message) {
-<span class="nc" id="L30">        return ApiResponse.&lt;T&gt;builder()</span>
-<span class="nc" id="L31">                .success(false)</span>
-<span class="nc" id="L32">                .message(message)</span>
-<span class="nc" id="L33">                .build();</span>
+<span class="fc" id="L30">        return ApiResponse.&lt;T&gt;builder()</span>
+<span class="fc" id="L31">                .success(false)</span>
+<span class="fc" id="L32">                .message(message)</span>
+<span class="fc" id="L33">                .build();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

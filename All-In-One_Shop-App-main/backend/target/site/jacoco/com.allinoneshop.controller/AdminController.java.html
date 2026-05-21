@@ -14,7 +14,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping(&quot;/admin&quot;)
-<span class="nc" id="L17">@RequiredArgsConstructor</span>
+<span class="fc" id="L17">@RequiredArgsConstructor</span>
 @Tag(name = &quot;Admin&quot;, description = &quot;Administration and ingestion endpoints&quot;)
 public class AdminController {
 
@@ -24,7 +24,7 @@ public class AdminController {
     @PreAuthorize(&quot;hasRole('ADMIN')&quot;)
     @Operation(summary = &quot;Get dashboard statistics&quot;)
     public ResponseEntity&lt;ApiResponse&lt;Map&lt;String, Object&gt;&gt;&gt; getStats() {
-<span class="nc" id="L27">        return ResponseEntity.ok(ApiResponse.success(adminService.getDashboardStats()));</span>
+<span class="fc" id="L27">        return ResponseEntity.ok(ApiResponse.success(adminService.getDashboardStats()));</span>
     }
 
     @PostMapping(&quot;/ingest&quot;)

@@ -1,26 +1,24 @@
 package com.allinoneshop.repository;
 
 import com.allinoneshop.entity.Category;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-@Repository
-public interface CategoryRepository extends JpaRepository<Category, UUID> {
+public interface CategoryRepository {
 
-    Optional<Category> findBySlugIgnoreCase(String slug);
+    Optional<Category> findById(UUID id);
 
-    Optional<Category> findByNameIgnoreCase(String name);
+    Optional<Category> findBySlug(String slug);
 
-    default Optional<Category> findBySlug(String slug) {
-        return findBySlugIgnoreCase(slug);
-    }
+    Optional<Category> findByName(String name);
 
-    default Optional<Category> findByName(String name) {
-        return findByNameIgnoreCase(name);
-    }
+    List<Category> findAll();
 
-    boolean existsByNameIgnoreCase(String name);
+    Category save(Category category);
+
+    void deleteById(UUID id);
+
+    long count();
 }

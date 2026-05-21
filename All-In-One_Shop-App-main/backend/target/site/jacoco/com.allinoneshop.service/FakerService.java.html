@@ -9,16 +9,15 @@ import lombok.extern.slf4j.Slf4j;
 import net.datafaker.Faker;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-<span class="nc" id="L19">@Slf4j</span>
+<span class="fc" id="L18">@Slf4j</span>
 @Service
-<span class="nc" id="L21">@RequiredArgsConstructor</span>
+<span class="fc" id="L20">@RequiredArgsConstructor</span>
 public class FakerService {
 
     private final ProductRepository productRepository;
@@ -29,126 +28,125 @@ public class FakerService {
     private final ProductService productService;
     private final SimpMessagingTemplate messagingTemplate;
 
-<span class="nc" id="L32">    private final AtomicBoolean generating = new AtomicBoolean(false);</span>
-<span class="nc" id="L33">    private final Faker faker = new Faker();</span>
+<span class="fc" id="L31">    private final AtomicBoolean generating = new AtomicBoolean(false);</span>
+<span class="fc" id="L32">    private final Faker faker = new Faker();</span>
 
     public boolean isGenerating() {
-<span class="nc" id="L36">        return generating.get();</span>
+<span class="nc" id="L35">        return generating.get();</span>
     }
 
     public void startGenerating(int intervalMs, int batchSize) {
-<span class="nc bnc" id="L40" title="All 2 branches missed.">        if (generating.getAndSet(true)) {</span>
-<span class="nc" id="L41">            throw new RuntimeException(&quot;Generation already in progress&quot;);</span>
+<span class="nc bnc" id="L39" title="All 2 branches missed.">        if (generating.getAndSet(true)) {</span>
+<span class="nc" id="L40">            throw new RuntimeException(&quot;Generation already in progress&quot;);</span>
         }
 
-<span class="nc" id="L44">        Thread generatorThread = new Thread(() -&gt; {</span>
-<span class="nc" id="L45">            log.info(&quot;Faker generation started: interval={}ms, batchSize={}&quot;, intervalMs, batchSize);</span>
+<span class="nc" id="L43">        Thread generatorThread = new Thread(() -&gt; {</span>
+<span class="nc" id="L44">            log.info(&quot;Faker generation started: interval={}ms, batchSize={}&quot;, intervalMs, batchSize);</span>
             try {
-<span class="nc bnc" id="L47" title="All 2 branches missed.">                while (generating.get()) {</span>
-<span class="nc" id="L48">                    List&lt;ProductDTO&gt; generated = new ArrayList&lt;&gt;();</span>
-<span class="nc bnc" id="L49" title="All 2 branches missed.">                    for (int i = 0; i &lt; batchSize; i++) {</span>
+<span class="nc bnc" id="L46" title="All 2 branches missed.">                while (generating.get()) {</span>
+<span class="nc" id="L47">                    List&lt;ProductDTO&gt; generated = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L48" title="All 2 branches missed.">                    for (int i = 0; i &lt; batchSize; i++) {</span>
                         try {
-<span class="nc" id="L51">                            ProductDTO dto = generateFakeProduct();</span>
-<span class="nc" id="L52">                            generated.add(dto);</span>
-<span class="nc" id="L53">                        } catch (Exception e) {</span>
-<span class="nc" id="L54">                            log.warn(&quot;Failed to generate fake product: {}&quot;, e.getMessage());</span>
-<span class="nc" id="L55">                        }</span>
+<span class="nc" id="L50">                            ProductDTO dto = generateFakeProduct();</span>
+<span class="nc" id="L51">                            generated.add(dto);</span>
+<span class="nc" id="L52">                        } catch (Exception e) {</span>
+<span class="nc" id="L53">                            log.warn(&quot;Failed to generate fake product: {}&quot;, e.getMessage());</span>
+<span class="nc" id="L54">                        }</span>
                     }
 
-<span class="nc" id="L58">                    Map&lt;String, Object&gt; message = new HashMap&lt;&gt;();</span>
-<span class="nc" id="L59">                    message.put(&quot;type&quot;, &quot;BATCH_ADDED&quot;);</span>
-<span class="nc" id="L60">                    message.put(&quot;count&quot;, generated.size());</span>
-<span class="nc" id="L61">                    message.put(&quot;products&quot;, generated);</span>
-<span class="nc" id="L62">                    message.put(&quot;totalProducts&quot;, productRepository.count());</span>
-<span class="nc" id="L63">                    message.put(&quot;timestamp&quot;, System.currentTimeMillis());</span>
+<span class="nc" id="L57">                    Map&lt;String, Object&gt; message = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L58">                    message.put(&quot;type&quot;, &quot;BATCH_ADDED&quot;);</span>
+<span class="nc" id="L59">                    message.put(&quot;count&quot;, generated.size());</span>
+<span class="nc" id="L60">                    message.put(&quot;products&quot;, generated);</span>
+<span class="nc" id="L61">                    message.put(&quot;totalProducts&quot;, productRepository.count());</span>
+<span class="nc" id="L62">                    message.put(&quot;timestamp&quot;, System.currentTimeMillis());</span>
 
-<span class="nc" id="L65">                    messagingTemplate.convertAndSend(&quot;/topic/products&quot;, message);</span>
-<span class="nc" id="L66">                    log.debug(&quot;Generated and sent batch of {} products&quot;, generated.size());</span>
+<span class="nc" id="L64">                    messagingTemplate.convertAndSend(&quot;/topic/products&quot;, message);</span>
+<span class="nc" id="L65">                    log.debug(&quot;Generated and sent batch of {} products&quot;, generated.size());</span>
 
-<span class="nc" id="L68">                    Thread.sleep(intervalMs);</span>
-<span class="nc" id="L69">                }</span>
-<span class="nc" id="L70">            } catch (InterruptedException e) {</span>
-<span class="nc" id="L71">                Thread.currentThread().interrupt();</span>
-<span class="nc" id="L72">                log.info(&quot;Faker generation interrupted&quot;);</span>
+<span class="nc" id="L67">                    Thread.sleep(intervalMs);</span>
+<span class="nc" id="L68">                }</span>
+<span class="nc" id="L69">            } catch (InterruptedException e) {</span>
+<span class="nc" id="L70">                Thread.currentThread().interrupt();</span>
+<span class="nc" id="L71">                log.info(&quot;Faker generation interrupted&quot;);</span>
             } finally {
-<span class="nc" id="L74">                generating.set(false);</span>
-<span class="nc" id="L75">                Map&lt;String, Object&gt; stopMessage = new HashMap&lt;&gt;();</span>
-<span class="nc" id="L76">                stopMessage.put(&quot;type&quot;, &quot;GENERATION_STOPPED&quot;);</span>
-<span class="nc" id="L77">                stopMessage.put(&quot;totalProducts&quot;, productRepository.count());</span>
-<span class="nc" id="L78">                messagingTemplate.convertAndSend(&quot;/topic/products&quot;, stopMessage);</span>
-<span class="nc" id="L79">                log.info(&quot;Faker generation stopped&quot;);</span>
+<span class="nc" id="L73">                generating.set(false);</span>
+<span class="nc" id="L74">                Map&lt;String, Object&gt; stopMessage = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L75">                stopMessage.put(&quot;type&quot;, &quot;GENERATION_STOPPED&quot;);</span>
+<span class="nc" id="L76">                stopMessage.put(&quot;totalProducts&quot;, productRepository.count());</span>
+<span class="nc" id="L77">                messagingTemplate.convertAndSend(&quot;/topic/products&quot;, stopMessage);</span>
+<span class="nc" id="L78">                log.info(&quot;Faker generation stopped&quot;);</span>
             }
-<span class="nc" id="L81">        });</span>
-<span class="nc" id="L82">        generatorThread.setDaemon(true);</span>
-<span class="nc" id="L83">        generatorThread.setName(&quot;faker-generator&quot;);</span>
-<span class="nc" id="L84">        generatorThread.start();</span>
-<span class="nc" id="L85">    }</span>
+<span class="nc" id="L80">        });</span>
+<span class="nc" id="L81">        generatorThread.setDaemon(true);</span>
+<span class="nc" id="L82">        generatorThread.setName(&quot;faker-generator&quot;);</span>
+<span class="nc" id="L83">        generatorThread.start();</span>
+<span class="nc" id="L84">    }</span>
 
     public void stopGenerating() {
-<span class="nc" id="L88">        generating.set(false);</span>
-<span class="nc" id="L89">    }</span>
+<span class="nc" id="L87">        generating.set(false);</span>
+<span class="nc" id="L88">    }</span>
 
-    @Transactional
     protected ProductDTO generateFakeProduct() {
         // Find or create a brand
-<span class="nc" id="L94">        String brandName = faker.company().name();</span>
-<span class="nc" id="L95">        Brand brand = brandRepository.findByName(brandName)</span>
-<span class="nc" id="L96">                .orElseGet(() -&gt; brandRepository.save(Brand.builder().name(brandName).build()));</span>
+<span class="nc" id="L92">        String brandName = faker.company().name();</span>
+<span class="nc" id="L93">        Brand brand = brandRepository.findByName(brandName)</span>
+<span class="nc" id="L94">                .orElseGet(() -&gt; brandRepository.save(Brand.builder().name(brandName).build()));</span>
 
         // Find or create a category
-<span class="nc" id="L99">        String categoryName = faker.commerce().department();</span>
-<span class="nc" id="L100">        Category category = categoryRepository.findByName(categoryName)</span>
-<span class="nc" id="L101">                .orElseGet(() -&gt; categoryRepository.save(Category.builder()</span>
-<span class="nc" id="L102">                        .name(categoryName)</span>
-<span class="nc" id="L103">                        .slug(categoryName.toLowerCase().replace(&quot; &quot;, &quot;-&quot;).replace(&quot;&amp;&quot;, &quot;and&quot;))</span>
-<span class="nc" id="L104">                        .build()));</span>
+<span class="nc" id="L97">        String categoryName = faker.commerce().department();</span>
+<span class="nc" id="L98">        Category category = categoryRepository.findByName(categoryName)</span>
+<span class="nc" id="L99">                .orElseGet(() -&gt; categoryRepository.save(Category.builder()</span>
+<span class="nc" id="L100">                        .name(categoryName)</span>
+<span class="nc" id="L101">                        .slug(categoryName.toLowerCase().replace(&quot; &quot;, &quot;-&quot;).replace(&quot;&amp;&quot;, &quot;and&quot;))</span>
+<span class="nc" id="L102">                        .build()));</span>
 
         // Find or create a store
-<span class="nc" id="L107">        String storeName = faker.company().name() + &quot; Store&quot;;</span>
-<span class="nc" id="L108">        Store store = storeRepository.findByName(storeName)</span>
-<span class="nc" id="L109">                .orElseGet(() -&gt; storeRepository.save(Store.builder()</span>
-<span class="nc" id="L110">                        .name(storeName)</span>
-<span class="nc" id="L111">                        .website(&quot;https://&quot; + storeName.toLowerCase().replace(&quot; &quot;, &quot;&quot;).replace(&quot;'&quot;, &quot;&quot;) + &quot;.com&quot;)</span>
-<span class="nc" id="L112">                        .isActive(true)</span>
-<span class="nc" id="L113">                        .build()));</span>
+<span class="nc" id="L105">        String storeName = faker.company().name() + &quot; Store&quot;;</span>
+<span class="nc" id="L106">        Store store = storeRepository.findByName(storeName)</span>
+<span class="nc" id="L107">                .orElseGet(() -&gt; storeRepository.save(Store.builder()</span>
+<span class="nc" id="L108">                        .name(storeName)</span>
+<span class="nc" id="L109">                        .website(&quot;https://&quot; + storeName.toLowerCase().replace(&quot; &quot;, &quot;&quot;).replace(&quot;'&quot;, &quot;&quot;) + &quot;.com&quot;)</span>
+<span class="nc" id="L110">                        .isActive(true)</span>
+<span class="nc" id="L111">                        .build()));</span>
 
         // Create product
-<span class="nc" id="L116">        Gender gender = Gender.values()[faker.random().nextInt(Gender.values().length)];</span>
-<span class="nc" id="L117">        String productName = faker.commerce().productName();</span>
+<span class="nc" id="L114">        Gender gender = Gender.values()[faker.random().nextInt(Gender.values().length)];</span>
+<span class="nc" id="L115">        String productName = faker.commerce().productName();</span>
 
-<span class="nc" id="L119">        Product product = Product.builder()</span>
-<span class="nc" id="L120">                .name(productName)</span>
-<span class="nc" id="L121">                .description(faker.lorem().paragraph(2))</span>
-<span class="nc" id="L122">                .brand(brand)</span>
-<span class="nc" id="L123">                .category(category)</span>
-<span class="nc" id="L124">                .imageUrl(&quot;https://picsum.photos/seed/&quot; + UUID.randomUUID().toString().substring(0, 8) + &quot;/400/400&quot;)</span>
-<span class="nc" id="L125">                .gender(gender)</span>
-<span class="nc" id="L126">                .isActive(true)</span>
-<span class="nc" id="L127">                .prices(new ArrayList&lt;&gt;())</span>
-<span class="nc" id="L128">                .build();</span>
-<span class="nc" id="L129">        product.setSizes(new String[]{&quot;S&quot;, &quot;M&quot;, &quot;L&quot;, &quot;XL&quot;});</span>
-<span class="nc" id="L130">        product.setColors(new String[]{faker.color().name(), faker.color().name()});</span>
-<span class="nc" id="L131">        product = productRepository.save(product);</span>
+<span class="nc" id="L117">        Product product = Product.builder()</span>
+<span class="nc" id="L118">                .name(productName)</span>
+<span class="nc" id="L119">                .description(faker.lorem().paragraph(2))</span>
+<span class="nc" id="L120">                .brand(brand)</span>
+<span class="nc" id="L121">                .category(category)</span>
+<span class="nc" id="L122">                .imageUrl(&quot;https://picsum.photos/seed/&quot; + UUID.randomUUID().toString().substring(0, 8) + &quot;/400/400&quot;)</span>
+<span class="nc" id="L123">                .gender(gender)</span>
+<span class="nc" id="L124">                .isActive(true)</span>
+<span class="nc" id="L125">                .prices(new ArrayList&lt;&gt;())</span>
+<span class="nc" id="L126">                .build();</span>
+<span class="nc" id="L127">        product.setSizes(new String[]{&quot;S&quot;, &quot;M&quot;, &quot;L&quot;, &quot;XL&quot;});</span>
+<span class="nc" id="L128">        product.setColors(new String[]{faker.color().name(), faker.color().name()});</span>
+<span class="nc" id="L129">        product = productRepository.save(product);</span>
 
         // Create price
-<span class="nc" id="L134">        BigDecimal price = BigDecimal.valueOf(faker.number().randomDouble(2, 10, 500))</span>
+<span class="nc" id="L132">        BigDecimal price = BigDecimal.valueOf(faker.number().randomDouble(2, 10, 500))</span>
+<span class="nc" id="L133">                .setScale(2, RoundingMode.HALF_UP);</span>
+<span class="nc" id="L134">        BigDecimal originalPrice = price.multiply(BigDecimal.valueOf(1.0 + faker.random().nextDouble() * 0.5))</span>
 <span class="nc" id="L135">                .setScale(2, RoundingMode.HALF_UP);</span>
-<span class="nc" id="L136">        BigDecimal originalPrice = price.multiply(BigDecimal.valueOf(1.0 + faker.random().nextDouble() * 0.5))</span>
-<span class="nc" id="L137">                .setScale(2, RoundingMode.HALF_UP);</span>
 
-<span class="nc" id="L139">        ProductPrice productPrice = ProductPrice.builder()</span>
-<span class="nc" id="L140">                .product(product)</span>
-<span class="nc" id="L141">                .store(store)</span>
-<span class="nc" id="L142">                .price(price)</span>
-<span class="nc" id="L143">                .originalPrice(originalPrice)</span>
-<span class="nc" id="L144">                .currency(&quot;EUR&quot;)</span>
-<span class="nc" id="L145">                .productUrl(&quot;https://example.com/products/&quot; + product.getId())</span>
-<span class="nc" id="L146">                .inStock(faker.bool().bool())</span>
-<span class="nc" id="L147">                .build();</span>
-<span class="nc" id="L148">        priceRepository.save(productPrice);</span>
-<span class="nc" id="L149">        product.getPrices().add(productPrice);</span>
+<span class="nc" id="L137">        ProductPrice productPrice = ProductPrice.builder()</span>
+<span class="nc" id="L138">                .product(product)</span>
+<span class="nc" id="L139">                .store(store)</span>
+<span class="nc" id="L140">                .price(price)</span>
+<span class="nc" id="L141">                .originalPrice(originalPrice)</span>
+<span class="nc" id="L142">                .currency(&quot;EUR&quot;)</span>
+<span class="nc" id="L143">                .productUrl(&quot;https://example.com/products/&quot; + product.getId())</span>
+<span class="nc" id="L144">                .inStock(faker.bool().bool())</span>
+<span class="nc" id="L145">                .build();</span>
+<span class="nc" id="L146">        priceRepository.save(productPrice);</span>
+<span class="nc" id="L147">        product.getPrices().add(productPrice);</span>
 
-<span class="nc" id="L151">        return productService.convertToDTO(product);</span>
+<span class="nc" id="L149">        return productService.convertToDTO(product);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

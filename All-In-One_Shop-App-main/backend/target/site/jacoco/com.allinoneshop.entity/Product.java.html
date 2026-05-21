@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Product.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">AllInOne Shop API</a> &gt; <a href="index.source.html" class="el_package">com.allinoneshop.entity</a> &gt; <span class="el_source">Product.java</span></div><h1>Product.java</h1><pre class="source lang-java linenums">package com.allinoneshop.entity;
 
-import jakarta.persistence.*;
-import lombok.*;
 import com.allinoneshop.entity.enums.Gender;
+import lombok.*;
 
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -10,110 +9,31 @@ import java.util.List;
 import java.util.UUID;
 
 @Getter
-<span class="pc" id="L13">@Setter</span>
-<span class="fc" id="L14">@NoArgsConstructor</span>
-<span class="fc" id="L15">@AllArgsConstructor</span>
-<span class="pc bfc" id="L16" title="All 4 branches covered.">@Builder</span>
-@Entity
-@Table(name = &quot;products&quot;)
+<span class="pc" id="L12">@Setter</span>
+<span class="fc" id="L13">@NoArgsConstructor</span>
+<span class="fc" id="L14">@AllArgsConstructor</span>
+<span class="pc bfc" id="L15" title="All 4 branches covered.">@Builder</span>
 public class Product {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-<span class="fc" id="L23">    private UUID id;</span>
-
-    @Column(nullable = false, length = 500)
-<span class="fc" id="L26">    private String name;</span>
-
-    @Column(columnDefinition = &quot;TEXT&quot;)
-<span class="fc" id="L29">    private String description;</span>
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = &quot;brand_id&quot;)
-<span class="fc" id="L33">    private Brand brand;</span>
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = &quot;category_id&quot;)
-<span class="fc" id="L37">    private Category category;</span>
-
-    @Column(name = &quot;image_url&quot;)
-<span class="fc" id="L40">    private String imageUrl;</span>
-
-    // Stored as comma-separated JSON strings in TEXT columns
-    @Column(name = &quot;additional_images&quot;, columnDefinition = &quot;TEXT&quot;)
-<span class="nc" id="L44">    private String additionalImagesRaw;</span>
-
-    @Column(columnDefinition = &quot;TEXT&quot;)
-<span class="nc" id="L47">    private String sizesRaw;</span>
-
-    @Column(columnDefinition = &quot;TEXT&quot;)
-<span class="nc" id="L50">    private String colorsRaw;</span>
+<span class="fc" id="L18">    private UUID id;</span>
+<span class="fc" id="L19">    private String name;</span>
+<span class="fc" id="L20">    private String description;</span>
+<span class="fc" id="L21">    private Brand brand;</span>
+<span class="fc" id="L22">    private Category category;</span>
+<span class="fc" id="L23">    private String imageUrl;</span>
+<span class="fc" id="L24">    private String[] additionalImages;</span>
+<span class="fc" id="L25">    private String[] sizes;</span>
+<span class="fc" id="L26">    private String[] colors;</span>
 
     @Builder.Default
-    @OneToMany(mappedBy = &quot;product&quot;, cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-<span class="fc" id="L54">    private List&lt;ProductPrice&gt; prices = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L29">    private List&lt;ProductPrice&gt; prices = new ArrayList&lt;&gt;();</span>
 
-    @Enumerated(EnumType.STRING)
-    @Column(length = 20)
-<span class="fc" id="L58">    private Gender gender;</span>
+<span class="fc" id="L31">    private Gender gender;</span>
 
     @Builder.Default
-    @Column(name = &quot;is_active&quot;)
-<span class="fc" id="L62">    private Boolean isActive = true;</span>
+<span class="fc" id="L34">    private Boolean isActive = true;</span>
 
-    @Column(name = &quot;created_at&quot;)
-<span class="nc" id="L65">    private OffsetDateTime createdAt;</span>
-
-    @Column(name = &quot;updated_at&quot;)
-<span class="nc" id="L68">    private OffsetDateTime updatedAt;</span>
-
-    @PrePersist
-    protected void onCreate() {
-<span class="nc bnc" id="L72" title="All 2 branches missed.">        if (createdAt == null) createdAt = OffsetDateTime.now();</span>
-<span class="nc" id="L73">        updatedAt = OffsetDateTime.now();</span>
-<span class="nc" id="L74">    }</span>
-
-    @PreUpdate
-    protected void onUpdate() {
-<span class="nc" id="L78">        updatedAt = OffsetDateTime.now();</span>
-<span class="nc" id="L79">    }</span>
-
-    // Transient array accessors for backward compatibility with services
-    @Transient
-    public String[] getAdditionalImages() {
-<span class="fc" id="L84">        return splitCsv(additionalImagesRaw);</span>
-    }
-
-    public void setAdditionalImages(String[] images) {
-<span class="nc" id="L88">        this.additionalImagesRaw = joinCsv(images);</span>
-<span class="nc" id="L89">    }</span>
-
-    @Transient
-    public String[] getSizes() {
-<span class="fc" id="L93">        return splitCsv(sizesRaw);</span>
-    }
-
-    public void setSizes(String[] sizes) {
-<span class="fc" id="L97">        this.sizesRaw = joinCsv(sizes);</span>
-<span class="fc" id="L98">    }</span>
-
-    @Transient
-    public String[] getColors() {
-<span class="fc" id="L102">        return splitCsv(colorsRaw);</span>
-    }
-
-    public void setColors(String[] colors) {
-<span class="fc" id="L106">        this.colorsRaw = joinCsv(colors);</span>
-<span class="fc" id="L107">    }</span>
-
-    private static String[] splitCsv(String raw) {
-<span class="pc bpc" id="L110" title="1 of 4 branches missed.">        if (raw == null || raw.isEmpty()) return null;</span>
-<span class="fc" id="L111">        return raw.split(&quot;\\|\\|&quot;);</span>
-    }
-
-    private static String joinCsv(String[] arr) {
-<span class="pc bpc" id="L115" title="2 of 4 branches missed.">        if (arr == null || arr.length == 0) return null;</span>
-<span class="fc" id="L116">        return String.join(&quot;||&quot;, arr);</span>
-    }
+<span class="fc" id="L36">    private OffsetDateTime createdAt;</span>
+<span class="fc" id="L37">    private OffsetDateTime updatedAt;</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>
