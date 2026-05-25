@@ -5,6 +5,7 @@ import com.allinoneshop.entity.Brand;
 import com.allinoneshop.repository.BrandRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -12,6 +13,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class BrandService {
 
     private final BrandRepository brandRepository;

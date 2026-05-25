@@ -1,34 +1,40 @@
 package com.allinoneshop.repository;
 
 import com.allinoneshop.entity.Product;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
-public interface ProductRepository {
+@Repository
+public interface ProductRepository extends JpaRepository<Product, UUID> {
 
-    Optional<Product> findById(UUID id);
+    @Query("SELECT DISTINCT p FROM Product p LEFT JOIN FETCH p.prices WHERE p.id = :id")
+    Product findByIdWithDetails(@Param("id") UUID id);
 
-    Product findByIdWithDetails(UUID id);
-
-    List<Product> findAll();
-
+    @Query("SELECT DISTINCT p FROM Product p LEFT JOIN FETCH p.prices")
     List<Product> findAllWithDetails();
 
-    List<Product> searchProducts(String query);
+    @Query("SELECT p FROM Product p WHERE LOWER(p.name) LIKE LOWER(CONCAT('%', :query, '%')) OR LOWER(p.description) LIKE LOWER(CONCAT('%', :query, '%'))")
+    List<Product> searchProducts(@Param("query") String query);
 
-    List<Product> findByCategorySlug(String slug);
+    @Query("SELECT p FROM Product p WHERE p.category.slug = :slug")
+    List<Product> findByCategorySlug(@Param("slug") String slug);
 
-    List<Product> findByBrandName(String brandName);
+    @Query("SELECT p FROM Product p WHERE LOWER(p.brand.name) = LOWER(:brandName)")
+    List<Product> findByBrandName(@Param("brandName") String brandName);
 
-    List<Product> findSimilarProducts(UUID categoryId, UUID excludeId, int limit);
+    @Query("SELECT p FROM Product p WHERE p.category.id = :categoryId AND p.id != :excludeId")
+    List<Product> findSimilarProductsInternal(@Param("categoryId") UUID categoryId, @Param("excludeId") UUID excludeId, Pageable pageable);
 
-    Product save(Product product);
+    default List<Product> findSimilarProducts(UUID categoryId, UUID excludeId, int limit) {
+        return findSimilarProductsInternal(categoryId, excludeId, PageRequest.of(0, limit));
+    }
 
     void delete(Product product);
-
-    void deleteById(UUID id);
-
-    long count();
 }
