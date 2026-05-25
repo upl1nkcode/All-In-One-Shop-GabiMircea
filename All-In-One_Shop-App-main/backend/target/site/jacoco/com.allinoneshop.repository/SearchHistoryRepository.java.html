@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SearchHistoryRepository.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">AllInOne Shop API</a> &gt; <a href="index.source.html" class="el_package">com.allinoneshop.repository</a> &gt; <span class="el_source">SearchHistoryRepository.java</span></div><h1>SearchHistoryRepository.java</h1><pre class="source lang-java linenums">package com.allinoneshop.repository;
+
+import com.allinoneshop.entity.SearchHistory;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+import java.util.UUID;
+
+@Repository
+public interface SearchHistoryRepository extends JpaRepository&lt;SearchHistory, UUID&gt; {
+
+    @Query(&quot;SELECT s.searchQuery FROM SearchHistory s WHERE s.user.id = :userId ORDER BY s.createdAt DESC&quot;)
+    List&lt;String&gt; findRecentSearchesByUserIdInternal(@Param(&quot;userId&quot;) UUID userId, Pageable pageable);
+
+    default List&lt;String&gt; findRecentSearchesByUserId(UUID userId, int limit) {
+<span class="fc" id="L22">        return findRecentSearchesByUserIdInternal(userId, PageRequest.of(0, limit));</span>
+    }
+
+    @Query(&quot;SELECT s.searchQuery FROM SearchHistory s GROUP BY s.searchQuery ORDER BY COUNT(s) DESC&quot;)
+    List&lt;String&gt; findTrendingSearchesInternal(Pageable pageable);
+
+    default List&lt;String&gt; findTrendingSearches(int limit) {
+<span class="fc" id="L29">        return findTrendingSearchesInternal(PageRequest.of(0, limit));</span>
+    }
+
+    @Modifying
+    @Query(&quot;DELETE FROM SearchHistory s WHERE s.user.id = :userId&quot;)
+    void deleteByUserId(@Param(&quot;userId&quot;) UUID userId);
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

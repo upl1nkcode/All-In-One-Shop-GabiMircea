@@ -12,9 +12,11 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
-<span class="fc" id="L17">@RequiredArgsConstructor</span>
+<span class="fc" id="L18">@RequiredArgsConstructor</span>
+@Transactional
 public class AuthService {
 
     private final UserRepository userRepository;
@@ -23,62 +25,62 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
 
     public AuthResponse register(RegisterRequest request) {
-<span class="fc bfc" id="L26" title="All 2 branches covered.">        if (userRepository.existsByEmail(request.getEmail())) {</span>
-<span class="fc" id="L27">            throw new RuntimeException(&quot;Email already registered&quot;);</span>
+<span class="fc bfc" id="L28" title="All 2 branches covered.">        if (userRepository.existsByEmail(request.getEmail())) {</span>
+<span class="fc" id="L29">            throw new RuntimeException(&quot;Email already registered&quot;);</span>
         }
 
-<span class="fc" id="L30">        User user = User.builder()</span>
-<span class="fc" id="L31">                .email(request.getEmail())</span>
-<span class="fc" id="L32">                .passwordHash(passwordEncoder.encode(request.getPassword()))</span>
-<span class="fc" id="L33">                .firstName(request.getFirstName())</span>
-<span class="fc" id="L34">                .lastName(request.getLastName())</span>
-<span class="fc" id="L35">                .role(Role.USER)</span>
-<span class="fc" id="L36">                .build();</span>
+<span class="fc" id="L32">        User user = User.builder()</span>
+<span class="fc" id="L33">                .email(request.getEmail())</span>
+<span class="fc" id="L34">                .passwordHash(passwordEncoder.encode(request.getPassword()))</span>
+<span class="fc" id="L35">                .firstName(request.getFirstName())</span>
+<span class="fc" id="L36">                .lastName(request.getLastName())</span>
+<span class="fc" id="L37">                .role(Role.USER)</span>
+<span class="fc" id="L38">                .build();</span>
 
-<span class="fc" id="L38">        user = userRepository.save(user);</span>
+<span class="fc" id="L40">        user = userRepository.save(user);</span>
 
-<span class="fc" id="L40">        String token = jwtTokenProvider.generateToken(user);</span>
+<span class="fc" id="L42">        String token = jwtTokenProvider.generateToken(user);</span>
 
-<span class="fc" id="L42">        return AuthResponse.builder()</span>
-<span class="fc" id="L43">                .token(token)</span>
-<span class="fc" id="L44">                .tokenType(&quot;Bearer&quot;)</span>
-<span class="fc" id="L45">                .user(convertToDTO(user))</span>
-<span class="fc" id="L46">                .build();</span>
+<span class="fc" id="L44">        return AuthResponse.builder()</span>
+<span class="fc" id="L45">                .token(token)</span>
+<span class="fc" id="L46">                .tokenType(&quot;Bearer&quot;)</span>
+<span class="fc" id="L47">                .user(convertToDTO(user))</span>
+<span class="fc" id="L48">                .build();</span>
     }
 
     public AuthResponse login(LoginRequest request) {
-<span class="fc" id="L50">        Authentication authentication = authenticationManager.authenticate(</span>
+<span class="fc" id="L52">        Authentication authentication = authenticationManager.authenticate(</span>
                 new UsernamePasswordAuthenticationToken(
-<span class="fc" id="L52">                        request.getEmail(),</span>
-<span class="fc" id="L53">                        request.getPassword()</span>
+<span class="fc" id="L54">                        request.getEmail(),</span>
+<span class="fc" id="L55">                        request.getPassword()</span>
                 )
         );
 
-<span class="fc" id="L57">        User user = (User) authentication.getPrincipal();</span>
-<span class="fc" id="L58">        String token = jwtTokenProvider.generateToken(user);</span>
+<span class="fc" id="L59">        User user = (User) authentication.getPrincipal();</span>
+<span class="fc" id="L60">        String token = jwtTokenProvider.generateToken(user);</span>
 
-<span class="fc" id="L60">        return AuthResponse.builder()</span>
-<span class="fc" id="L61">                .token(token)</span>
-<span class="fc" id="L62">                .tokenType(&quot;Bearer&quot;)</span>
-<span class="fc" id="L63">                .user(convertToDTO(user))</span>
-<span class="fc" id="L64">                .build();</span>
+<span class="fc" id="L62">        return AuthResponse.builder()</span>
+<span class="fc" id="L63">                .token(token)</span>
+<span class="fc" id="L64">                .tokenType(&quot;Bearer&quot;)</span>
+<span class="fc" id="L65">                .user(convertToDTO(user))</span>
+<span class="fc" id="L66">                .build();</span>
     }
 
     public UserDTO getCurrentUser(String email) {
-<span class="fc" id="L68">        User user = userRepository.findByEmail(email)</span>
-<span class="fc" id="L69">                .orElseThrow(() -&gt; new RuntimeException(&quot;User not found&quot;));</span>
-<span class="fc" id="L70">        return convertToDTO(user);</span>
+<span class="fc" id="L70">        User user = userRepository.findByEmail(email)</span>
+<span class="fc" id="L71">                .orElseThrow(() -&gt; new RuntimeException(&quot;User not found&quot;));</span>
+<span class="fc" id="L72">        return convertToDTO(user);</span>
     }
 
     private UserDTO convertToDTO(User user) {
-<span class="fc" id="L74">        return UserDTO.builder()</span>
-<span class="fc" id="L75">                .id(user.getId())</span>
-<span class="fc" id="L76">                .email(user.getEmail())</span>
-<span class="fc" id="L77">                .firstName(user.getFirstName())</span>
-<span class="fc" id="L78">                .lastName(user.getLastName())</span>
-<span class="fc" id="L79">                .avatarUrl(user.getAvatarUrl())</span>
-<span class="fc" id="L80">                .role(user.getRole().name())</span>
-<span class="fc" id="L81">                .build();</span>
+<span class="fc" id="L76">        return UserDTO.builder()</span>
+<span class="fc" id="L77">                .id(user.getId())</span>
+<span class="fc" id="L78">                .email(user.getEmail())</span>
+<span class="fc" id="L79">                .firstName(user.getFirstName())</span>
+<span class="fc" id="L80">                .lastName(user.getLastName())</span>
+<span class="fc" id="L81">                .avatarUrl(user.getAvatarUrl())</span>
+<span class="fc" id="L82">                .role(user.getRole().name())</span>
+<span class="fc" id="L83">                .build();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

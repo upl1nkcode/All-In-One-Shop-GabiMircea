@@ -12,7 +12,17 @@
       "PowerShell($env:JAVA_HOME = \"C:\\\\Users\\\\Andrei\\\\.jdks\\\\openjdk-25.0.1\"; $mvn = \"C:\\\\Users\\\\Andrei\\\\OneDrive\\\\Desktop\\\\Repositories\\\\All-In-One-Shop-GabiMircea\\\\All-In-One_Shop-App-main\\\\backend\\\\.mvn\\\\wrapper\\\\apache-maven-3.9.6\\\\bin\\\\mvn.cmd\"; $projDir = \"C:\\\\Users\\\\Andrei\\\\OneDrive\\\\Desktop\\\\Repositories\\\\All-In-One-Shop-GabiMircea\\\\All-In-One_Shop-App-main\\\\backend\"; & $mvn compile -f \"$projDir\\\\pom.xml\" 2>&1 | Select-String -Pattern \"ERROR\" | Select-Object -First 80)",
       "Bash(export JAVA_HOME)",
       "Bash(\".mvn/wrapper/apache-maven-3.9.6/bin/mvn\" clean *)",
-      "Bash(\".mvn/wrapper/apache-maven-3.9.6/bin/mvn\" test *)"
+      "Bash(\".mvn/wrapper/apache-maven-3.9.6/bin/mvn\" test *)",
+      "Bash(JAVA_HOME=\"C:/Users/Andrei/OneDrive/Desktop/Repositories/All-In-One-Shop-GabiMircea/All-In-One_Shop-App-main/.vscode/extensions/redhat.java-1.54.0-win32-x64/jre/21.0.10-win32-x86_64\" .mvn/wrapper/apache-maven-3.9.6/bin/mvn.cmd test -q)",
+      "Bash(JAVA_HOME=\"C:/Users/Andrei/.jdks/openjdk-25.0.1\" .mvn/wrapper/apache-maven-3.9.6/bin/mvn.cmd test -q)",
+      "Read(//c/Program Files/Java/**)",
+      "Read(//c/Program Files/**)",
+      "Read(//c/Program Files/Microsoft/**)",
+      "Bash(where java *)",
+      "Bash(JAVA_HOME=\"C:/Users/Andrei/.vscode/extensions/redhat.java-1.54.0-win32-x64/jre/21.0.10-win32-x86_64\" .mvn/wrapper/apache-maven-3.9.6/bin/mvn.cmd test -q)",
+      "Bash(JAVA_HOME=\"C:/Users/Andrei/.vscode/extensions/redhat.java-1.54.0-win32-x64/jre/21.0.10-win32-x86_64\" .mvn/wrapper/apache-maven-3.9.6/bin/mvn.cmd test)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)"
     ]
   }
 }

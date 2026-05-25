@@ -6,65 +6,67 @@ import com.allinoneshop.repository.ProductPriceRepository;
 import com.allinoneshop.repository.StoreRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
-<span class="fc" id="L15">@RequiredArgsConstructor</span>
+<span class="fc" id="L16">@RequiredArgsConstructor</span>
+@Transactional
 public class StoreService {
 
     private final StoreRepository storeRepository;
     private final ProductPriceRepository priceRepository;
 
     public List&lt;StoreDTO&gt; getAllStores() {
-<span class="fc" id="L22">        return storeRepository.findAll().stream()</span>
-<span class="fc" id="L23">                .map(this::convertToDTO)</span>
-<span class="fc" id="L24">                .collect(Collectors.toList());</span>
+<span class="fc" id="L24">        return storeRepository.findAll().stream()</span>
+<span class="fc" id="L25">                .map(this::convertToDTO)</span>
+<span class="fc" id="L26">                .collect(Collectors.toList());</span>
     }
 
     public StoreDTO getStoreById(UUID id) {
-<span class="fc" id="L28">        Store store = storeRepository.findById(id)</span>
-<span class="fc" id="L29">                .orElseThrow(() -&gt; new RuntimeException(&quot;Store not found&quot;));</span>
-<span class="fc" id="L30">        return convertToDTO(store);</span>
+<span class="fc" id="L30">        Store store = storeRepository.findById(id)</span>
+<span class="fc" id="L31">                .orElseThrow(() -&gt; new RuntimeException(&quot;Store not found&quot;));</span>
+<span class="fc" id="L32">        return convertToDTO(store);</span>
     }
 
     public StoreDTO createStore(StoreDTO dto) {
-<span class="fc" id="L34">        Store store = new Store();</span>
-<span class="fc" id="L35">        store.setName(dto.getName());</span>
-<span class="fc" id="L36">        store.setWebsite(dto.getWebsite());</span>
-<span class="fc" id="L37">        store.setLogoUrl(dto.getLogoUrl());</span>
-<span class="fc" id="L38">        store.setIsActive(true);</span>
-<span class="fc" id="L39">        store = storeRepository.save(store);</span>
-<span class="fc" id="L40">        return convertToDTO(store);</span>
+<span class="fc" id="L36">        Store store = new Store();</span>
+<span class="fc" id="L37">        store.setName(dto.getName());</span>
+<span class="fc" id="L38">        store.setWebsite(dto.getWebsite());</span>
+<span class="fc" id="L39">        store.setLogoUrl(dto.getLogoUrl());</span>
+<span class="fc" id="L40">        store.setIsActive(true);</span>
+<span class="fc" id="L41">        store = storeRepository.save(store);</span>
+<span class="fc" id="L42">        return convertToDTO(store);</span>
     }
 
     public StoreDTO updateStore(UUID id, StoreDTO dto) {
-<span class="fc" id="L44">        Store store = storeRepository.findById(id)</span>
-<span class="fc" id="L45">                .orElseThrow(() -&gt; new RuntimeException(&quot;Store not found&quot;));</span>
-<span class="fc" id="L46">        store.setName(dto.getName());</span>
-<span class="fc" id="L47">        store.setWebsite(dto.getWebsite());</span>
-<span class="fc" id="L48">        store.setLogoUrl(dto.getLogoUrl());</span>
-<span class="fc" id="L49">        store = storeRepository.save(store);</span>
-<span class="fc" id="L50">        return convertToDTO(store);</span>
+<span class="fc" id="L46">        Store store = storeRepository.findById(id)</span>
+<span class="fc" id="L47">                .orElseThrow(() -&gt; new RuntimeException(&quot;Store not found&quot;));</span>
+<span class="fc" id="L48">        store.setName(dto.getName());</span>
+<span class="fc" id="L49">        store.setWebsite(dto.getWebsite());</span>
+<span class="fc" id="L50">        store.setLogoUrl(dto.getLogoUrl());</span>
+<span class="fc" id="L51">        store = storeRepository.save(store);</span>
+<span class="fc" id="L52">        return convertToDTO(store);</span>
     }
 
     public void deleteStore(UUID id) {
-<span class="fc" id="L54">        storeRepository.findById(id)</span>
-<span class="fc" id="L55">                .orElseThrow(() -&gt; new RuntimeException(&quot;Store not found&quot;));</span>
-<span class="fc" id="L56">        priceRepository.deleteByStoreId(id);</span>
-<span class="fc" id="L57">        storeRepository.deleteById(id);</span>
-<span class="fc" id="L58">    }</span>
+<span class="fc" id="L56">        storeRepository.findById(id)</span>
+<span class="fc" id="L57">                .orElseThrow(() -&gt; new RuntimeException(&quot;Store not found&quot;));</span>
+<span class="fc" id="L58">        priceRepository.deleteByStoreId(id);</span>
+<span class="fc" id="L59">        storeRepository.deleteById(id);</span>
+<span class="fc" id="L60">    }</span>
 
     private StoreDTO convertToDTO(Store store) {
-<span class="fc" id="L61">        return StoreDTO.builder()</span>
-<span class="fc" id="L62">                .id(store.getId())</span>
-<span class="fc" id="L63">                .name(store.getName())</span>
-<span class="fc" id="L64">                .website(store.getWebsite())</span>
-<span class="fc" id="L65">                .logoUrl(store.getLogoUrl())</span>
-<span class="fc" id="L66">                .isActive(store.getIsActive())</span>
-<span class="fc" id="L67">                .build();</span>
+<span class="fc" id="L63">        return StoreDTO.builder()</span>
+<span class="fc" id="L64">                .id(store.getId())</span>
+<span class="fc" id="L65">                .name(store.getName())</span>
+<span class="fc" id="L66">                .website(store.getWebsite())</span>
+<span class="fc" id="L67">                .logoUrl(store.getLogoUrl())</span>
+<span class="fc" id="L68">                .isActive(store.getIsActive())</span>
+<span class="fc" id="L69">                .build();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

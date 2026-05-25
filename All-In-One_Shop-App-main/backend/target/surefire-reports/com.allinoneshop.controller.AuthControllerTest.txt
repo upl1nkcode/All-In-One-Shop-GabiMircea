@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: com.allinoneshop.controller.AuthControllerTest
 -------------------------------------------------------------------------------
-Tests run: 12, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 5.711 s -- in com.allinoneshop.controller.AuthControllerTest
+Tests run: 12, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 7.937 s -- in com.allinoneshop.controller.AuthControllerTest

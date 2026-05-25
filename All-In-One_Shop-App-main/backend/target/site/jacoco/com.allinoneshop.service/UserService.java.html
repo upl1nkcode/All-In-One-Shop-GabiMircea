@@ -5,48 +5,50 @@ import com.allinoneshop.entity.User;
 import com.allinoneshop.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
 @Service
-<span class="fc" id="L12">@RequiredArgsConstructor</span>
+<span class="fc" id="L13">@RequiredArgsConstructor</span>
+@Transactional
 public class UserService {
 
     private final UserRepository userRepository;
 
     public UserDTO getUserProfile(UUID userId) {
-<span class="fc" id="L18">        User user = userRepository.findById(userId)</span>
-<span class="fc" id="L19">                .orElseThrow(() -&gt; new RuntimeException(&quot;User not found&quot;));</span>
-<span class="fc" id="L20">        return convertToDTO(user);</span>
+<span class="fc" id="L20">        User user = userRepository.findById(userId)</span>
+<span class="fc" id="L21">                .orElseThrow(() -&gt; new RuntimeException(&quot;User not found&quot;));</span>
+<span class="fc" id="L22">        return convertToDTO(user);</span>
     }
 
     public UserDTO updateProfile(UUID userId, String firstName, String lastName, String avatarUrl) {
-<span class="fc" id="L24">        User user = userRepository.findById(userId)</span>
-<span class="fc" id="L25">                .orElseThrow(() -&gt; new RuntimeException(&quot;User not found&quot;));</span>
+<span class="fc" id="L26">        User user = userRepository.findById(userId)</span>
+<span class="fc" id="L27">                .orElseThrow(() -&gt; new RuntimeException(&quot;User not found&quot;));</span>
 
-<span class="fc bfc" id="L27" title="All 2 branches covered.">        if (firstName != null) {</span>
-<span class="fc" id="L28">            user.setFirstName(firstName);</span>
+<span class="fc bfc" id="L29" title="All 2 branches covered.">        if (firstName != null) {</span>
+<span class="fc" id="L30">            user.setFirstName(firstName);</span>
         }
-<span class="fc bfc" id="L30" title="All 2 branches covered.">        if (lastName != null) {</span>
-<span class="fc" id="L31">            user.setLastName(lastName);</span>
+<span class="fc bfc" id="L32" title="All 2 branches covered.">        if (lastName != null) {</span>
+<span class="fc" id="L33">            user.setLastName(lastName);</span>
         }
-<span class="fc bfc" id="L33" title="All 2 branches covered.">        if (avatarUrl != null) {</span>
-<span class="fc" id="L34">            user.setAvatarUrl(avatarUrl);</span>
+<span class="fc bfc" id="L35" title="All 2 branches covered.">        if (avatarUrl != null) {</span>
+<span class="fc" id="L36">            user.setAvatarUrl(avatarUrl);</span>
         }
 
-<span class="fc" id="L37">        user = userRepository.save(user);</span>
-<span class="fc" id="L38">        return convertToDTO(user);</span>
+<span class="fc" id="L39">        user = userRepository.save(user);</span>
+<span class="fc" id="L40">        return convertToDTO(user);</span>
     }
 
     private UserDTO convertToDTO(User user) {
-<span class="fc" id="L42">        return UserDTO.builder()</span>
-<span class="fc" id="L43">                .id(user.getId())</span>
-<span class="fc" id="L44">                .email(user.getEmail())</span>
-<span class="fc" id="L45">                .firstName(user.getFirstName())</span>
-<span class="fc" id="L46">                .lastName(user.getLastName())</span>
-<span class="fc" id="L47">                .avatarUrl(user.getAvatarUrl())</span>
-<span class="fc" id="L48">                .role(user.getRole().name())</span>
-<span class="fc" id="L49">                .build();</span>
+<span class="fc" id="L44">        return UserDTO.builder()</span>
+<span class="fc" id="L45">                .id(user.getId())</span>
+<span class="fc" id="L46">                .email(user.getEmail())</span>
+<span class="fc" id="L47">                .firstName(user.getFirstName())</span>
+<span class="fc" id="L48">                .lastName(user.getLastName())</span>
+<span class="fc" id="L49">                .avatarUrl(user.getAvatarUrl())</span>
+<span class="fc" id="L50">                .role(user.getRole().name())</span>
+<span class="fc" id="L51">                .build();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>
