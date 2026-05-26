@@ -31,6 +31,35 @@ public class FakerService {
     private final AtomicBoolean generating = new AtomicBoolean(false);
     private final Faker faker = new Faker();
 
+    private static final String[] FASHION_BRANDS = {
+        "Nike", "Adidas", "Zara", "H&M", "Gucci", "Prada", "Versace",
+        "Calvin Klein", "Tommy Hilfiger", "Ralph Lauren", "Levi's", "Supreme",
+        "Off-White", "Stone Island", "Stüssy", "Carhartt", "Champion",
+        "New Balance", "Reebok", "PUMA", "Vans", "Converse", "Under Armour",
+        "Balenciaga", "Burberry", "Kenzo", "Moncler", "A.P.C.", "Acne Studios",
+        "Palace", "Dickies", "Lacoste", "Hugo Boss", "Armani", "Diesel"
+    };
+
+    private static final String[] CLOTHING_STORES = {
+        "ASOS", "Zalando", "Zara", "H&M", "Mango", "Uniqlo", "Pull&Bear",
+        "Bershka", "Kith", "END Clothing", "SSENSE", "Farfetch", "Mr Porter",
+        "Net-a-Porter", "Nordstrom", "Selfridges", "Browns Fashion", "Mytheresa",
+        "Size?", "JD Sports", "Foot Locker", "Urban Outfitters", "ASOS Outlet",
+        "TK Maxx", "Primark", "Stradivarius", "Massimo Dutti"
+    };
+
+    private static final String[] CLOTHING_CATEGORIES = {
+        "T-Shirts", "Hoodies", "Jackets", "Pants", "Jeans", "Sneakers",
+        "Dresses", "Shorts", "Shirts", "Coats", "Activewear", "Swimwear",
+        "Skirts", "Knitwear", "Tracksuits"
+    };
+
+    private static final String[] PRODUCT_ADJECTIVES = {
+        "Classic", "Essential", "Slim Fit", "Relaxed", "Oversized", "Vintage",
+        "Premium", "Signature", "Heritage", "Limited Edition", "Core", "Fleece",
+        "Washed", "Graphic", "Logo", "Embroidered", "Cropped", "Longline"
+    };
+
     public boolean isGenerating() {
         return generating.get();
     }
@@ -89,12 +118,12 @@ public class FakerService {
 
     protected ProductDTO generateFakeProduct() {
         // Find or create a brand
-        String brandName = faker.company().name();
+        String brandName = FASHION_BRANDS[faker.random().nextInt(FASHION_BRANDS.length)];
         Brand brand = brandRepository.findByName(brandName)
                 .orElseGet(() -> brandRepository.save(Brand.builder().name(brandName).build()));
 
         // Find or create a category
-        String categoryName = faker.commerce().department();
+        String categoryName = CLOTHING_CATEGORIES[faker.random().nextInt(CLOTHING_CATEGORIES.length)];
         Category category = categoryRepository.findByName(categoryName)
                 .orElseGet(() -> categoryRepository.save(Category.builder()
                         .name(categoryName)
@@ -102,21 +131,26 @@ public class FakerService {
                         .build()));
 
         // Find or create a store
-        String storeName = faker.company().name() + " Store";
+        String storeName = CLOTHING_STORES[faker.random().nextInt(CLOTHING_STORES.length)];
         Store store = storeRepository.findByName(storeName)
                 .orElseGet(() -> storeRepository.save(Store.builder()
                         .name(storeName)
-                        .website("https://" + storeName.toLowerCase().replace(" ", "").replace("'", "") + ".com")
+                        .website("https://" + storeName.toLowerCase().replace(" ", "").replace("&", "").replace("?", "").replace("'", "") + ".com")
                         .isActive(true)
                         .build()));
 
         // Create product
         Gender gender = Gender.values()[faker.random().nextInt(Gender.values().length)];
-        String productName = faker.commerce().productName();
+        String adjective = PRODUCT_ADJECTIVES[faker.random().nextInt(PRODUCT_ADJECTIVES.length)];
+        String productName = brandName + " " + adjective + " " + categoryName.replaceAll("s$", "");
+
+        String[] fabricOptions = {"100% Cotton", "Cotton/Polyester blend", "French Terry", "Ripstop Nylon", "Merino Wool", "Organic Cotton", "Recycled Polyester"};
+        String fabric = fabricOptions[faker.random().nextInt(fabricOptions.length)];
+        String description = adjective + " " + categoryName.toLowerCase() + " by " + brandName + ". Made from " + fabric + ". A wardrobe essential for any season.";
 
         Product product = Product.builder()
                 .name(productName)
-                .description(faker.lorem().paragraph(2))
+                .description(description)
                 .brand(brand)
                 .category(category)
                 .imageUrl("https://picsum.photos/seed/" + UUID.randomUUID().toString().substring(0, 8) + "/400/400")

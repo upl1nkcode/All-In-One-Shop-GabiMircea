@@ -1,7 +1,7 @@
 // SWR hooks for data fetching
 import useSWR from 'swr';
 import useSWRMutation from 'swr/mutation';
-import { productApi, catalogApi, favoritesApi, authApi, searchApi, userApi } from './client';
+import { productApi, catalogApi, favoritesApi, authApi, searchApi, userApi, adminApi, fakerApi } from './client';
 import type { SearchRequest, Product, Category, Brand, Store, UpdateProfileRequest } from './types';
 import { products as mockProducts, stores as mockStores, categories as mockCategories, brands as mockBrands } from '../data/mockData';
 
@@ -47,7 +47,8 @@ export function useProducts() {
   return useSWR('products', async () => {
     try {
       const response = await productApi.getAll();
-      return response.data;
+      const products = response.data.content;
+      return products.length > 0 ? products : transformedMockProducts;
     } catch {
       return transformedMockProducts;
     }
@@ -74,7 +75,9 @@ export function useProductSearch(request: SearchRequest) {
   return useSWR(key, async () => {
     try {
       const response = await productApi.search(request);
-      return response.data;
+      const products = response.data.content;
+      if (products.length > 0) return products;
+      throw new Error('empty');
     } catch {
       // Filter mock data based on search request
       let results = [...transformedMockProducts];
@@ -119,7 +122,8 @@ export function useTrendingProducts(limit = 8) {
   return useSWR('trending', async () => {
     try {
       const response = await productApi.getTrending(limit);
-      return response.data;
+      const products = response.data;
+      return products.length > 0 ? products : transformedMockProducts.slice(0, limit);
     } catch {
       return transformedMockProducts.slice(0, limit);
     }
@@ -266,4 +270,38 @@ export function useUpdateProfile() {
     'user-profile',
     (_, { arg }: { arg: UpdateProfileRequest }) => userApi.updateProfile(arg)
   );
+}
+
+// Admin hooks
+export function useAdminStats() {
+  return useSWR('admin-stats', async () => {
+    const response = await adminApi.getStats();
+    return response.data;
+  }, { ...swrOptions, revalidateOnFocus: true });
+}
+
+export function useRunScraper() {
+  return useSWRMutation('admin-stats', async () => {
+    const response = await adminApi.runScraper();
+    return response.data;
+  });
+}
+
+export function useFakerStatus() {
+  return useSWR('faker-status', async () => {
+    const response = await fakerApi.getStatus();
+    return response.data;
+  }, { ...swrOptions, refreshInterval: 3000 });
+}
+
+export function useStartFaker() {
+  return useSWRMutation(
+    'faker-status',
+    (_, { arg }: { arg: { intervalMs: number; batchSize: number } }) =>
+      fakerApi.start(arg.intervalMs, arg.batchSize)
+  );
+}
+
+export function useStopFaker() {
+  return useSWRMutation('faker-status', () => fakerApi.stop());
 }
