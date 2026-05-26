@@ -1,0 +1,90 @@
+erDiagram
+    brands {
+        UUID id PK
+        VARCHAR name
+        VARCHAR logo_url
+        TIMESTAMP created_at
+    }
+
+    categories {
+        UUID id PK
+        VARCHAR name
+        VARCHAR slug
+        UUID parent_id FK
+        TIMESTAMP created_at
+    }
+
+    products {
+        UUID id PK
+        VARCHAR name
+        TEXT description
+        VARCHAR image_url
+        TEXT additional_images
+        TEXT sizes
+        TEXT colors
+        VARCHAR gender
+        BOOLEAN is_active
+        UUID brand_id FK
+        UUID category_id FK
+        TIMESTAMP created_at
+        TIMESTAMP updated_at
+    }
+
+    stores {
+        UUID id PK
+        VARCHAR name
+        VARCHAR website
+        VARCHAR logo_url
+        BOOLEAN is_active
+        TIMESTAMP created_at
+        TIMESTAMP updated_at
+    }
+
+    product_prices {
+        UUID id PK
+        UUID product_id FK
+        UUID store_id FK
+        DECIMAL price
+        DECIMAL original_price
+        VARCHAR currency
+        VARCHAR product_url
+        BOOLEAN in_stock
+        TIMESTAMP last_checked
+        TIMESTAMP created_at
+    }
+
+    users {
+        UUID id PK
+        VARCHAR email
+        VARCHAR password_hash
+        VARCHAR first_name
+        VARCHAR last_name
+        VARCHAR avatar_url
+        ENUM role
+        TIMESTAMP created_at
+        TIMESTAMP updated_at
+    }
+
+    favorites {
+        UUID id PK
+        UUID user_id FK
+        UUID product_id FK
+        TIMESTAMP created_at
+    }
+
+    search_history {
+        UUID id PK
+        UUID user_id FK
+        VARCHAR search_query
+        INT results_count
+        TIMESTAMP created_at
+    }
+
+    brands ||--o{ products : "one brand has many products"
+    categories ||--o{ products : "one category has many products"
+    categories ||--o{ categories : "parent category has subcategories"
+    products ||--o{ product_prices : "one product has many prices"
+    stores ||--o{ product_prices : "one store has many prices"
+    users ||--o{ favorites : "one user has many favorites"
+    products ||--o{ favorites : "one product in many favorites"
+    users ||--o{ search_history : "one user has many searches"
