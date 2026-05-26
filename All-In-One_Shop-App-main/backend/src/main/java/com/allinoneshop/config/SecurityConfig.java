@@ -44,6 +44,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
+                .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()))
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -62,6 +63,8 @@ public class SecurityConfig {
                         .requestMatchers("/ws/**").permitAll()
                         // Faker endpoints (public for demo)
                         .requestMatchers("/faker/**").permitAll()
+                        // H2 Console (Assignment 3 - dev only)
+                        .requestMatchers("/h2-console/**").permitAll()
                         // Swagger/OpenAPI
                         .requestMatchers("/swagger-ui/**", "/api-docs/**", "/swagger-ui.html").permitAll()
                         // Protected endpoints

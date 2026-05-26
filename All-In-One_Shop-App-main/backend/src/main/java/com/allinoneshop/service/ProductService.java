@@ -6,6 +6,7 @@ import com.allinoneshop.entity.enums.Gender;
 import com.allinoneshop.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -103,12 +104,12 @@ public class ProductService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public void deleteProduct(UUID id) {
-        Product product = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
-        productRepository.delete(product);
+        productRepository.deleteById(id);
     }
 
+    @Transactional
     public ProductDTO updateProduct(UUID id, ProductDTO dto) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
@@ -116,6 +117,7 @@ public class ProductService {
         return convertToDTO(productRepository.save(product));
     }
 
+    @Transactional
     public ProductDTO createProduct(ProductDTO dto) {
         Product product = new Product();
         product.setIsActive(true);

@@ -1,34 +1,39 @@
 package com.allinoneshop.repository;
 
 import com.allinoneshop.entity.Product;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
-public interface ProductRepository {
+@Repository
+public interface ProductRepository extends JpaRepository<Product, UUID> {
 
-    Optional<Product> findById(UUID id);
+    @Query("SELECT p FROM Product p WHERE " +
+           "LOWER(p.name) LIKE LOWER(CONCAT('%',:q,'%')) OR " +
+           "LOWER(p.brand.name) LIKE LOWER(CONCAT('%',:q,'%')) OR " +
+           "LOWER(p.category.name) LIKE LOWER(CONCAT('%',:q,'%'))")
+    List<Product> searchProducts(@Param("q") String query);
 
-    Product findByIdWithDetails(UUID id);
-
-    List<Product> findAll();
-
-    List<Product> findAllWithDetails();
-
-    List<Product> searchProducts(String query);
-
-    List<Product> findByCategorySlug(String slug);
+    @Query("SELECT p FROM Product p WHERE p.category.slug = :slug")
+    List<Product> findByCategorySlug(@Param("slug") String slug);
 
     List<Product> findByBrandName(String brandName);
 
-    List<Product> findSimilarProducts(UUID categoryId, UUID excludeId, int limit);
+    @Query("SELECT p FROM Product p WHERE p.category.id = :catId AND p.id <> :excludeId")
+    List<Product> findSimilarProducts(@Param("catId") UUID categoryId,
+                                      @Param("excludeId") UUID excludeId,
+                                      Pageable pageable);
 
-    Product save(Product product);
+    default List<Product> findAllWithDetails() { return findAll(); }
 
-    void delete(Product product);
+    default Product findByIdWithDetails(UUID id) { return findById(id).orElse(null); }
 
-    void deleteById(UUID id);
-
-    long count();
+    default List<Product> findSimilarProducts(UUID categoryId, UUID excludeId, int limit) {
+        return findSimilarProducts(categoryId, excludeId, Pageable.ofSize(limit));
+    }
 }
