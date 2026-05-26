@@ -1,6 +1,8 @@
-import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react';
 import { authApi, setAuthToken, getAuthToken } from '../api/client';
 import type { User, LoginRequest, RegisterRequest } from '../api/types';
+import { useIdleTimer } from '../hooks/useIdleTimer';
+import { toast } from 'sonner';
 
 interface AuthContextType {
   user: User | null;
@@ -58,10 +60,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const logout = () => {
+  const logout = useCallback(() => {
     authApi.logout();
     setUser(null);
-  };
+  }, []);
+
+  const handleIdle = useCallback(() => {
+    logout();
+    toast.info('You have been logged out due to inactivity.');
+  }, [logout]);
+
+  const handleIdleWarning = useCallback(() => {
+    toast.warning('You will be logged out in 5 minutes due to inactivity.', {
+      duration: 10000,
+    });
+  }, []);
+
+  useIdleTimer({
+    onIdle: handleIdle,
+    onWarning: handleIdleWarning,
+    enabled: !!user,
+  });
 
   return (
     <AuthContext.Provider
