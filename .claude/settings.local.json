@@ -71,7 +71,9 @@
       "Bash(python3 -c ' *)",
       "Bash(node -e \"const d=JSON.parse\\(require\\('fs'\\).readFileSync\\('/dev/stdin','utf8'\\)\\); d.data.content.slice\\(0,5\\).forEach\\(p => { console.log\\('Product:', p.name\\); if\\(p.brand\\) console.log\\('  Brand:', p.brand.name\\); if\\(p.prices && p.prices[0]\\) console.log\\('  Store:', p.prices[0].store.name\\); }\\)\")",
       "Bash(curl *)",
-      "Bash(py *)"
+      "Bash(py *)",
+      "Bash(npx tsc *)",
+      "Bash(node node_modules/typescript/bin/tsc --noEmit)"
     ]
   }
 }

@@ -67,7 +67,7 @@ async function apiRequest<T>(
 
 // Product API
 export const productApi = {
-  getAll: () => apiRequest<PagedResponse<Product>>('/products'),
+  getAll: (size = 20) => apiRequest<PagedResponse<Product>>(`/products?size=${size}`),
 
   getById: (id: string) => apiRequest<Product>(`/products/${id}`),
 
@@ -85,6 +85,12 @@ export const productApi = {
     apiRequest<Product[]>(`/products/${id}/similar?limit=${limit}`),
 
   getTrending: (limit = 8) => apiRequest<Product[]>(`/products/trending?limit=${limit}`),
+
+  update: (id: string, dto: Record<string, unknown>) =>
+    apiRequest<Product>(`/products/${id}`, { method: 'PUT', body: JSON.stringify(dto) }),
+
+  remove: (id: string) =>
+    apiRequest<void>(`/products/${id}`, { method: 'DELETE' }),
 };
 
 // Catalog API (Categories, Brands, Stores)
@@ -94,6 +100,18 @@ export const catalogApi = {
   getBrands: () => apiRequest<Brand[]>('/brands'),
 
   getStores: () => apiRequest<Store[]>('/stores'),
+};
+
+// Store CRUD API
+export const storeApi = {
+  create: (dto: Record<string, unknown>) =>
+    apiRequest<Store>('/stores', { method: 'POST', body: JSON.stringify(dto) }),
+
+  update: (id: string, dto: Record<string, unknown>) =>
+    apiRequest<Store>(`/stores/${id}`, { method: 'PUT', body: JSON.stringify(dto) }),
+
+  remove: (id: string) =>
+    apiRequest<void>(`/stores/${id}`, { method: 'DELETE' }),
 };
 
 // Auth API
@@ -152,6 +170,8 @@ export const userApi = {
 export const adminApi = {
   getStats: () => apiRequest<AdminStats>('/admin/stats'),
   runScraper: () => apiRequest<Record<string, unknown>>('/admin/scrape', { method: 'POST' }),
+  ingest: (payload: Record<string, unknown>) =>
+    apiRequest<Product>('/admin/ingest', { method: 'POST', body: JSON.stringify(payload) }),
 };
 
 // Faker API

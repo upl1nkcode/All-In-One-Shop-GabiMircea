@@ -1,7 +1,7 @@
 // SWR hooks for data fetching
 import useSWR from 'swr';
 import useSWRMutation from 'swr/mutation';
-import { productApi, catalogApi, favoritesApi, authApi, searchApi, userApi, adminApi, fakerApi } from './client';
+import { productApi, catalogApi, favoritesApi, authApi, searchApi, userApi, adminApi, fakerApi, storeApi } from './client';
 import type { SearchRequest, Product, Category, Brand, Store, UpdateProfileRequest } from './types';
 import { products as mockProducts, stores as mockStores, categories as mockCategories, brands as mockBrands } from '../data/mockData';
 
@@ -304,4 +304,57 @@ export function useStartFaker() {
 
 export function useStopFaker() {
   return useSWRMutation('faker-status', () => fakerApi.stop());
+}
+
+// Admin product management (fetches all for analytics/table)
+export function useAdminProducts() {
+  return useSWR('admin-products', async () => {
+    const response = await productApi.getAll(500);
+    return response.data.content;
+  }, swrOptions);
+}
+
+export function useIngestProduct() {
+  return useSWRMutation(
+    'admin-products',
+    (_: string, { arg }: { arg: Record<string, unknown> }) => adminApi.ingest(arg)
+  );
+}
+
+export function useUpdateProduct() {
+  return useSWRMutation(
+    'admin-products',
+    (_: string, { arg }: { arg: { id: string; dto: Record<string, unknown> } }) =>
+      productApi.update(arg.id, arg.dto)
+  );
+}
+
+export function useDeleteProduct() {
+  return useSWRMutation(
+    'admin-products',
+    (_: string, { arg }: { arg: string }) => productApi.remove(arg)
+  );
+}
+
+// Store CRUD
+export function useCreateStore() {
+  return useSWRMutation(
+    'stores',
+    (_: string, { arg }: { arg: Record<string, unknown> }) => storeApi.create(arg)
+  );
+}
+
+export function useUpdateStore() {
+  return useSWRMutation(
+    'stores',
+    (_: string, { arg }: { arg: { id: string; dto: Record<string, unknown> } }) =>
+      storeApi.update(arg.id, arg.dto)
+  );
+}
+
+export function useDeleteStore() {
+  return useSWRMutation(
+    'stores',
+    (_: string, { arg }: { arg: string }) => storeApi.remove(arg)
+  );
 }
