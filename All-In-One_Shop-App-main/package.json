@@ -83,14 +83,5 @@
     "tailwindcss": "4.1.12",
     "vite": "^6.3.5",
     "vitest": "3.2.3"
-  },
-  "pnpm": {
-    "overrides": {
-      "vite": "6.3.5"
-    },
-    "ignoredBuiltDependencies": [
-      "@tailwindcss/oxide",
-      "esbuild"
-    ]
   }
 }
