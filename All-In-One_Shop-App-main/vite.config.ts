@@ -17,7 +17,8 @@ export default defineConfig({
     // Tailwind is not being actively used – do not remove them
     react(),
     tailwindcss(),
-    basicSsl(),
+    // Only enable HTTPS in local dev — not during production builds
+    ...(process.env.NODE_ENV !== 'production' ? [basicSsl()] : []),
   ],
   server: {
     https: true,
