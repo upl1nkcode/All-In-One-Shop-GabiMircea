@@ -6,6 +6,8 @@
   "scripts": {
     "build": "vite build",
     "dev": "vite",
+    "preview": "vite preview --host",
+    "start": "vite preview --host",
     "test": "vitest run",
     "test:watch": "vitest"
   },
