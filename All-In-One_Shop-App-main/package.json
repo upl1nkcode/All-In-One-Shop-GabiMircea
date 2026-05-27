@@ -3,11 +3,12 @@
   "private": true,
   "version": "0.0.1",
   "type": "module",
+  "packageManager": "pnpm@9.15.0",
   "scripts": {
     "build": "vite build",
     "dev": "vite",
     "preview": "vite preview --host",
-    "start": "vite preview --host",
+    "start": "vite preview --host --port ${PORT:-4173}",
     "test": "vitest run",
     "test:watch": "vitest"
   },
