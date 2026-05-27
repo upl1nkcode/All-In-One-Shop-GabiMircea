@@ -73,7 +73,10 @@
       "Bash(curl *)",
       "Bash(py *)",
       "Bash(npx tsc *)",
-      "Bash(node node_modules/typescript/bin/tsc --noEmit)"
+      "Bash(node node_modules/typescript/bin/tsc --noEmit)",
+      "Bash(git rm *)",
+      "Bash(git push *)",
+      "Bash(git merge *)"
     ]
   }
 }
