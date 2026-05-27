@@ -159,7 +159,24 @@ public class AdminService {
 
     public Map<String, Object> runScraper() {
         Map<String, Object> result = new HashMap<>();
-        result.put("status", "triggered");
+
+        // Try to trigger the Python scraper process (runs on port 9090)
+        String scraperUrl = System.getenv().getOrDefault("SCRAPER_URL", "http://localhost:9090");
+        try {
+            java.net.http.HttpClient client = java.net.http.HttpClient.newHttpClient();
+            java.net.http.HttpRequest request = java.net.http.HttpRequest.newBuilder()
+                    .uri(java.net.URI.create(scraperUrl + "/scrape"))
+                    .POST(java.net.http.HttpRequest.BodyPublishers.noBody())
+                    .timeout(java.time.Duration.ofSeconds(5))
+                    .build();
+            java.net.http.HttpResponse<String> response = client.send(request, java.net.http.HttpResponse.BodyHandlers.ofString());
+            result.put("status", response.statusCode() == 200 ? "triggered" : "scraper_error");
+            result.put("scraperResponse", response.body());
+        } catch (Exception e) {
+            result.put("status", "scraper_unavailable");
+            result.put("message", "Python scraper not running. Start it with: cd scraper && python main.py");
+        }
+
         result.put("totalProducts", productRepository.count());
         result.put("totalStores", storeRepository.count());
         result.put("totalPrices", priceRepository.count());

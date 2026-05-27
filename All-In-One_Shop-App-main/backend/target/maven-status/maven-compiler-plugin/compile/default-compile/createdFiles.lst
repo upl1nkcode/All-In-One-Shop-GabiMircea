@@ -68,6 +68,7 @@ com\allinoneshop\dto\auth\AuthResponse.class
 com\allinoneshop\repository\InMemorySearchHistoryRepository.class
 com\allinoneshop\service\AdminService.class
 com\allinoneshop\service\StoreService.class
+com\allinoneshop\config\DataInitializer.class
 com\allinoneshop\repository\CategoryRepository.class
 com\allinoneshop\repository\SearchHistoryRepository.class
 com\allinoneshop\controller\ProductController.class

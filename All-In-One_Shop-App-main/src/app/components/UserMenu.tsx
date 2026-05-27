@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { User, Heart, LogOut } from 'lucide-react';
+import { User, Heart, LogOut, ShieldAlert } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import {
   DropdownMenu,
@@ -69,6 +69,15 @@ export function UserMenu() {
           <Heart className="mr-2 h-4 w-4" />
           <span>My Favorites</span>
         </DropdownMenuItem>
+        {user?.role === 'ADMIN' && (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => navigate('/admin')} className="cursor-pointer text-blue-600">
+              <ShieldAlert className="mr-2 h-4 w-4" />
+              <span>Admin Panel</span>
+            </DropdownMenuItem>
+          </>
+        )}
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-red-600">
           <LogOut className="mr-2 h-4 w-4" />

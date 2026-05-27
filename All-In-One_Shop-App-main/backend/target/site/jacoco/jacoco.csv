@@ -19,6 +19,7 @@ AllInOne Shop API,com.allinoneshop.security,TokenBlacklistService,48,8,4,0,12,2,
 AllInOne Shop API,com.allinoneshop.security,JwtAuthenticationFilter,44,47,4,6,11,10,3,5,0,3
 AllInOne Shop API,com.allinoneshop.config,SecurityConfig,0,303,0,0,0,47,0,12,0,12
 AllInOne Shop API,com.allinoneshop.config,WebSocketConfig,0,40,0,0,0,8,0,3,0,3
+AllInOne Shop API,com.allinoneshop.config,DataInitializer,41,0,2,0,12,0,4,0,3,0
 AllInOne Shop API,com.allinoneshop.exception,GlobalExceptionHandler,18,45,0,0,6,15,3,4,3,4
 AllInOne Shop API,com.allinoneshop.dto,ProductDTO.ProductDTOBuilder,57,116,0,0,0,1,3,17,3,17
 AllInOne Shop API,com.allinoneshop.dto,PagedResponse,153,37,22,0,2,7,21,7,10,7
@@ -67,8 +68,8 @@ AllInOne Shop API,com.allinoneshop.entity,SearchHistory,20,46,0,0,2,7,5,9,5,9
 AllInOne Shop API,com.allinoneshop.entity,Store.StoreBuilder,36,49,1,1,0,1,5,6,4,6
 AllInOne Shop API,com.allinoneshop.service,UserService,0,82,0,6,0,22,0,9,0,6
 AllInOne Shop API,com.allinoneshop.service,CategoryService,0,153,1,5,0,34,1,14,0,12
-AllInOne Shop API,com.allinoneshop.service,FakerService,404,39,6,0,86,4,11,2,8,2
-AllInOne Shop API,com.allinoneshop.service,AdminService,93,504,13,27,13,108,20,14,7,7
+AllInOne Shop API,com.allinoneshop.service,FakerService,907,0,6,0,98,0,13,0,10,0
+AllInOne Shop API,com.allinoneshop.service,AdminService,646,0,42,0,134,0,35,0,14,0
 AllInOne Shop API,com.allinoneshop.service,ProductService,88,817,40,71,9,185,36,61,1,39
 AllInOne Shop API,com.allinoneshop.service,CustomUserDetailsService,15,6,0,0,2,1,2,1,2,1
 AllInOne Shop API,com.allinoneshop.service,SearchHistoryService,0,51,0,2,0,13,0,6,0,5

@@ -52,6 +52,20 @@ export interface User {
   firstName?: string;
   lastName?: string;
   avatarUrl?: string;
+  role?: 'USER' | 'ADMIN';
+}
+
+export interface AdminStats {
+  totalProducts: number;
+  activeStores: number;
+  totalBrands: number;
+  totalPrices: number;
+  avgPrice: number;
+  topPriceProduct: string;
+}
+
+export interface FakerStatus {
+  generating: boolean;
 }
 
 export interface AuthResponse {
@@ -64,6 +78,14 @@ export interface ApiResponse<T> {
   success: boolean;
   message?: string;
   data: T;
+}
+
+export interface PagedResponse<T> {
+  content: T[];
+  totalElements: number;
+  totalPages: number;
+  page: number;
+  size: number;
 }
 
 export interface SearchRequest {

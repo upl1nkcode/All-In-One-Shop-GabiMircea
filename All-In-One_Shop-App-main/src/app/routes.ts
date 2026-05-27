@@ -3,7 +3,7 @@ import { LandingPage } from './components/LandingPage';
 import { SearchResults } from './components/SearchResults';
 import { ProductDetail } from './components/ProductDetail';
 import { FavoritesPage } from './components/FavoritesPage';
-import { LiveFeedPage } from './components/LiveFeedPage';
+import { AdminPage } from './components/AdminPage';
 import { NotFound } from './components/NotFound';
 
 export const router = createBrowserRouter([
@@ -24,12 +24,11 @@ export const router = createBrowserRouter([
     Component: FavoritesPage,
   },
   {
-    path: '/live',
-    Component: LiveFeedPage,
+    path: '/admin',
+    Component: AdminPage,
   },
   {
     path: '*',
     Component: NotFound,
   },
 ]);
-

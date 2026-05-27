@@ -1,6 +1,7 @@
 // API Client for Spring Boot Backend
 import type {
   ApiResponse,
+  PagedResponse,
   Product,
   Brand,
   Category,
@@ -10,11 +11,12 @@ import type {
   LoginRequest,
   RegisterRequest,
   User,
+  AdminStats,
+  FakerStatus,
 } from './types';
-import { cacheSet, cacheGet, enqueueOperation } from './offlineStorage';
 
 // Base URL for the API - will be replaced with actual backend URL
-export const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://localhost:8443/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://localhost:8443/api';
 
 // Token management
 let authToken: string | null = localStorage.getItem('auth_token');
@@ -36,7 +38,7 @@ export function isAuthenticated(): boolean {
   return !!authToken;
 }
 
-// Generic fetch wrapper with offline support
+// Generic fetch wrapper
 async function apiRequest<T>(
   endpoint: string,
   options: RequestInit = {}
@@ -50,69 +52,27 @@ async function apiRequest<T>(
     (headers as Record<string, string>)['Authorization'] = `Bearer ${authToken}`;
   }
 
-  const method = (options.method || 'GET').toUpperCase();
-  const cacheKey = `${method}:${endpoint}`;
+  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    ...options,
+    headers,
+  });
 
-  try {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-      ...options,
-      headers,
-    });
-
-    if (!response.ok) {
-      // If unauthorized, clear the auth token
-      if (response.status === 401) {
-        setAuthToken(null);
-      }
-      const error = await response.json().catch(() => ({ message: 'Network error' }));
-      throw new Error(error.message || 'Request failed');
-    }
-
-    const json: ApiResponse<T> = await response.json();
-
-    // Cache successful GET responses for offline fallback
-    if (method === 'GET') {
-      cacheSet(cacheKey, json);
-    }
-
-    return json;
-  } catch (err) {
-    // If this is a network error (not a server error), try offline handling
-    if (err instanceof TypeError || (err instanceof Error && err.message === 'Failed to fetch')) {
-      // For read requests, try the cache
-      if (method === 'GET') {
-        const cached = cacheGet<ApiResponse<T>>(cacheKey);
-        if (cached) return cached;
-      }
-
-      // For mutating requests, queue the operation for later sync
-      if (['POST', 'PUT', 'DELETE'].includes(method)) {
-        enqueueOperation({
-          endpoint,
-          method,
-          body: options.body as string | undefined,
-        });
-        // Return a synthetic success so the UI isn't blocked
-        return {
-          success: true,
-          message: 'Saved offline — will sync when back online',
-          data: {} as T,
-        };
-      }
-    }
-
-    throw err;
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ message: 'Network error' }));
+    throw new Error(error.message || 'Request failed');
   }
+
+  return response.json();
 }
 
 // Product API
 export const productApi = {
-  getAll: () => apiRequest<Product[]>('/products'),
+  getAll: (size = 20) => apiRequest<PagedResponse<Product>>(`/products?size=${size}`),
 
   getById: (id: string) => apiRequest<Product>(`/products/${id}`),
 
   search: (request: SearchRequest) =>
-    apiRequest<Product[]>('/products/search', {
+    apiRequest<PagedResponse<Product>>('/products/search', {
       method: 'POST',
       body: JSON.stringify(request),
     }),
@@ -125,6 +85,12 @@ export const productApi = {
     apiRequest<Product[]>(`/products/${id}/similar?limit=${limit}`),
 
   getTrending: (limit = 8) => apiRequest<Product[]>(`/products/trending?limit=${limit}`),
+
+  update: (id: string, dto: Record<string, unknown>) =>
+    apiRequest<Product>(`/products/${id}`, { method: 'PUT', body: JSON.stringify(dto) }),
+
+  remove: (id: string) =>
+    apiRequest<void>(`/products/${id}`, { method: 'DELETE' }),
 };
 
 // Catalog API (Categories, Brands, Stores)
@@ -134,6 +100,18 @@ export const catalogApi = {
   getBrands: () => apiRequest<Brand[]>('/brands'),
 
   getStores: () => apiRequest<Store[]>('/stores'),
+};
+
+// Store CRUD API
+export const storeApi = {
+  create: (dto: Record<string, unknown>) =>
+    apiRequest<Store>('/stores', { method: 'POST', body: JSON.stringify(dto) }),
+
+  update: (id: string, dto: Record<string, unknown>) =>
+    apiRequest<Store>(`/stores/${id}`, { method: 'PUT', body: JSON.stringify(dto) }),
+
+  remove: (id: string) =>
+    apiRequest<void>(`/stores/${id}`, { method: 'DELETE' }),
 };
 
 // Auth API
@@ -160,14 +138,8 @@ export const authApi = {
     return response;
   },
 
-  logout: async () => {
-    try {
-      await apiRequest<void>('/auth/logout', { method: 'POST' });
-    } catch {
-      // Ignore errors - we logout locally regardless
-    } finally {
-      setAuthToken(null);
-    }
+  logout: () => {
+    setAuthToken(null);
   },
 
   getCurrentUser: () => apiRequest<User>('/auth/me'),
@@ -192,6 +164,22 @@ export const userApi = {
       method: 'PUT',
       body: JSON.stringify(data),
     }),
+};
+
+// Admin API
+export const adminApi = {
+  getStats: () => apiRequest<AdminStats>('/admin/stats'),
+  runScraper: () => apiRequest<Record<string, unknown>>('/admin/scrape', { method: 'POST' }),
+  ingest: (payload: Record<string, unknown>) =>
+    apiRequest<Product>('/admin/ingest', { method: 'POST', body: JSON.stringify(payload) }),
+};
+
+// Faker API
+export const fakerApi = {
+  getStatus: () => apiRequest<FakerStatus>('/faker/status'),
+  start: (intervalMs = 3000, batchSize = 5) =>
+    apiRequest<Record<string, unknown>>(`/faker/start?intervalMs=${intervalMs}&batchSize=${batchSize}`, { method: 'POST' }),
+  stop: () => apiRequest<void>('/faker/stop', { method: 'POST' }),
 };
 
 // Favorites API
