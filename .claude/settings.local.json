@@ -74,9 +74,10 @@
       "Bash(py *)",
       "Bash(npx tsc *)",
       "Bash(node node_modules/typescript/bin/tsc --noEmit)",
-      "Bash(git rm *)",
+      "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\Andrei\\\\OneDrive\\\\Desktop\\\\Repositories\\\\All-In-One-Shop-GabiMircea\\\\All-In-One_Shop-App-main\" -Force | Select-Object Name, @{Name=\"Type\"; Expression={if\\($_.PSIsContainer\\){\"Dir\"}else{\"File\"}}} | Format-Table -AutoSize)",
       "Bash(git push *)",
-      "Bash(git merge *)"
+      "Bash(git merge *)",
+      "Bash(git stash *)"
     ]
   }
 }
