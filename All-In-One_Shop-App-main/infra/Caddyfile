@@ -1,0 +1,12 @@
+# Caddy reverse proxy config — handles Let's Encrypt TLS automatically.
+#
+# BEFORE USE: replace YOUR_SUBDOMAIN.duckdns.org with your actual domain.
+# Then copy this file to /etc/caddy/Caddyfile on the server and run:
+#   sudo systemctl reload caddy
+#
+# Caddy will contact Let's Encrypt on first start, get a certificate,
+# and renew it automatically. No manual certbot steps needed.
+
+YOUR_SUBDOMAIN.duckdns.org {
+    reverse_proxy localhost:8080
+}
